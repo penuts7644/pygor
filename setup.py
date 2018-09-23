@@ -19,7 +19,7 @@
 
 from setuptools import setup
 
-version_num = "0.1.0"
+version_num = "1.0.0"
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
