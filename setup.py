@@ -21,10 +21,10 @@ from setuptools import setup
 
 version_num = "1.0.0"
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as f:
+    long_description = f.read()
 
-with open("LICENSE") as f:
+with open("LICENSE.txt") as f:
     license = f.read()
 
 with open("requirements.txt") as f:
@@ -43,8 +43,8 @@ setup(
     author="Wout van Helvoirt",
     author_email="wout.van.helvoirt@icloud.com",
     license=license,
-    keywords=["IGoR", "Bio-Informatics", "V(D)J Recombination", "Sequencing",
-              "Analysis", "DNA", "Models"],
+    keywords="IGoR Bio-Informatics Recombination Sequencing Analysis "
+             "DNA Models Genes",
     packages=[
         "pygor",
         "pygor.aligns",
@@ -56,13 +56,21 @@ setup(
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
     ],
     install_requires=requirements,
-    zip_safe=False)
+    zip_safe=False,
+    project_urls={
+        "IGoR Source": "https://github.com/qmarcou/IGoR",
+        "Pygor Source": "https://github.com/penuts7644/pygor",
+        "Bug Reports": "https://github.com/penuts7644/pygor/issues",
+    },
+)
