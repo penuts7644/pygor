@@ -38,10 +38,10 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/penuts7644/pygor",
-    download_url="https://github.com/penuts7644/pygor/archive/v_"
+    download_url="https://github.com/penuts7644/pygor/archive/v"
                  + version_num + ".tar.gz",
-    author="Quentin Marcou, Wout van Helvoirt",
-    author_email="quentin.marcou@lpt.ens.fr, wout.van.helvoirt@icloud.com",
+    author="Wout van Helvoirt",
+    author_email="wout.van.helvoirt@icloud.com",
     license=license,
     keywords=["IGoR", "Bio-Informatics", "V(D)J Recombination", "Sequencing",
               "Analysis", "DNA", "Models"],
