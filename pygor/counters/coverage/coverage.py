@@ -20,7 +20,7 @@
 import numpy
 import pandas
 
-from ...utils.utils import get_str_asarray
+from ...utils.conversions import type_string_to_list
 
 
 def compute_mutation_frequency(x, threshold):
@@ -47,14 +47,14 @@ def read_coverage_and_errors_file(filename, get_diag_of_N_dim=None):
     raw_read = pandas.read_csv(filename, sep=';')
 
     # Convert coverage strings into arrays
-    tmp_cov = raw_read.apply(lambda x: get_str_asarray(x.coverage), axis=1)
+    tmp_cov = raw_read.apply(lambda x: type_string_to_list(x.coverage), axis=1)
     # Convert errors strings into arrays
-    tmp_err = raw_read.apply(lambda x: get_str_asarray(x.errors), axis=1)
+    tmp_err = raw_read.apply(lambda x: type_string_to_list(x.errors), axis=1)
 
     if get_diag_of_N_dim is not None:
         for i in range(0, len(tmp_cov)):
             single_dim_len = int(float(len(tmp_cov.iloc[i])) ** (
-                        1.0 / float(get_diag_of_N_dim)))
+                1.0 / float(get_diag_of_N_dim)))
             reshape_tuple = tuple([single_dim_len] * get_diag_of_N_dim)
             # print(reshape_tuple)
             # print(len(tmp_cov))

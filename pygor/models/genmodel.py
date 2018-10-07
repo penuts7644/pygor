@@ -68,19 +68,19 @@ class GenModel:
                     next_semicolon_index = strip_line.find(';',
                                                            semicolon_index + 1)
                     seq_type = strip_line[
-                               semicolon_index + 1:next_semicolon_index]
+                        semicolon_index + 1:next_semicolon_index]
 
                     semicolon_index = next_semicolon_index
                     next_semicolon_index = strip_line.find(';',
                                                            semicolon_index + 1)
                     seq_side = strip_line[
-                               semicolon_index + 1:next_semicolon_index]
+                        semicolon_index + 1:next_semicolon_index]
 
                     semicolon_index = next_semicolon_index
                     next_semicolon_index = strip_line.find(';',
                                                            semicolon_index + 1)
                     priority = strip_line[
-                               semicolon_index + 1:next_semicolon_index]
+                        semicolon_index + 1:next_semicolon_index]
 
                     semicolon_index = next_semicolon_index
                     next_semicolon_index = strip_line.find(';',
@@ -99,18 +99,18 @@ class GenModel:
                         next_semicolon_index = strip_line.find(';')
                         if event_type == "GeneChoice":
                             name = strip_line[
-                                   semicolon_index + 1:next_semicolon_index]
+                                semicolon_index + 1:next_semicolon_index]
                             semicolon_index = next_semicolon_index
                             next_semicolon_index = \
                                 strip_line.find(';', semicolon_index + 1)
                             value = strip_line[
-                                    semicolon_index + 1:next_semicolon_index]
+                                semicolon_index + 1:next_semicolon_index]
                         elif event_type == "DinucMarkov":
                             value = strip_line[
-                                    semicolon_index + 1:next_semicolon_index]
+                                semicolon_index + 1:next_semicolon_index]
                         else:
                             value = int(strip_line[
-                                        semicolon_index + 1:next_semicolon_index])
+                                semicolon_index + 1:next_semicolon_index])
 
                         semicolon_index = next_semicolon_index
                         next_semicolon_index = strip_line\

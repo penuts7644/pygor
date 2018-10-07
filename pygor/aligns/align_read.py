@@ -22,7 +22,7 @@ import re as regex
 import numpy
 import pandas
 
-from ..utils.utils import get_str_asarray
+from ..utils.conversions import type_string_to_list
 
 
 def extract_best_aligns(aligns_df):
@@ -40,8 +40,8 @@ def get_misinsdel_asarray(misinsdel_str):
     of integers.
 
     """
-    return get_str_asarray(misinsdel_str, dtype=int,
-                           boundaries_char=["{", "}"], sep=',')
+    return type_string_to_list(misinsdel_str, dtype=int,
+                               l_bound='{', r_bound='}')
 
 
 def read_alignments(filename):
@@ -80,7 +80,7 @@ def read_best_alignments(filename):
 
 
 # Import genomic template sequences
-def read_FASTA_strings(filename):
+def read_fasta_strings(filename):
     """Returns a dictionary whose entry keys are sequence labels and values
     are sequences.
 

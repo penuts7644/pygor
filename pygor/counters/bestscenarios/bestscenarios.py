@@ -24,7 +24,7 @@ import copy
 import pandas
 
 from ...models.genmodel import GenModel
-from ...utils import utils
+from ...utils.conversions import type_string_to_list
 
 
 def read_bestscenarios_values(scenarios_file, model_parms_file):
@@ -53,9 +53,7 @@ def scenarios_indices2values(best_scenarios, input_genmodel,
             # Now get realizations as integers or list of integers
             if event.event_type == "DinucMarkov":
                 tmp_real_indices = best_scenarios[event.name].apply(
-                    lambda x: utils.get_str_asarray(x, dtype=int,
-                                                    boundaries_char=["(", ")"],
-                                                    sep=","))
+                    lambda x: type_string_to_list(x, dtype=int))
 
             else:
                 tmp_real_indices = best_scenarios[event.name].apply(
@@ -71,13 +69,12 @@ def scenarios_indices2values(best_scenarios, input_genmodel,
             # Return possible errors and mismatches as a list of positions
             if best_scenarios_real.columns.contains("Errors"):
                 best_scenarios_real["Errors"] = best_scenarios[
-                    "Errors"].apply(lambda x: utils.get_str_asarray(
-                        x, dtype=int, boundaries_char=["(", ")"], sep=","))
+                    "Errors"].apply(lambda x: type_string_to_list(x, dtype=int))
 
             if best_scenarios_real.columns.contains("Mismatches"):
                 best_scenarios_real["Mismatches"] = best_scenarios[
-                    "Mismatches"].apply(lambda x: utils.get_str_asarray(
-                        x, dtype=int, boundaries_char=["(", ")"], sep=","))
+                    "Mismatches"].apply(lambda x: type_string_to_list(
+                        x, dtype=int))
 
             if drop_alleles and (event.event_type == "GeneChoice"):
                 best_scenarios_real[event.name] = best_scenarios_real[
