@@ -17,6 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import utils
+from . import conversions
 
-__all__ = ["utils"]
+__all__ = ["conversions"]

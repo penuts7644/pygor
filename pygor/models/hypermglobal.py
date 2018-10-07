@@ -19,7 +19,7 @@
 
 import numpy
 
-from ..utils.utils import nt2int
+from ..utils.conversions import nucleotides_to_integers
 
 
 # class Hypermutationglobal
@@ -86,7 +86,7 @@ def compute_expected_gene_mut_freq(gene_index, event_nickname, genmodel,
             # Remove first nucleotide/coverage value
             nt_seq.pop(0)
 
-        nt_seq.append(nt2int(gene_seq[i]))
+        nt_seq.append(nucleotides_to_integers(gene_seq[i]))
 
         if len(nt_seq) == hyperm_Nmer_len:
             expected_coverage_list.append(hyperm_Pmut[tuple(nt_seq)][0])
