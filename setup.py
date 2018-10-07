@@ -40,7 +40,7 @@ setup(
     keywords='IGoR Bio-Informatics Recombination Sequencing Analysis DNA Models Genes',
     packages=[
         'pygor',
-        'pygor.aligns',
+        'pygor.alignments',
         'pygor.counters',
         'pygor.counters.bestscenarios',
         'pygor.counters.coverage',

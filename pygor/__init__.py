@@ -16,9 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import aligns
+from . import alignments
 from . import counters
 from . import models
 from . import utils
 
-__all__ = ["aligns", "counters", "models", "utils"]
+__all__ = ["alignments", "counters", "models", "utils"]
