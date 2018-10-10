@@ -18,5 +18,6 @@
 
 from . import align_read
 from . import CDR3_tools
+from . import muscle_aligner
 
-__all__ = ["align_read", "CDR3_tools"]
+__all__ = ["align_read", "CDR3_tools", "muscle_aligner"]

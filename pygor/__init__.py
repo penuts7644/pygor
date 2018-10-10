@@ -16,9 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import alignments
-from . import counters
-from . import models
-from . import utils
+from . import alignment
+from . import cdr3
+from . import counter
+from . import model
+from . import util
 
-__all__ = ["alignments", "counters", "models", "utils"]
+__all__ = ["alignment", "cdr3", "counter", "model", "util"]
