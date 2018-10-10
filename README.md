@@ -18,4 +18,4 @@ All Python dependencies that are used by this package are installed when install
 
 | Function | Requirement |
 | -------- | ----------- |
-| Creating CDR3 anchors (`cdr3_container.py`) | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+| Creating CDR3 anchors (`cdr3` module) | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
