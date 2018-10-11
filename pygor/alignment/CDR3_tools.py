@@ -20,19 +20,6 @@ import numpy
 import pylab
 
 
-def multialign_genomic_templates(fastafile):
-    """Uses MUSCLE to return the multi-aligned genomic data."""
-    from Bio.Align.Applications import MuscleCommandline
-    from StringIO import StringIO
-    from Bio import AlignIO
-
-    muscle_cline = MuscleCommandline(input=fastafile)
-    stdout, stderr = muscle_cline()
-    multialign = AlignIO.read(StringIO(stdout), "fasta")
-
-    return multialign
-
-
 # Look for a given conserved motif in some alignments
 # In the end returns the beginning position of the motif that matches most of the alignments
 def find_conserved_motif(align, motif):
