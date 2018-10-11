@@ -123,14 +123,14 @@ def type_string_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=','):
     ----------
     in_str : string
         A array representated as string.
-    dtype : type
+    dtype : type, optional
         The dtype to used for converting the individual the list elements. By
         default uses float.
-    l_bound : string
+    l_bound : string, optional
         A string specifying the left boundary character(s).
-    r_bound : string
+    r_bound : string, optional
         A string specifying the right boundary character(s).
-    sep : string
+    sep : string, optional
         The separator character used in the input string.
 
     Returns
