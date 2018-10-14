@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 VERSION = '1.0.0'
@@ -38,16 +38,7 @@ setup(
     author='Wout van Helvoirt',
     author_email='wout.van.helvoirt@icloud.com',
     keywords='IGoR Bio-Informatics Recombination Sequencing Analysis DNA Models Genes',
-    packages=[
-        'pygor',
-        'pygor.alignment',
-        'pygor.cdr3',
-        'pygor.counter',
-        'pygor.counter.bestscenarios',
-        'pygor.counter.coverage',
-        'pygor.model',
-        'pygor.util',
-    ],
+    packages=find_packages(include=["pygor", "pygor.*"]),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
