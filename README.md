@@ -19,3 +19,11 @@ All Python dependencies that are used by this package are installed when install
 | Function | Requirement |
 | -------- | ----------- |
 | Creating CDR3 anchors (`cdr3` module) | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+
+### Development
+
+Development of pygor is active. If you would like to see new features, please open a new [issue](https://github.com/penuts7644/pygor/issues/new).
+
+It is also possible to help out by developing your own new features by forking this project and creating a [pull request](https://github.com/penuts7644/pygor/compare).
+
+When using a forked copy pygor, make sure to have the correct Python version installed. Install the local Python development requirements via `pip install -r requirements.txt && pip install -r requirements-dev.txt` command.
