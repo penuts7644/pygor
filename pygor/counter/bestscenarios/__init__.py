@@ -16,6 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import bestscenarios
-
-__all__ = ["bestscenarios"]
+from pygor.counter.bestscenarios import *

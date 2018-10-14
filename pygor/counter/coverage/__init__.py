@@ -16,6 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import coverage
-
-__all__ = ["coverage"]
+from pygor.counter.coverage import *

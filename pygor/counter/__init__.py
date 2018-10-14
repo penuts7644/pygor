@@ -16,7 +16,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import bestscenarios
-from . import coverage
-
-__all__ = ["bestscenarios", "coverage"]
+from pygor.counter.bestscenarios import *
+from pygor.counter.coverage import *

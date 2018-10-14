@@ -16,8 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import entropy
-from . import genmodel
-from . import hypermglobal
-
-__all__ = ["entropy", "genmodel", "hypermglobal"]
+from pygor.model.entropy import *
+from pygor.model.genmodel import *
+from pygor.model.hypermglobal import *
