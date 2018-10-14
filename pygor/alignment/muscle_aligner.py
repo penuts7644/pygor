@@ -24,7 +24,7 @@ from StringIO import StringIO
 from Bio import AlignIO
 
 
-class MuscleAligner:
+class MuscleAligner(object):
     """Class to perform alignments with MUSCLE via biopython's commandline tool.
 
     Parameters
@@ -36,7 +36,7 @@ class MuscleAligner:
     def __init__(self, fasta_file):
         super(MuscleAligner, self).__init__()
         self.fasta_file = fasta_file
-        self.alignment = None
+        self.alignment = self._align_fasta()
 
     def get_muscle_alignment(self):
         """Getter function for collecting the MUSCLE alignment.
@@ -49,7 +49,7 @@ class MuscleAligner:
         """
         return self.alignment
 
-    def align(self):
+    def _align_fasta(self):
         """Uses MUSCLE via commandline to create a multi-alignment from fasta.
 
         Notes
@@ -58,8 +58,8 @@ class MuscleAligner:
 
         """
         muscle_cline = MuscleCommandline(input=self.fasta_file)
-        stdout, stderr = muscle_cline()
-        self.alignment = AlignIO.read(StringIO(stdout), "fasta")
+        stdout, _ = muscle_cline()
+        return AlignIO.read(StringIO(stdout), "fasta")
 
 
 def main():
