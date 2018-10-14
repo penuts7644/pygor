@@ -16,7 +16,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import anchor_locator
-from . import sequence_container
-
-__all__ = ["anchor_locator", "sequence_container"]
+from pygor.cdr3.anchor_locator import *
+from pygor.cdr3.sequence_container import *

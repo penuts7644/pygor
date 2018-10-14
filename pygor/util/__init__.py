@@ -16,6 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from . import conversions
-
-__all__ = ["conversions"]
+from pygor.util.conversions import *

@@ -18,7 +18,7 @@
 
 import numpy
 
-from ..utils.conversions import nucleotides_to_integers
+from pygor.util.conversions import nucleotides_to_integers
 
 
 # class Hypermutationglobal

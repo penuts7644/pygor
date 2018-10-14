@@ -21,7 +21,7 @@ import re as regex
 import numpy
 import pandas
 
-from ..utils.conversions import type_string_to_list
+from pygor.util.conversions import type_string_to_list
 
 
 def extract_best_aligns(aligns_df):
