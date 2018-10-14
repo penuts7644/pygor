@@ -26,4 +26,4 @@ Development of pygor is active. If you would like to see new features, please op
 
 It is also possible to help out by developing your own new features by forking this project and creating a [pull request](https://github.com/penuts7644/pygor/compare).
 
-When using a forked copy pygor, make sure to have the correct Python version installed. Install the local Python development requirements via `pip install -r requirements.txt && pip install -r requirements-dev.txt` command.
+When using a forked copy pygor, make sure to have the correct Python version installed. Install the local Python development requirements via `make setup` command.
