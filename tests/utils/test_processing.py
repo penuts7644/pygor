@@ -16,27 +16,38 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing pygor.alignment.muscle_aligner file."""
+"""Test file for testing pygor.util.processing file."""
 
 
-from Bio.Align import MultipleSeqAlignment
 import pytest
 
-from pygor.alignment.muscle_aligner import MuscleAligner
+from pygor.util.processing import multiprocess_array
 
 
-@pytest.mark.parametrize("infile, cmd, expected", [
-    ("tests/alignment/data/test.fasta", "muscle", MultipleSeqAlignment)
+def sum_integers_plus_value(args):
+    """Sums list of integers and add given integer to the sum."""
+    ary, kwargs = args
+    return sum(ary) + kwargs["plus"]
+
+
+@pytest.mark.parametrize("ary, func, num_workers, plus, expected", [
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 1, 10, [55]),
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 2, 5, [15, 40]),
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 4, 2, [5, 14, 15, 19])
 ])
-def test_muscle_aligner(infile, cmd, expected):
+def test_multiprocess_array(ary, func, num_workers, plus, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
     Parameters
     ----------
-    infile : string
-        A file path to a FASTA file containining the genomic data to align.
-    cmd : string
-        The MUSCLE terminal command executable location/name.
+    ary : array
+        numpy.array or pandas.Dataframe to be split for multiple workers.
+    func : Object
+        A function object that the workers should apply.
+    num_workers : int
+        Integer specifying the number of workers (threads) to create.
+    **kwargs
+        The remaining arguments to be given to the input function.
     expected : object
         The expected output type object.
 
@@ -46,6 +57,5 @@ def test_muscle_aligner(infile, cmd, expected):
         If the performed test failed.
 
     """
-    aligner = MuscleAligner(infile=infile, cmd=cmd)
-    alignment = aligner.get_muscle_alignment()
-    assert isinstance(alignment, expected)
+    out = multiprocess_array(ary=ary, func=func, num_workers=num_workers, plus=plus)
+    assert out == expected
