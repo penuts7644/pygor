@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing functions/classes in pygor.alignment module."""
+"""Test file for testing pygor.alignment.muscle_aligner file."""
 
 
 from Bio.Align import MultipleSeqAlignment
@@ -25,16 +25,18 @@ import pytest
 from pygor.alignment.muscle_aligner import MuscleAligner
 
 
-@pytest.mark.parametrize("fasta_file, expected", [
-    ("tests/alignment/data/test.fasta", MultipleSeqAlignment)
+@pytest.mark.parametrize("infile, cmd, expected", [
+    ("tests/alignment/data/test.fasta", "muscle", MultipleSeqAlignment)
 ])
-def test_muscle_aligner(fasta_file, expected):
+def test_muscle_aligner(infile, cmd, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
     Parameters
     ----------
-    fasta_file : string
-        A fasts file string location path.
+    infile : string
+        A file path to a FASTA file containining the genomic data to align.
+    cmd : string
+        The MUSCLE terminal command executable location/name.
     expected : object
         The expected output type object.
 
@@ -43,6 +45,6 @@ def test_muscle_aligner(fasta_file, expected):
     AssertionError
         If the performed test failed.
     """
-    ma = MuscleAligner(fasta_file=fasta_file)
-    alignment = ma.get_muscle_alignment()
-    assert type(alignment) == expected
+    aligner = MuscleAligner(infile=infile, cmd=cmd)
+    alignment = aligner.get_muscle_alignment()
+    assert isinstance(alignment, expected)
