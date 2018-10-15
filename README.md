@@ -1,5 +1,6 @@
 # pygor
 
+[![Build Status](https://travis-ci.com/penuts7644/pygor.svg?branch=master)](https://travis-ci.com/penuts7644/pygor)
 [![PyPI version shields.io](https://img.shields.io/pypi/v/pygor.svg)](https://pypi.python.org/pypi/pygor/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pygor.svg)](https://pypi.python.org/pypi/pygor/)
 [![PyPI license](https://img.shields.io/pypi/l/pygor.svg)](https://pypi.python.org/pypi/pygor/)
