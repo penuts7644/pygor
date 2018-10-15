@@ -29,13 +29,21 @@ class MuscleAligner(object):
 
     Parameters
     ----------
-    fasta_file : string
-        A file path to a fasta file containining the genomic data to align.
+    infile : string
+        A file path to a FASTA file containining the genomic data to align.
+    **kwargs
+        Dict of optional arguments for MuscleCommandline biopython class.
+
+    Methods
+    -------
+    get_muscle_alignment()
+        Returns the generated MUSCLE alignment object.
 
     """
-    def __init__(self, fasta_file):
+    def __init__(self, infile, **kwargs):
         super(MuscleAligner, self).__init__()
-        self.fasta_file = fasta_file
+        self.fasta = infile
+        self.kwargs = kwargs
         self.alignment = self._align_fasta()
 
     def get_muscle_alignment(self):
@@ -57,7 +65,7 @@ class MuscleAligner(object):
             This function uses the given fasta file for creating an alignment.
 
         """
-        muscle_cline = MuscleCommandline(input=self.fasta_file)
+        muscle_cline = MuscleCommandline(input=self.fasta, **self.kwargs)
         stdout, _ = muscle_cline()
         return AlignIO.read(StringIO(stdout), "fasta")
 
