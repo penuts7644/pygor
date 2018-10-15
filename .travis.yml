@@ -1,15 +1,10 @@
-os: osx
-
-osx_image: xcode10
-
 language: python
 
 python:
   - "2.7"
 
 before_install:
-  - brew tap brewsci/bio
-  - brew outdated muscle || brew upgrade muscle
+  - sudo apt-get install muscle
 
 install:
   - make setup
