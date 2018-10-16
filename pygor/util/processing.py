@@ -21,7 +21,7 @@ import multiprocessing
 import numpy
 
 
-def multiprocess_array(ary, func, num_workers, **kwargs):
+def multiprocess_array(ary, func, num_workers=1, **kwargs):
     """Applies multiprocessing on a multi array using the given function.
 
     Parameters
@@ -30,8 +30,9 @@ def multiprocess_array(ary, func, num_workers, **kwargs):
         numpy.array or pandas.Dataframe to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
-    num_workers : int
-        Integer specifying the number of workers (threads) to create.
+    num_workers : int, optional
+        Integer specifying the number of workers (threads) to create. By default
+        creates 1 worker.
     **kwargs
         The remaining arguments to be given to the input function.
 
