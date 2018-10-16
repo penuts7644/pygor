@@ -26,7 +26,7 @@ deploy:
     file_glob: true
     on:
       repo: penuts7644/pygor
-      branch: /^issue-.*/
+      branch: master
 
 after-deploy:
   - ./github_release.sh
