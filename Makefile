@@ -27,13 +27,13 @@ setup:
 ##			Run pytest tests from the tests directory on the pygor source.
 ##
 pytest:
-	python -m pytest tests
+	python -m pytest -v tests
 
 ##		make clean
 ##			Removes the old distribution directories and files.
 ##
 clean:
-	rm -rf ./dist && rm -rf ./build
+	rm -rf ./dist && rm -rf ./build && rm -r pygor/*.pyc
 
 ##		make build
 ##			Perfoms clean and builds the new distribution package.
