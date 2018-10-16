@@ -46,9 +46,9 @@ def read_coverage_and_errors_file(filename, get_diag_of_N_dim=None):
     raw_read = pandas.read_csv(filename, sep=';')
 
     # Convert coverage strings into arrays
-    tmp_cov = raw_read.apply(lambda x: type_string_to_list(x.coverage), axis=1)
+    tmp_cov = raw_read.apply(lambda x: string_array_to_list(x.coverage), axis=1)
     # Convert errors strings into arrays
-    tmp_err = raw_read.apply(lambda x: type_string_to_list(x.errors), axis=1)
+    tmp_err = raw_read.apply(lambda x: string_array_to_list(x.errors), axis=1)
 
     if get_diag_of_N_dim is not None:
         for i in range(0, len(tmp_cov)):
