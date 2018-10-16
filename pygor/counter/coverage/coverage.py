@@ -19,7 +19,7 @@
 import numpy
 import pandas
 
-from ...utils.conversions import type_string_to_list
+from pygor.util.conversion import string_array_to_list
 
 
 def compute_mutation_frequency(x, threshold):
