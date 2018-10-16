@@ -30,4 +30,4 @@ When using a forked copy pygor, make sure to have the correct Python version ins
 
 | Software | How to install |
 | -------- | ----------- |
-| Jq | For linux user via `sudo apt-get install jq` and macOS users via `brew install jq`. |
+| [jq](https://stedolan.github.io/jq/) | For linux user via `sudo apt-get install jq` and macOS users via `brew install jq`. |
