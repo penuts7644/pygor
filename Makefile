@@ -33,7 +33,7 @@ pytest:
 ##			Removes the old distribution directories and files.
 ##
 clean:
-	rm -rf ./dist && rm -rf ./build && rm -r pygor/*.pyc
+	rm -rf ./dist && rm -rf ./build && find . -name "*.pyc" -type f -delete
 
 ##		make build
 ##			Perfoms clean and builds the new distribution package.
