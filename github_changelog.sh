@@ -1,12 +1,13 @@
 #!/bin/bash
 
-LAST_VERSION='$(git rev-list --tags --skip=1 --max-count=1)'
-VERSION='$(git describe --abbrev=0 --tags)'
+LAST_VERSION="$(git rev-list --tags --skip=1 --max-count=1)"
+VERSION="$(git describe --abbrev=0 --tags ${LAST_VERSION})"
 
 # Generate CHANGELOG.md
-changelog -m \
+changelog -m  \
   $(cut -d "/" -f1 <<< $TRAVIS_REPO_SLUG) \
-  $(cut -d "/" -f2 <<< $TRAVIS_REPO_SLUG) >> CHANGELOG.md
+  $(cut -d "/" -f2 <<< $TRAVIS_REPO_SLUG) \
+  --github-token $CHANGELOG_GITHUB_TOKEN >> CHANGELOG.md
 
 body="$(cat CHANGELOG.md)"
 
