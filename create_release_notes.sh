@@ -6,7 +6,7 @@ VERSION="$(git describe --abbrev=0 --tags)"
 # Generate CHANGELOG.md
 changelog -m  \
   $(cut -d "/" -f1 <<< $TRAVIS_REPO_SLUG) \
-  $(cut -d "/" -f2 <<< $TRAVIS_REPO_SLUG)
+  $(cut -d "/" -f2 <<< $TRAVIS_REPO_SLUG) >> CHANGELOG.md
 
 body="$(cat CHANGELOG.md)"
 
