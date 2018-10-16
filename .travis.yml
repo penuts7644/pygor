@@ -11,17 +11,23 @@ install:
 script:
   - make pytest
 
+before-deploy:
+  - git config --local user.name 'Wout van Helvoirt'
+  - git config --local user.email 'wout.van.helvoirt@icloud.com'
+  - git tag v$(python setup.py --version)
+
 deploy:
-  provider: releases
-  api_key:
-    secure: BgDvp1wnSRiNTKyDj5yfWbg501oVpGwOI7/Ptj6Cd1w86jAypojAELRWLYS5AMXsxsQnh4MUAh9h4Xq3F1q6KXchLGkxGWr3Vwzq6AikoAXZ2mJWWzvnG6XbdDvLXQOJIgj9BH68JwzH4F0mR3UtTFdmQmUxPvYrVA49uTDMH3ZTgfvAQ/fOSz7FN26aFkktJSoPN16gnp5tVl3A3ZlhMp1dFZ0SjWPlxLeLCswCEmcAM14dBZdS4eZxuOKw34fuJRF9rMyChYjK5gIZGq4uTX1RfL/8oWb2pGvLn6WRGfHfaFf1zXbjPh7wh/N8sJkugIRu87SNCjkPw+jDdLnGh17ghYxYrgQVo5BAQNrgA4g/6jr5LTxO8ihZgmbH7F/IXmLR+vdiMV617C9si6MoaiYtEtw6hMeK2dCzbzXHx01C1nR/4UXGEmQc0VpzFqSiS/hfUHkmw7UjJJksdzqEEKHegNVcmHzyHC15RqIfN7BdOhzbJpbJNujHTAbKXgwv4asy6FiJA31UUkueOtO8qn0KNySEgNmlGFYOy9F0msuE5Ee7rQgHPaYvR81d3nyATS2R5ZEuUltYTEPG+/BLNrndKkIuhATn66xLp4K2Iq0PDWXk9p1LooMioEey695Tn7wZIujwenx1Zs9VbRbuIoy2Wp69zJH/x1nfmme0NVA=
-  file: dist/pygor-*.tar.gz
-  distributions: sdist
-  skip_cleanup: true
-  file_glob: true
-  on:
-    repo: penuts7644/pygor
-    all_branches: true
+  - provider: releases
+    api_key:
+      secure: BgDvp1wnSRiNTKyDj5yfWbg501oVpGwOI7/Ptj6Cd1w86jAypojAELRWLYS5AMXsxsQnh4MUAh9h4Xq3F1q6KXchLGkxGWr3Vwzq6AikoAXZ2mJWWzvnG6XbdDvLXQOJIgj9BH68JwzH4F0mR3UtTFdmQmUxPvYrVA49uTDMH3ZTgfvAQ/fOSz7FN26aFkktJSoPN16gnp5tVl3A3ZlhMp1dFZ0SjWPlxLeLCswCEmcAM14dBZdS4eZxuOKw34fuJRF9rMyChYjK5gIZGq4uTX1RfL/8oWb2pGvLn6WRGfHfaFf1zXbjPh7wh/N8sJkugIRu87SNCjkPw+jDdLnGh17ghYxYrgQVo5BAQNrgA4g/6jr5LTxO8ihZgmbH7F/IXmLR+vdiMV617C9si6MoaiYtEtw6hMeK2dCzbzXHx01C1nR/4UXGEmQc0VpzFqSiS/hfUHkmw7UjJJksdzqEEKHegNVcmHzyHC15RqIfN7BdOhzbJpbJNujHTAbKXgwv4asy6FiJA31UUkueOtO8qn0KNySEgNmlGFYOy9F0msuE5Ee7rQgHPaYvR81d3nyATS2R5ZEuUltYTEPG+/BLNrndKkIuhATn66xLp4K2Iq0PDWXk9p1LooMioEey695Tn7wZIujwenx1Zs9VbRbuIoy2Wp69zJH/x1nfmme0NVA=
+    file: dist/pygor-*.tar.gz
+    distributions: sdist
+    skip_cleanup: true
+    file_glob: true
+    on:
+      repo: penuts7644/pygor
+      all_branches: true
 
 after-deploy:
   - ./create_release_notes.sh
+  - echo CHANGELOG.md
