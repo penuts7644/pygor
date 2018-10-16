@@ -14,7 +14,7 @@ default: help
 ##			Display the help information.
 ##
 help:
-	@grep "^##.*" ./Makefile
+	@grep '^##.*' ./Makefile
 
 ##		make setup
 ##			Setup the development enviroment from setup.py and installs
@@ -29,26 +29,15 @@ setup:
 pytest:
 	python -m pytest -v tests
 
-##		make clean
-##			Removes the old distribution directories and files.
-##
-clean:
-	rm -rf ./dist && rm -rf ./build && find . -name "*.pyc" -type f -delete
-
-##		make build
+##		make test-build
 ##			Perfoms clean and builds the new distribution package.
 ##
-build: clean
+test-build:
+	rm -rf ./dist && rm -rf ./build && find . -name '*.pyc' -type f -delete
 	python setup.py bdist_wheel
 
 ##		make test-deploy
-##			Upload all distribution files to PyPI test enviroment.
+##			Upload all distribution files to PyPI test server.
 ##
 test-deploy:
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-##		make deploy
-##			Upload all distribution files to PyPI.
-##
-deploy:
-	python -m twine upload dist/*
