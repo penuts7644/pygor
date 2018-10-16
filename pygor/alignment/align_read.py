@@ -39,8 +39,7 @@ def get_misinsdel_asarray(misinsdel_str):
     of integers.
 
     """
-    return type_string_to_list(misinsdel_str, dtype=int,
-                               l_bound='{', r_bound='}')
+    return string_array_to_list(misinsdel_str, dtype=int, l_bound='{', r_bound='}')
 
 
 def read_alignments(filename):
