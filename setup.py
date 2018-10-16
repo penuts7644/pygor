@@ -34,7 +34,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     url='https://github.com/penuts7644/pygor',
-    download_url='https://github.com/penuts7644/pygor/archive/v' + VERSION + '.tar.gz',
     author='Wout van Helvoirt',
     author_email='wout.van.helvoirt@icloud.com',
     keywords='IGoR Bio-Informatics Recombination Sequencing Analysis DNA Models Genes',
@@ -56,5 +55,6 @@ setup(
     project_urls={
         'IGoR Source': 'https://github.com/qmarcou/IGoR',
         'Bug Reports': 'https://github.com/penuts7644/pygor/issues',
+        'Release Notes': 'https://github.com/penuts7644/pygor/releases/tag/v' + VERSION,
     },
 )
