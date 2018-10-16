@@ -16,18 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains conversion tools used in pygor."""
+"""Contains conversion functions used in pygor."""
 
 
-class CharacterNotFoundException(Exception):
-    """Exception for when a character has not been found."""
-    def __init__(self, message, character):
-        super(CharacterNotFoundException, self).__init__()
-        self.message = message
-        self.character = character
-
-    def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+from pygor.util.exception import CharacterNotFoundException
 
 
 def nucleotides_to_integers(seq):
