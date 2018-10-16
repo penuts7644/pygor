@@ -5,6 +5,7 @@ python:
   - '2.7'
 
 install:
+  - sudo apt-get install jq
   - sudo apt-get install muscle
   - make setup
 
@@ -29,5 +30,4 @@ deploy:
       all_branches: true
 
 after-deploy:
-  - ./create_release_notes.sh
-  - echo CHANGELOG.md
+  - ./github_changelog.sh
