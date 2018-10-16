@@ -21,7 +21,10 @@
 
 import pytest
 
-from pygor.util.conversion import *
+from pygor.util.conversion import nucleotides_to_integers
+from pygor.util.conversion import integers_to_nucleotides
+from pygor.util.conversion import reverse_complement
+from pygor.util.conversion import string_array_to_list
 
 
 @pytest.mark.parametrize('seq, expected', [

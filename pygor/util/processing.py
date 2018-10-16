@@ -16,6 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+"""Contains processing functions used in pygor."""
+
+
 import multiprocessing
 
 import numpy

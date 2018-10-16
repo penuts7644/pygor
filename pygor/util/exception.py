@@ -16,6 +16,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pygor.util.conversion import *
-from pygor.util.exception import *
-from pygor.util.processing import *
+"""Contains custom exception classes used in pygor."""
+
+
+class CharacterNotFoundException(Exception):
+    """Exception for when a character has not been found."""
+    def __init__(self, message, character):
+        super(CharacterNotFoundException, self).__init__()
+        self.message = message
+        self.character = character
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.character)
+
+
+class GeneIdentifierException(Exception):
+    """Exception for incorrect gene identifier value."""
+    def __init__(self, message, identifier):
+        super(GeneIdentifierException, self).__init__()
+        self.message = message
+        self.identifier = identifier
+
+    def __str__(self):
+        return "{0}: '{1}''".format(self.message, self.identifier)
