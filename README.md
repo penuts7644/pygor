@@ -1,9 +1,8 @@
 # pygor
 
-[![Build Status](https://travis-ci.com/penuts7644/pygor.svg?branch=master)](https://travis-ci.com/penuts7644/pygor)
-[![PyPI version shields.io](https://img.shields.io/pypi/v/pygor.svg)](https://pypi.python.org/pypi/pygor/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pygor.svg)](https://pypi.python.org/pypi/pygor/)
-[![PyPI license](https://img.shields.io/pypi/l/pygor.svg)](https://pypi.python.org/pypi/pygor/)
+[![PyPI version shields.io](https://img.shields.io/pypi/v/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
+[![PyPI license](https://img.shields.io/pypi/l/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
 
 Pygor is part of the IGoR (Inference and Generation of Repertoires) software, which can be accessed via Github: [https://github.com/qmarcou/IGoR](https://github.com/qmarcou/IGoR).
 
