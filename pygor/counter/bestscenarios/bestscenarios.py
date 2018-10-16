@@ -22,8 +22,8 @@ import copy
 
 import pandas
 
-from ...models.genmodel import GenModel
-from ...utils.conversions import type_string_to_list
+from pygor.model.genmodel import GenModel
+from pygor.util.conversion import string_array_to_list
 
 
 def read_bestscenarios_values(scenarios_file, model_parms_file):
