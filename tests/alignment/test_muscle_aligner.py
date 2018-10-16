@@ -25,8 +25,10 @@ import pytest
 from pygor.alignment.muscle_aligner import MuscleAligner
 
 
-@pytest.mark.parametrize("infile, cmd, expected", [
-    ("tests/alignment/data/test.fasta", "muscle", MultipleSeqAlignment)
+@pytest.mark.parametrize('infile, cmd, expected', [
+    ('tests/alignment/data/test.fasta', 'muscle', MultipleSeqAlignment),
+    pytest.param('tests/alignment/data/test.fasta', 'fake_command', MultipleSeqAlignment,
+                 marks=pytest.mark.xfail)
 ])
 def test_muscle_aligner(infile, cmd, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
