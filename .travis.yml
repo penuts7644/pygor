@@ -8,7 +8,7 @@ install:
   - sudo apt-get install muscle
   - pip install --upgrade pip
   - pip install --upgrade setuptools
-  - pip install -r requirements-travis.txt && pip install -e .
+  - pip install -r requirements-travis.txt
 
 branches:
   only:
