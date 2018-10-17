@@ -17,10 +17,11 @@ help:
 	@grep '^##.*' ./Makefile
 
 ##		make setup
-##			Install all the setup development requirements via pip.
+##			Setup the development enviroment from setup.py and install all
+##			requirements.
 ##
 setup:
-	pip install .[development]
+	pip install -e .[development]
 
 ##		make pytest
 ##			Run pytest tests from the tests directory on the pygor source.
