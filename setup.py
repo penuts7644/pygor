@@ -19,7 +19,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = '1.0.1'
+VERSION = '1.0.0'
 
 with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()
