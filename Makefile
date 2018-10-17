@@ -17,11 +17,11 @@ help:
 	@grep '^##.*' ./Makefile
 
 ##		make setup
-##			Setup the development enviroment from setup.py and installs
-##			development requirements in pip.
+##			Setup the development enviroment from setup.py and install all
+##			additional development requirements.
 ##
 setup:
-	python setup.py develop && pip install -r requirements-dev.txt
+	pip install -e .[development]
 
 ##		make pytest
 ##			Run pytest tests from the tests directory on the pygor source.
@@ -34,7 +34,7 @@ pytest:
 ##
 test-build:
 	rm -rf ./dist && rm -rf ./build && find . -name '*.pyc' -type f -delete
-	python setup.py bdist_wheel
+	python setup.py sdist bdist_wheel
 
 ##		make test-deploy
 ##			Upload all distribution files to PyPI test server.

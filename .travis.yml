@@ -6,12 +6,30 @@ python:
 
 install:
   - sudo apt-get install muscle
-  - make setup
-
-script:
-  - make pytest
+  - pip install --upgrade pip
+  - pip install --upgrade setuptools
+  - pip install -r requirements-travis.txt && pip install -e .
 
 branches:
   only:
     - master
     - /^issue-[0-9]+.*$/
+
+stages:
+  - name: test
+    if: branch != master
+  - name: release
+    if: branch = master
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - make pytest
+    - stage: release
+      script:
+        - make pytest
+      after_success:
+        - git config --global user.name "semantic-release (via TravisCI)"
+        - git config --global user.email "semantic-release@travis"
+        - semantic-release publish
