@@ -18,10 +18,10 @@ help:
 
 ##		make setup
 ##			Setup the development enviroment from setup.py and install all
-##			requirements.
+##			install additional dev requirements.
 ##
 setup:
-	pip install -e .[development]
+	python setup.py develop && pip install -r requirements-dev.txt
 
 ##		make pytest
 ##			Run pytest tests from the tests directory on the pygor source.

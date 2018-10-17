@@ -8,8 +8,7 @@ install:
   - sudo apt-get install muscle
   - pip install --upgrade pip
   - pip install --upgrade setuptools
-  - easy_install distribute
-  - pip install -e .
+  - make setup
 
 branches:
   only:
