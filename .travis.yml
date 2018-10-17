@@ -6,8 +6,10 @@ python:
 
 install:
   - sudo apt-get install muscle
-  - pip install --upgrade pip && pip install --upgrade setuptools
-  - make setup
+  - pip install --upgrade pip
+  - pip install --upgrade setuptools
+  - easy_install distribute
+  - pip install -e .
 
 branches:
   only:
