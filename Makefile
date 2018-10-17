@@ -23,21 +23,32 @@ help:
 setup:
 	pip install -e .[development]
 
-##		make pytest
+##		make test
 ##			Run pytest tests from the tests directory on the pygor source.
 ##
-pytest:
+test:
 	python -m pytest -v tests
 
-##		make test-build
-##			Perfoms clean and builds the new distribution package.
+##		make clean
+##			Removes the old distribution directories and files.
 ##
-test-build:
+clean:
 	rm -rf ./dist && rm -rf ./build && find . -name '*.pyc' -type f -delete
-	python setup.py sdist bdist_wheel
+
+##		make build
+##			Perfoms tests, a dir clean and builds the new distribution package.
+##
+build: test clean
+	python setup.py bdist_wheel
 
 ##		make test-deploy
 ##			Upload all distribution files to PyPI test server.
 ##
 test-deploy:
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+##		make deploy
+##			Tests, cleans, builds and upload all distribution files to PyPI.
+##
+deploy: test clean build-dist
+	python -m twine upload dist/*
