@@ -2,7 +2,7 @@ os: linux
 
 language: python
 python:
-  - '2.7'
+  - "2.7"
 
 install:
   - sudo apt-get install muscle
@@ -30,6 +30,6 @@ jobs:
       script:
         - make pytest
       after_success:
-        - git config --global user.name "semantic-release (via TravisCI)"
-        - git config --global user.email "semantic-release@travis"
+        - git config --global user.name "penuts7644"
+        - git config --global user.email "wout.van.helvoirt@icloud.com"
         - semantic-release publish
