@@ -6,8 +6,8 @@ python:
 
 install:
   - sudo apt-get install muscle
-  - pip install --user -U pip
-  - pip install --user .[development]
+  - pip install -U pip
+  - pip install .[development]
 
 branches:
   only:
