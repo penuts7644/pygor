@@ -6,7 +6,8 @@ python:
 
 install:
   - sudo apt-get install muscle
-  - make setup
+  - pip install --user -U pip
+  - pip install --user .[development]
 
 branches:
   only:
@@ -23,10 +24,10 @@ jobs:
   include:
     - stage: test
       script:
-        - make pytest
+        - python -m pytest -v tests
     - stage: release
       script:
-        - make pytest
+        - python -m pytest -v tests
       after_success:
         - git config --global user.name "semantic-release (via TravisCI)"
         - git config --global user.email "semantic-release@travis"
