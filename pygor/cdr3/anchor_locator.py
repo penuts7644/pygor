@@ -14,3 +14,126 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""AnchorLocator class for locating CDR3 anchor indices of given sequences."""
+
+
+import numpy
+import pylab
+
+from pygor.util.exception import GeneIdentifierException
+
+
+class AnchorLocator(object):
+    """Class for locating CDR3 anchors within the given nucleotide sequences.
+
+    Parameters
+    ----------
+    alignement : Bio.AlignIO
+        An biopython MUSCLE alignement object from alignment.MuscleAligner.
+    gene : string
+        A gene identifier, either V or J, specifying the alignement's origin.
+
+    Methods
+    -------
+
+    """
+    def __init__(self, alignment, gene):
+        super(AnchorLocator, self).__init__()
+        self.alignment = alignment
+        self.gene = self._set_gene(gene)
+        self.index = self._find_conserved_index()
+
+    def get_index(self):
+        """Getter function for collecting the most common V or J index.
+
+        Returns
+        -------
+        int
+            An integer value specifying the start index postion (0 based) of
+            the V or J gene.
+
+        """
+        return self.index
+
+    @staticmethod
+    def _set_gene(gene):
+        """Private setter function for setting the gene identifier.
+
+        Parameters
+        ----------
+        gene : string
+            A gene identifier, either V or J, specifying the alignement's origin.
+
+        Returns
+        -------
+        str
+            The gene character if passing the validation tests.
+
+        Raises
+        ------
+        GeneIdentifierException
+            When gene character is not 'V' or 'J'.
+
+        """
+        gene = gene.upper()
+        if gene not in ["V", "J"]:
+            raise GeneIdentifierException("Gene identifier needs to be 'V' or 'J'", gene)
+        return gene
+
+    @staticmethod
+    def _find_conserved_motif(alignment, motif):
+        """
+
+        From genomic templates multi-alignment return the index of the conserved
+        motif as a dictionary. The purpose of this function is to find conserved
+        Cystein/Tryptophan/Phenylalanin based on the provided multi-alignment. This
+        is an attempt at trying to make the labeling of conserved CDR3 position
+        systematic for V and J genomic templates. To do so it relies on the
+        multi-alignment object obtained by using the MUSCLE software.
+
+        """
+        motif_frac_arr = []
+        for i in range(0, alignment.get_alignment_length() - 3):
+            codon_align = alignment[:, i:i + 3]
+            mask = numpy.zeros(len(alignment))
+            for seq_rec, j in zip(codon_align, range(0, len(codon_align))):
+                mask[j] = (seq_rec.seq == motif)  # & (seq_rec.seq!="TGC")):
+            motif_frac_arr.append(float(sum(mask)) / len(codon_align))
+        index = pylab.find(numpy.asarray(motif_frac_arr) == max(motif_frac_arr))
+        motif_index_dict = {}
+        # print(index)
+        for seq_rec in alignment:
+            if seq_rec.seq[index:index + 3] == motif:
+                tmp = str(seq_rec.seq[0:index])
+                tmp = tmp.replace("-", '')
+                # print(len(tmp))
+                motif_index_dict[seq_rec.id] = len(tmp)
+                test = str(seq_rec.seq)
+                test = test.replace("-", '')
+                # print(test)
+                print(test[len(tmp):len(test)])
+        return motif_index_dict
+
+    def _find_conserved_index(self):
+        """Extracts conserved V or J gene indices from a MUSCLE multi-alignment.
+
+        Notes
+        -----
+            This function uses the given MUSCLE alignment and gene identifier.
+            It locates the most common 'V' Cystein (TGT) or 'J' Tryptophan (TGG)
+            index that covers all sequences in the multi-alignment.
+
+        """
+        motif = {"V": "TGT", "J": "TGG"}
+        return self._find_conserved_motif(self.alignment, motif[self.gene])
+
+
+def main():
+    """Function to be called when file executed via terminal."""
+    print(__doc__)
+
+
+if __name__ == "__main__":
+    main()
