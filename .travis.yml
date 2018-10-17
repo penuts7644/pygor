@@ -8,28 +8,12 @@ install:
   - sudo apt-get install muscle
   - pip install --upgrade pip
   - pip install --upgrade setuptools
-  - pip install -r requirements-travis.txt
+  - make setup
+
+script:
+  - make test
 
 branches:
   only:
     - master
     - /^issue-[0-9]+.*$/
-
-stages:
-  - name: test
-    if: branch != master
-  - name: release
-    if: branch = master
-
-jobs:
-  include:
-    - stage: test
-      script:
-        - make pytest
-    - stage: release
-      script:
-        - make pytest
-      after_success:
-        - git config --global user.name "penuts7644"
-        - git config --global user.email "wout.van.helvoirt@icloud.com"
-        - semantic-release publish
