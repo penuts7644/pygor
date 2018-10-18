@@ -1,5 +1,6 @@
 # pygor
 
+[![Build Status](https://img.shields.io/travis/penuts7644/pygor.svg?branch=master&longCache=true&style=for-the-badge)](https://travis-ci.org/penuts7644/pygor)
 [![PyPI version shields.io](https://img.shields.io/pypi/v/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
 [![PyPI license](https://img.shields.io/pypi/l/pygor.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/pygor/)
