@@ -19,4 +19,7 @@
 from setuptools import setup
 
 
-setup()
+with open('requirements.txt') as f:
+    REQUIREMENTS = [line.rstrip('\n') for line in f.readlines()]
+
+setup(install_requires=REQUIREMENTS)
