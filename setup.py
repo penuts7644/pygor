@@ -19,4 +19,18 @@
 from setuptools import setup
 
 
-setup()
+setup(
+    install_requires=[
+        'pandas>=0.23.4',
+        'numpy>=1.15.2',
+        'scipy>=1.1.0',
+        'matplotlib==2.2.3',
+        'biopython>=1.72'
+    ],
+    extras_require={
+        'development': [
+            'pytest>=3.8.2',
+            'twine>=1.12.1'
+        ]
+    }
+)
