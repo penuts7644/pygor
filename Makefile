@@ -21,7 +21,7 @@ help:
 ##			additional development requirements.
 ##
 setup:
-	python setup.py develop && pip install -r requirements-dev.txt
+	pip install -e .[development]
 
 ##		make test
 ##			Run pytest tests from the tests directory on the pygor source.
