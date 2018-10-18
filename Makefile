@@ -50,5 +50,5 @@ test-deploy:
 ##		make deploy
 ##			Tests, cleans, builds and upload all distribution files to PyPI.
 ##
-deploy: test clean build-dist
+deploy: test clean build
 	python -m twine upload dist/*
