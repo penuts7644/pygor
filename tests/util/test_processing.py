@@ -48,8 +48,8 @@ def test_multiprocess_array(ary, func, num_workers, plus, expected):
         Integer specifying the number of workers (threads) to create.
     **kwargs
         The remaining arguments to be given to the input function.
-    expected : object
-        The expected output type object.
+    expected : list
+        The expected output list with values.
 
     Raises
     -------
