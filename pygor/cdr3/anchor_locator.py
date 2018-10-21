@@ -20,7 +20,6 @@
 
 
 import numpy
-import pylab
 
 from pygor.util.exception import GeneIdentifierException
 
@@ -30,32 +29,22 @@ class AnchorLocator(object):
 
     Parameters
     ----------
-    alignement : Bio.AlignIO
+    alignment : Bio.AlignIO
         An biopython MUSCLE alignement object from alignment.MuscleAligner.
     gene : string
         A gene identifier, either V or J, specifying the alignement's origin.
 
     Methods
     -------
+    get_indices_motifs(custom_motifs=None)
+        Returns the indices dictionarys for each of the given motifs in the
+        given list.
 
     """
     def __init__(self, alignment, gene):
         super(AnchorLocator, self).__init__()
         self.alignment = alignment
         self.gene = self._set_gene(gene)
-        self.index = self._find_conserved_index()
-
-    def get_index(self):
-        """Getter function for collecting the most common V or J index.
-
-        Returns
-        -------
-        int
-            An integer value specifying the start index postion (0 based) of
-            the V or J gene.
-
-        """
-        return self.index
 
     @staticmethod
     def _set_gene(gene):
@@ -64,7 +53,7 @@ class AnchorLocator(object):
         Parameters
         ----------
         gene : string
-            A gene identifier, either V or J, specifying the alignement's origin.
+            A gene identifier, either V or J, specifying the alignment's origin.
 
         Returns
         -------
@@ -83,51 +72,87 @@ class AnchorLocator(object):
         return gene
 
     @staticmethod
-    def _find_conserved_motif(alignment, motif):
+    def _find_conserved_motif_indices(alignment, motif):
+        """Find the most conserved motif region within the MUSCLE alignment.
+
+        This function finds conserved motif regions using the provided V or J
+        gene multi-alignment.
+
+        Parameters
+        ----------
+        alignment : Bio.AlignIO
+            An biopython MUSCLE alignement object from alignment.MuscleAligner.
+        motif : str
+            A motif string specifying the region to locate.
+
+        Returns
+        -------
+        dict
+            Containing start index values for each sequence identifier in the
+            alignment.
+
         """
+        # Loop over alignment (codon length) and collect occurences of motif.
+        motif_index_occurances = []
+        for i in range(0, alignment.get_alignment_length() - len(motif)):
+            motif_counts = numpy.zeros(len(alignment))
+            alignment_codon = alignment[:, i:i + len(motif)]
 
-        From genomic templates multi-alignment return the index of the conserved
-        motif as a dictionary. The purpose of this function is to find conserved
-        Cystein/Tryptophan/Phenylalanin based on the provided multi-alignment. This
-        is an attempt at trying to make the labeling of conserved CDR3 position
-        systematic for V and J genomic templates. To do so it relies on the
-        multi-alignment object obtained by using the MUSCLE software.
+            # For the motif alignment, count motif occurences and add to the counts.
+            for seq_record, j in zip(alignment_codon, range(0, len(alignment_codon))):
+                motif_counts[j] = (seq_record.seq == motif)
 
-        """
-        motif_frac_arr = []
-        for i in range(0, alignment.get_alignment_length() - 3):
-            codon_align = alignment[:, i:i + 3]
-            mask = numpy.zeros(len(alignment))
-            for seq_rec, j in zip(codon_align, range(0, len(codon_align))):
-                mask[j] = (seq_rec.seq == motif)  # & (seq_rec.seq!="TGC")):
-            motif_frac_arr.append(float(sum(mask)) / len(codon_align))
-        index = pylab.find(numpy.asarray(motif_frac_arr) == max(motif_frac_arr))
-        motif_index_dict = {}
-        # print(index)
-        for seq_rec in alignment:
-            if seq_rec.seq[index:index + 3] == motif:
-                tmp = str(seq_rec.seq[0:index])
-                tmp = tmp.replace("-", '')
-                # print(len(tmp))
-                motif_index_dict[seq_rec.id] = len(tmp)
-                test = str(seq_rec.seq)
-                test = test.replace("-", '')
-                # print(test)
-                print(test[len(tmp):len(test)])
-        return motif_index_dict
+            # Calculate average of occurences (between 0 and 1) and add to start index.
+            motif_index_occurances.append(float(sum(motif_counts)) / len(alignment_codon))
 
-    def _find_conserved_index(self):
-        """Extracts conserved V or J gene indices from a MUSCLE multi-alignment.
+        # Create our indics dict and collect index with highest value attached.
+        seq_motif_indices = {}
+        max_index = motif_index_occurances.index(max(motif_index_occurances))
+        for seq_record in alignment:
+
+            # Only process sequences that contain the motif at the conserved index location.
+            if seq_record.seq[max_index:max_index + len(motif)] == motif:
+                start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
+                seq_motif_indices[seq_record.id] = start_index
+        return seq_motif_indices
+
+    def get_indices_motifs(self, custom_motifs=None):
+        """Collect the conserved indices in the multi-alignment for each motif.
+
+        Parameters
+        ----------
+        custom_motifs : list, optional
+            Use custom motif strings to search for in the alignment. If not
+            specified, default motifs for the V or J genes are used (See notes
+            for more info).
+
+        Returns
+        -------
+        dict
+            Containing the motifs as key and their respective indices dictionary
+            for the sequences in the multi-alignment as value.
 
         Notes
         -----
             This function uses the given MUSCLE alignment and gene identifier.
-            It locates the most common 'V' Cystein (TGT) or 'J' Tryptophan (TGG)
-            index that covers all sequences in the multi-alignment.
+            It locates the most common 'V' (Cystein - TGT and TGC) or 'J'
+            (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
+            all sequences in the multi-alignment.
 
         """
-        motif = {"V": "TGT", "J": "TGG"}
-        return self._find_conserved_motif(self.alignment, motif[self.gene])
+        # Set the motifs list.
+        if isinstance(custom_motifs, list):
+            motifs = custom_motifs
+        elif self.gene == "V":
+            motifs = ["TGT", "TGC"]
+        elif self.gene == "J":
+            motifs = ["TGG", "TTT", "TTC"]
+
+        indices_motifs = {}
+        for motif in motifs:
+            indices_motifs[motif] = self._find_conserved_motif_indices(
+                self.alignment, motif)
+        return indices_motifs
 
 
 def main():

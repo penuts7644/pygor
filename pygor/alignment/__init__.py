@@ -17,5 +17,4 @@
 
 
 from pygor.alignment.align_read import *
-from pygor.alignment.CDR3_tools import *
 from pygor.alignment.muscle_aligner import *
