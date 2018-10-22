@@ -19,6 +19,7 @@
 """Test file for testing pygor.cdr3.anchor_locator file."""
 
 
+import numpy
 import pytest
 
 from pygor.alignment.muscle_aligner import MuscleAligner
@@ -31,32 +32,33 @@ def create_alignment():
     return aligner.get_muscle_alignment()
 
 
-@pytest.mark.parametrize('gene, custom_motifs, expected', [
-    ('J', None, {'TGG': {'AF357974|IGLJ5*01|Mus': 15, 'J00593|IGLJ2*01|Mus': 15,
-                         'J00584|IGLJ3P*01|Mus': 18, 'M16555|IGLJ4*01|Mus': 15,
-                         'J00596|IGLJ4*01|Mus': 15, 'J00583|IGLJ3*01|Mus': 15},
-                 'TTT': {'J00584|IGLJ3P*01|Mus': 8, 'J00583|IGLJ3*01|Mus': 5,
-                         'J00593|IGLJ2*01|Mus': 5},
-                 'TTC': {'AF357974|IGLJ5*01|Mus': 7, 'J00593|IGLJ2*01|Mus': 7,
-                         'M16555|IGLJ4*01|Mus': 7, 'J00596|IGLJ4*01|Mus': 7,
-                         'V00813|IGLJ1*01|Mus': 7, 'J00583|IGLJ3*01|Mus': 7}
-                }),
-    pytest.param('J', ['AGT'], {'AGT': {'J00583|IGLJ3*01|Mus': 13}}),
-    pytest.param('X', None, None, marks=pytest.mark.xfail)
+@pytest.mark.parametrize('gene, expected', [
+    ('J', [['TGG', 'J00593|IGLJ2*01|Mus', 15],
+           ['TGG', 'J00583|IGLJ3*01|Mus', 15],
+           ['TGG', 'J00596|IGLJ4*01|Mus', 15],
+           ['TGG', 'M16555|IGLJ4*01|Mus', 15],
+           ['TGG', 'AF357974|IGLJ5*01|Mus', 15],
+           ['TGG', 'J00584|IGLJ3P*01|Mus', 18],
+           ['TTT', 'J00593|IGLJ2*01|Mus', 5],
+           ['TTT', 'J00583|IGLJ3*01|Mus', 5],
+           ['TTT', 'J00584|IGLJ3P*01|Mus', 8],
+           ['TTC', 'J00593|IGLJ2*01|Mus', 7],
+           ['TTC', 'J00583|IGLJ3*01|Mus', 7],
+           ['TTC', 'J00596|IGLJ4*01|Mus', 7],
+           ['TTC', 'M16555|IGLJ4*01|Mus', 7],
+           ['TTC', 'AF357974|IGLJ5*01|Mus', 7],
+           ['TTC', 'V00813|IGLJ1*01|Mus', 7]]),
+    pytest.param('X', None, marks=pytest.mark.xfail)
 ])
-def test_anchor_locator(gene, custom_motifs, expected):
+def test_anchor_locator(gene, expected):
     """Test if correct indices of conserved motif regions are returned.
 
     Parameters
     ----------
     gene : string
         A gene identifier, either V or J, specifying the alignment's origin.
-    custom_motifs : list
-        Use custom motif strings to search for in the alignment. If not
-        specified, default motifs for the V or J genes are used (See notes
-        for more info).
-    expected : dict
-        The expected output dict with indices.
+    expected : numpy.ndarray
+        The expected output numpy.ndarray or list with values.
 
     Raises
     -------
@@ -65,8 +67,5 @@ def test_anchor_locator(gene, custom_motifs, expected):
 
     """
     locator = AnchorLocator(alignment=create_alignment(), gene=gene)
-    indices = locator.get_indices_motifs(custom_motifs=custom_motifs)
-    print(indices)
-    for key1, value1 in indices.items():
-        for key2, value2 in value1.items():
-            assert value2 == expected[key1][key2]
+    result = locator.get_indices_motifs()
+    assert numpy.array_equal(result, expected)

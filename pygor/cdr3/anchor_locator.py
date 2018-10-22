@@ -22,6 +22,7 @@
 import numpy
 
 from pygor.util.exception import GeneIdentifierException
+from pygor.util.processing import multiprocess_array
 
 
 class AnchorLocator(object):
@@ -72,65 +73,66 @@ class AnchorLocator(object):
         return gene
 
     @staticmethod
-    def _find_conserved_motif_indices(alignment, motif):
+    def _find_conserved_motif_indices(args):
         """Find the most conserved motif region within the MUSCLE alignment.
 
         This function finds conserved motif regions using the provided V or J
-        gene multi-alignment.
+        gene multi-alignment. This is done for each given motif in the input
+        list.
 
         Parameters
         ----------
-        alignment : Bio.AlignIO
-            An biopython MUSCLE alignement object from alignment.MuscleAligner.
-        motif : str
-            A motif string specifying the region to locate.
+        args : list
+            The arguments from the multiprocess_array function. Consists of an
+            numpy.ndarray or list and additional kwargs like the Bio.AlignIO
+            alignment object.
 
         Returns
         -------
-        dict
+        numpy.ndarray
             Containing start index values for each sequence identifier in the
-            alignment.
+            alignment. Each motif has its own numpy.ndarray.
 
         """
-        # Loop over alignment (codon length) and collect occurences of motif.
-        motif_index_occurances = []
-        for i in range(0, alignment.get_alignment_length() - len(motif)):
-            motif_counts = numpy.zeros(len(alignment))
-            alignment_codon = alignment[:, i:i + len(motif)]
+        # Set the arguments and numpy array.
+        ary, kwargs = args
+        alignment = kwargs["alignment"]
+        seq_motif_indices = []
 
-            # For the motif alignment, count motif occurences and add to the counts.
-            for seq_record, j in zip(alignment_codon, range(0, len(alignment_codon))):
-                motif_counts[j] = (seq_record.seq == motif)
+        # For each of the motifs in the input array.
+        for motif in ary:
 
-            # Calculate average of occurences (between 0 and 1) and add to start index.
-            motif_index_occurances.append(float(sum(motif_counts)) / len(alignment_codon))
+            # Loop over alignment (codon length) and collect occurences of motif.
+            motif_index_occurances = []
+            for i in range(0, alignment.get_alignment_length() - len(motif)):
+                motif_counts = numpy.zeros(len(alignment))
+                alignment_codon = alignment[:, i:i + len(motif)]
 
-        # Create our indics dict and collect index with highest value attached.
-        seq_motif_indices = {}
-        max_index = motif_index_occurances.index(max(motif_index_occurances))
-        for seq_record in alignment:
+                # For the motif alignment, count motif occurences and add to the counts.
+                for seq_record, j in zip(alignment_codon, range(0, len(alignment_codon))):
+                    motif_counts[j] = (seq_record.seq == motif)
 
-            # Only process sequences that contain the motif at the conserved index location.
-            if seq_record.seq[max_index:max_index + len(motif)] == motif:
-                start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
-                seq_motif_indices[seq_record.id] = start_index
-        return seq_motif_indices
+                # Calculate average of occurences (between 0 and 1) and add to start index.
+                motif_index_occurances.append(float(sum(motif_counts)) / len(alignment_codon))
 
-    def get_indices_motifs(self, custom_motifs=None):
+            # Collect index with highest value attached.
+            max_index = numpy.argmax(motif_index_occurances)
+            for seq_record in alignment:
+
+                # Only process sequences that contain the motif at the conserved index location.
+                if seq_record.seq[max_index:max_index + len(motif)] == motif:
+                    start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
+                    seq_motif_indices.append([motif, seq_record.id, int(start_index)])
+        return numpy.array(seq_motif_indices)
+
+    def get_indices_motifs(self):
         """Collect the conserved indices in the multi-alignment for each motif.
-
-        Parameters
-        ----------
-        custom_motifs : list, optional
-            Use custom motif strings to search for in the alignment. If not
-            specified, default motifs for the V or J genes are used (See notes
-            for more info).
 
         Returns
         -------
-        dict
-            Containing the motifs as key and their respective indices dictionary
-            for the sequences in the multi-alignment as value.
+        numpy.ndarray
+            Containing rows with the motif, sequence identifier and index value.
+            The numpy.ndarray are concatenated together before returned.
 
         Notes
         -----
@@ -138,21 +140,18 @@ class AnchorLocator(object):
             It locates the most common 'V' (Cystein - TGT and TGC) or 'J'
             (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
             all sequences in the multi-alignment.
+            This function uses the MAX_THREADS variable.
 
         """
-        # Set the motifs list.
-        if isinstance(custom_motifs, list):
-            motifs = custom_motifs
-        elif self.gene == "V":
-            motifs = ["TGT", "TGC"]
-        elif self.gene == "J":
-            motifs = ["TGG", "TTT", "TTC"]
+        # Set the motifs arrays.
+        motifs = {"V": ["TGT", "TGC"],
+                  "J": ["TGG", "TTT", "TTC"]}
 
-        indices_motifs = {}
-        for motif in motifs:
-            indices_motifs[motif] = self._find_conserved_motif_indices(
-                self.alignment, motif)
-        return indices_motifs
+        # Perform the multiprocessing task.
+        result = multiprocess_array(ary=motifs[self.gene],
+                                    func=self._find_conserved_motif_indices,
+                                    alignment=self.alignment)
+        return result
 
 
 def main():
