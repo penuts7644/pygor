@@ -19,23 +19,22 @@
 """Contains processing functions used in pygor."""
 
 
-import multiprocessing
-
 import numpy
+import pathos.pools as pp
+import pathos.helpers as help
+
+from pygor.util.constant import get_max_threads
 
 
-def multiprocess_array(ary, func, num_workers=1, **kwargs):
+def multiprocess_array(ary, func, **kwargs):
     """Applies multiprocessing on a multi array using the given function.
 
     Parameters
     ----------
-    ary : array
-        numpy.array or pandas.Dataframe to be split for multiple workers.
+    ary : numpy.ndarray
+        numpy.ndarray to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
-    num_workers : int, optional
-        Integer specifying the number of workers (threads) to create. By default
-        creates 1 worker.
     **kwargs
         The remaining arguments to be given to the input function.
 
@@ -44,9 +43,24 @@ def multiprocess_array(ary, func, num_workers=1, **kwargs):
     list
         Contains the results from each of the workers.
 
+    Notes
+    -----
+        This function uses the MAX_THREADS constant from pygor.util.constant and
+        will limit the number of workers to create based on this value. Overwrite
+        MAX_THREADS constant to increase the maximum number of workers. By default
+        this value is set to 1. When set to None, no limit is set.
+
     """
-    pool = multiprocessing.Pool(processes=num_workers)
+    # Check out available worker count and adjust accordingly.
+    workers = help.cpu_count()
+    max_workers = get_max_threads()
+    if len(ary) < workers:
+        workers = len(ary)
+    if max_workers and isinstance(max_workers, int) and 0 < max_workers < workers:
+        workers = max_workers
+
+    # Divide the array into chucks for the workers.
+    pool = pp.ProcessPool(nodes=workers)
     result = pool.map(func, [(d, kwargs)
-                             for d in numpy.array_split(ary, num_workers)])
-    pool.close()
+                             for d in numpy.array_split(ary, workers)])
     return list(result)
