@@ -39,3 +39,13 @@ class GeneIdentifierException(Exception):
 
     def __str__(self):
         return "{0}: '{1}''".format(self.message, self.identifier)
+
+class MaxThreadsValueException(Exception):
+    """Exception when the MAX_THREADS variable is faulty."""
+    def __init__(self, message, character):
+        super(MaxThreadsValueException, self).__init__()
+        self.message = message
+        self.character = character
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.character)

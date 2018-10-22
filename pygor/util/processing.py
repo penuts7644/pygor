@@ -24,6 +24,7 @@ import pathos.pools as pp
 import pathos.helpers as help
 
 from pygor.util.constant import get_max_threads
+from pygor.util.exception import MaxThreadsValueException
 
 
 def multiprocess_array(ary, func, **kwargs):
@@ -48,19 +49,19 @@ def multiprocess_array(ary, func, **kwargs):
         This function uses the MAX_THREADS constant from pygor.util.constant and
         will limit the number of workers to create based on this value. Overwrite
         MAX_THREADS constant to increase the maximum number of workers. By default
-        this value is set to 1. When set to None, no limit is set.
+        uses the cpu count from pathos package.
 
     """
     # Check out available worker count and adjust accordingly.
-    workers = help.cpu_count()
-    max_workers = get_max_threads()
-    if len(ary) < workers:
-        workers = len(ary)
-    if max_workers and isinstance(max_workers, int) and 0 < max_workers < workers:
-        workers = max_workers
+    num_workers = get_max_threads()
+    if not isinstance(num_workers, int) or num_workers < 1:
+        raise MaxThreadsValueException("The MAX_THREADS variable needs to be of " \
+                                       "type integer and higher than 0", num_workers)
+    if len(ary) < num_workers:
+        num_workers = len(ary)
 
     # Divide the array into chucks for the workers.
-    pool = pp.ProcessPool(nodes=workers)
+    pool = pp.ProcessPool(nodes=num_workers)
     result = pool.map(func, [(d, kwargs)
-                             for d in numpy.array_split(ary, workers)])
+                             for d in numpy.array_split(ary, num_workers)])
     return list(result)

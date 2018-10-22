@@ -19,7 +19,10 @@
 """Contains global constant variables used in pygor."""
 
 
-MAX_THREADS = 1
+import pathos.helpers as ph
+
+
+MAX_THREADS = ph.cpu_count()
 
 
 def set_max_threads(max_threads):
