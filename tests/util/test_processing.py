@@ -29,13 +29,13 @@ from pygor.util.processing import multiprocess_array
 def sum_integers_plus_value(args):
     """Sums list of integers and add given integer to the sum."""
     ary, kwargs = args
-    return sum(ary) + kwargs['plus']
+    return [numpy.sum(ary) + kwargs['plus']]
 
 
 @pytest.mark.parametrize('ary, func, max_workers, plus, expected', [
-    (numpy.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), sum_integers_plus_value, 1, 10, [55]),
-    (numpy.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), sum_integers_plus_value, 2, 5, [15, 40]),
-    (numpy.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), sum_integers_plus_value, 4, -4, [-1, 8, 9, 13])
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 1, 10, [55]),
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 2, 5, [15, 40]),
+    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 4, -4, [-1, 8, 9, 13])
 ])
 def test_multiprocess_array(ary, func, max_workers, plus, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
@@ -43,15 +43,15 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
     Parameters
     ----------
     ary : numpy.ndarray
-        numpy.ndarray to be split for multiple workers.
+        numpy.ndarray or list (to convert) to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
     max_workers : int
         For this test we will set the global MAX_THREADS variable.
     **kwargs
         The remaining arguments to be given to the input function.
-    expected : list
-        The expected output list with values.
+    expected : numpy.ndarray
+        The expected output numpy.ndarray or list with values.
 
     Raises
     -------
@@ -60,5 +60,5 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
 
     """
     set_max_threads(max_workers)
-    out = multiprocess_array(ary=ary, func=func, plus=plus)
-    assert out == expected
+    result = multiprocess_array(ary=ary, func=func, plus=plus)
+    assert numpy.array_equal(result, expected)

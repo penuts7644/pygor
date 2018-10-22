@@ -41,8 +41,14 @@ def multiprocess_array(ary, func, **kwargs):
 
     Returns
     -------
-    list
-        Contains the results from each of the workers.
+    numpy.ndarray
+        Containing the combined results from the workers.
+
+    Raises
+    ------
+    MaxThreadsValueException
+        When the MAX_THREADS global variable is not an integer or is smaller
+        then 1.
 
     Notes
     -----
@@ -64,4 +70,6 @@ def multiprocess_array(ary, func, **kwargs):
     pool = pp.ProcessPool(nodes=num_workers)
     result = pool.map(func, [(d, kwargs)
                              for d in numpy.array_split(ary, num_workers)])
-    return list(result)
+
+    # The results are concatinated into a single numpy.ndarray and returned.
+    return numpy.concatenate(result, axis=0)
