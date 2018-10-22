@@ -21,5 +21,3 @@ from pygor.cdr3 import *
 from pygor.counter import *
 from pygor.model import *
 from pygor.util import *
-
-__version__ = '1.0.1'
