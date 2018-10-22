@@ -26,7 +26,7 @@ from pygor.util.processing import multiprocess_array
 
 
 class AnchorLocator(object):
-    """Class for locating CDR3 anchors within the given nucleotide sequences.
+    """Class for locating CDR3 anchors within the given nucleotide alignment.
 
     Parameters
     ----------
@@ -140,14 +140,12 @@ class AnchorLocator(object):
             It locates the most common 'V' (Cystein - TGT and TGC) or 'J'
             (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
             all sequences in the multi-alignment.
-            This function uses the MAX_THREADS variable.
+            This function uses the MAX_THREADS variable for multiprocessing.
 
         """
-        # Set the motifs arrays.
+        # Set the motifs arrays and perform the multiprocessing task.
         motifs = {"V": ["TGT", "TGC"],
                   "J": ["TGG", "TTT", "TTC"]}
-
-        # Perform the multiprocessing task.
         result = multiprocess_array(ary=motifs[self.gene],
                                     func=self._find_conserved_motif_indices,
                                     alignment=self.alignment)

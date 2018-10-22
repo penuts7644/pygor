@@ -17,4 +17,4 @@
 
 
 from pygor.cdr3.anchor_locator import *
-from pygor.cdr3.sequence_container import *
+from pygor.cdr3.sequence_locator import *
