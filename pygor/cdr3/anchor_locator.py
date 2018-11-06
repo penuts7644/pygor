@@ -19,6 +19,7 @@
 """AnchorLocator class for locating CDR3 anchor indices of given sequences."""
 
 
+import pandas
 import numpy
 
 from pygor.util.exception import GeneIdentifierException
@@ -89,15 +90,15 @@ class AnchorLocator(object):
 
         Returns
         -------
-        numpy.ndarray
+        pandas.DataFrame
             Containing start index values for each sequence identifier in the
-            alignment. Each motif has its own numpy.ndarray.
+            alignment. Each motif has its own row in the dataframe.
 
         """
         # Set the arguments and numpy array.
         ary, kwargs = args
         alignment = kwargs["alignment"]
-        seq_motif_indices = []
+        seq_motif_indices = pandas.DataFrame()
 
         # For each of the motifs in the input array.
         for motif in ary:
@@ -122,17 +123,21 @@ class AnchorLocator(object):
                 # Only process sequences that contain the motif at the conserved index location.
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
                     start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
-                    seq_motif_indices.append([motif, seq_record.id, int(start_index)])
-        return numpy.array(seq_motif_indices)
+                    seq_motif_indices = seq_motif_indices.append({
+                        'seq_id': seq_record.id,
+                        'motif': motif,
+                        'start_index': int(start_index),
+                    }, ignore_index=True)
+        return seq_motif_indices
 
     def get_indices_motifs(self):
         """Collect the conserved indices in the multi-alignment for each motif.
 
         Returns
         -------
-        numpy.ndarray
-            Containing rows with the motif, sequence identifier and index value.
-            The numpy.ndarray are concatenated together before returned.
+        pandas.DataFrame
+            Containing columns with motifs - 'motif', sequence identifiers -
+            'seq_id' and start index values - 'start_index'.
 
         Notes
         -----
@@ -149,7 +154,7 @@ class AnchorLocator(object):
         result = multiprocess_array(ary=motifs[self.gene],
                                     func=self._find_conserved_motif_indices,
                                     alignment=self.alignment)
-        return result
+        return pandas.concat(result, axis=0).reset_index(drop=True)
 
 
 def main():

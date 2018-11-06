@@ -19,7 +19,7 @@
 """Test file for testing pygor.cdr3.anchor_locator file."""
 
 
-import numpy
+import pandas
 import pytest
 
 from pygor.alignment.muscle_aligner import MuscleAligner
@@ -33,21 +33,24 @@ def create_alignment():
 
 
 @pytest.mark.parametrize('gene, expected', [
-    ('J', [['TGG', 'J00593|IGLJ2*01|Mus', 15],
-           ['TGG', 'J00583|IGLJ3*01|Mus', 15],
-           ['TGG', 'J00596|IGLJ4*01|Mus', 15],
-           ['TGG', 'M16555|IGLJ4*01|Mus', 15],
-           ['TGG', 'AF357974|IGLJ5*01|Mus', 15],
-           ['TGG', 'J00584|IGLJ3P*01|Mus', 18],
-           ['TTT', 'J00593|IGLJ2*01|Mus', 5],
-           ['TTT', 'J00583|IGLJ3*01|Mus', 5],
-           ['TTT', 'J00584|IGLJ3P*01|Mus', 8],
-           ['TTC', 'J00593|IGLJ2*01|Mus', 7],
-           ['TTC', 'J00583|IGLJ3*01|Mus', 7],
-           ['TTC', 'J00596|IGLJ4*01|Mus', 7],
-           ['TTC', 'M16555|IGLJ4*01|Mus', 7],
-           ['TTC', 'AF357974|IGLJ5*01|Mus', 7],
-           ['TTC', 'V00813|IGLJ1*01|Mus', 7]]),
+    ('J', pandas.DataFrame(
+        [['TGG', 'J00593|IGLJ2*01|Mus', 15.0],
+         ['TGG', 'J00583|IGLJ3*01|Mus', 15.0],
+         ['TGG', 'J00596|IGLJ4*01|Mus', 15.0],
+         ['TGG', 'M16555|IGLJ4*01|Mus', 15.0],
+         ['TGG', 'AF357974|IGLJ5*01|Mus', 15.0],
+         ['TGG', 'J00584|IGLJ3P*01|Mus', 18.0],
+         ['TTT', 'J00593|IGLJ2*01|Mus', 5.0],
+         ['TTT', 'J00583|IGLJ3*01|Mus', 5.0],
+         ['TTT', 'J00584|IGLJ3P*01|Mus', 8.0],
+         ['TTC', 'J00593|IGLJ2*01|Mus', 7.0],
+         ['TTC', 'J00583|IGLJ3*01|Mus', 7.0],
+         ['TTC', 'J00596|IGLJ4*01|Mus', 7.0],
+         ['TTC', 'M16555|IGLJ4*01|Mus', 7.0],
+         ['TTC', 'AF357974|IGLJ5*01|Mus', 7.0],
+         ['TTC', 'V00813|IGLJ1*01|Mus', 7.0]],
+        columns=['motif', 'seq_id', 'start_index'])
+    ),
     pytest.param('X', None, marks=pytest.mark.xfail)
 ])
 def test_anchor_locator(gene, expected):
@@ -57,8 +60,8 @@ def test_anchor_locator(gene, expected):
     ----------
     gene : string
         A gene identifier, either V or J, specifying the alignment's origin.
-    expected : numpy.ndarray
-        The expected output numpy.ndarray or list with values.
+    expected : pandas.DataFrame
+        The expected output pandas.Dataframe with coreect columns and values.
 
     Raises
     -------
@@ -68,4 +71,4 @@ def test_anchor_locator(gene, expected):
     """
     locator = AnchorLocator(alignment=create_alignment(), gene=gene)
     result = locator.get_indices_motifs()
-    assert numpy.array_equal(result, expected)
+    assert result.equals(expected)
