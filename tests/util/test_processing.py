@@ -19,7 +19,6 @@
 """Test file for testing pygor.util.processing file."""
 
 
-import numpy
 import pytest
 
 from pygor.util.constant import set_max_threads
@@ -29,7 +28,7 @@ from pygor.util.processing import multiprocess_array
 def sum_integers_plus_value(args):
     """Sums list of integers and add given integer to the sum."""
     ary, kwargs = args
-    return [numpy.sum(ary) + kwargs['plus']]
+    return sum(ary) + kwargs['plus']
 
 
 @pytest.mark.parametrize('ary, func, max_workers, plus, expected', [
@@ -61,4 +60,4 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
     """
     set_max_threads(max_workers)
     result = multiprocess_array(ary=ary, func=func, plus=plus)
-    assert numpy.array_equal(result, expected)
+    assert result == expected

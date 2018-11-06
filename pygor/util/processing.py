@@ -41,8 +41,8 @@ def multiprocess_array(ary, func, **kwargs):
 
     Returns
     -------
-    numpy.ndarray
-        Containing the combined results from the workers.
+    list
+        Containing the results from each of the workers.
 
     Raises
     ------
@@ -70,6 +70,4 @@ def multiprocess_array(ary, func, **kwargs):
     pool = pp.ProcessPool(nodes=num_workers)
     result = pool.map(func, [(d, kwargs)
                              for d in numpy.array_split(ary, num_workers)])
-
-    # The results are concatinated into a single numpy.ndarray and returned.
-    return numpy.concatenate(result, axis=0)
+    return result
