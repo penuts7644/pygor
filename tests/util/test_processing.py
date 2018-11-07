@@ -41,8 +41,8 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
 
     Parameters
     ----------
-    ary : numpy.ndarray
-        numpy.ndarray or list (to convert) to be split for multiple workers.
+    ary : list
+        List 'like' object to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
     max_workers : int
