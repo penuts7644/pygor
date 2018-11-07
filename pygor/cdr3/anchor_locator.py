@@ -38,15 +38,16 @@ class AnchorLocator(object):
 
     Methods
     -------
-    get_indices_motifs(custom_motifs=None)
-        Returns the indices dictionarys for each of the given motifs in the
-        given list.
+    get_indices_motifs(*motifs)
+        Returns the indices dictionarys for each of the given motif string.
 
     """
     def __init__(self, alignment, gene):
         super(AnchorLocator, self).__init__()
         self.alignment = alignment
         self.gene = self._set_gene(gene)
+        self.default_motifs = {"V": ["TGT", "TGC"],
+                               "J": ["TGG", "TTT", "TTC"]}
 
     @staticmethod
     def _set_gene(gene):
@@ -85,8 +86,7 @@ class AnchorLocator(object):
         ----------
         args : list
             The arguments from the multiprocess_array function. Consists of an
-            numpy.ndarray or list and additional kwargs like the Bio.AlignIO
-            alignment object.
+            list and additional kwargs like the Bio.AlignIO alignment object.
 
         Returns
         -------
@@ -95,7 +95,7 @@ class AnchorLocator(object):
             alignment. Each motif has its own row in the dataframe.
 
         """
-        # Set the arguments and numpy array.
+        # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         alignment = kwargs["alignment"]
         seq_motif_indices = pandas.DataFrame()
@@ -130,8 +130,14 @@ class AnchorLocator(object):
                     }, ignore_index=True)
         return seq_motif_indices
 
-    def get_indices_motifs(self):
+    def get_indices_motifs(self, *motifs):
         """Collect the conserved indices in the multi-alignment for each motif.
+
+        Parameters
+        ----------
+        *motif : strings
+            One or multiple motif strings to process. If none given, default V/J
+            gene motifs are located.
 
         Returns
         -------
@@ -148,10 +154,10 @@ class AnchorLocator(object):
             This function uses the MAX_THREADS variable for multiprocessing.
 
         """
-        # Set the motifs arrays and perform the multiprocessing task.
-        motifs = {"V": ["TGT", "TGC"],
-                  "J": ["TGG", "TTT", "TTC"]}
-        result = multiprocess_array(ary=motifs[self.gene],
+        # Set the motifs arrays (given or not) and perform the multiprocessing task.
+        if not motifs:
+            motifs = self.default_motifs[self.gene]
+        result = multiprocess_array(ary=motifs,
                                     func=self._find_conserved_motif_indices,
                                     alignment=self.alignment)
         return pandas.concat(result, axis=0).reset_index(drop=True)

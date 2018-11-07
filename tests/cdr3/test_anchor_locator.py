@@ -32,8 +32,8 @@ def create_alignment():
     return aligner.get_muscle_alignment()
 
 
-@pytest.mark.parametrize('gene, expected', [
-    ('J', pandas.DataFrame(
+@pytest.mark.parametrize('gene, motif, expected', [
+    ('J', None, pandas.DataFrame(
         [['TGG', 'J00593|IGLJ2*01|Mus', 15.0],
          ['TGG', 'J00583|IGLJ3*01|Mus', 15.0],
          ['TGG', 'J00596|IGLJ4*01|Mus', 15.0],
@@ -51,15 +51,25 @@ def create_alignment():
          ['TTC', 'V00813|IGLJ1*01|Mus', 7.0]],
         columns=['motif', 'seq_id', 'start_index'])
     ),
-    pytest.param('X', None, marks=pytest.mark.xfail)
+    pytest.param('J', 'TGG', pandas.DataFrame(
+        [['TGG', 'J00593|IGLJ2*01|Mus', 15.0],
+         ['TGG', 'J00583|IGLJ3*01|Mus', 15.0],
+         ['TGG', 'J00596|IGLJ4*01|Mus', 15.0],
+         ['TGG', 'M16555|IGLJ4*01|Mus', 15.0],
+         ['TGG', 'AF357974|IGLJ5*01|Mus', 15.0],
+         ['TGG', 'J00584|IGLJ3P*01|Mus', 18.0]],
+        columns=['motif', 'seq_id', 'start_index'])),
+    pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
-def test_anchor_locator(gene, expected):
+def test_anchor_locator(gene, motif, expected):
     """Test if correct indices of conserved motif regions are returned.
 
     Parameters
     ----------
     gene : string
         A gene identifier, either V or J, specifying the alignment's origin.
+    motif : string
+        A custom motif string to use for the search.
     expected : pandas.DataFrame
         The expected output pandas.Dataframe with coreect columns and values.
 
@@ -70,5 +80,8 @@ def test_anchor_locator(gene, expected):
 
     """
     locator = AnchorLocator(alignment=create_alignment(), gene=gene)
-    result = locator.get_indices_motifs()
+    if motif is not None:
+        result = locator.get_indices_motifs(motif)
+    else:
+        result = locator.get_indices_motifs()
     assert result.equals(expected)
