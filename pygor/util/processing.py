@@ -32,8 +32,8 @@ def multiprocess_array(ary, func, **kwargs):
 
     Parameters
     ----------
-    ary : numpy.ndarray
-        numpy.ndarray to be split for multiple workers.
+    ary : list
+        List 'like' object to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
     **kwargs
