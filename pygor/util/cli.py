@@ -22,28 +22,29 @@
 import argparse
 
 
-def dynamic_cli_parser(args, description=None):
+def dynamic_cli_parser(options, description=None):
     """Parses the commandline by semi-dynamically creating input arguments.
 
     Parameters
     ----------
-    args : dict
+    options : dict
         A Python dict with key being the full name of the option. The value is
-        a kwargs dict that corresponds to input arguments of the
+        a dict that corresponds to input arguments of the
         ArgumentParser.add_argument function. Note: type argument values must be
         surrounded by quotes.
     description : string
-        A description for the ArgumentParser (default is None).
+        A description for the ArgumentParser (default: None).
 
     Returns
     -------
     ArgumentParser
-        Object containing parsed commandline arguments.
+        Object containing the expected commandline arguments. Still needs to
+        parse the commandline arguments.
 
     """
     # Semi-dynamically create the argparse arguments from given inputs.
     parser = argparse.ArgumentParser(description=description)
-    for name, kwargs in args.iteritems():
+    for name, kwargs in options.iteritems():
         kwargs_str = ""
         for (option, value) in kwargs.iteritems():
             if isinstance(value, str) and not option == 'type':
@@ -52,5 +53,5 @@ def dynamic_cli_parser(args, description=None):
                 kwargs_str += ', {}={}'.format(option, value)
         eval('parser.add_argument("{0}"{1})'.format(name, kwargs_str))
 
-    # Parse the commandline arguments given by user and return.
-    return parser.parse_args()
+    # Return the constructed parser.
+    return parser

@@ -71,7 +71,7 @@ def test_anchor_locator(gene, motif, expected):
     motif : string
         A custom motif string to use for the search.
     expected : pandas.DataFrame
-        The expected output pandas.Dataframe with coreect columns and values.
+        The expected output pandas.Dataframe with correct columns and values.
 
     Raises
     -------
