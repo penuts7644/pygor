@@ -16,4 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pygor.cli import *
+from pygor.cli.create_igor_cdr3_anchors import *
