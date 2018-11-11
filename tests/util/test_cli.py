@@ -18,10 +18,11 @@
 
 """Test file for testing pygor.util.cli file."""
 
+import argparse
 
 import pytest
 
-from pygor.util.cli import dynamic_cli_parser
+from pygor.util.cli import dynamic_cli_options
 
 
 @pytest.mark.parametrize('options, commandline_input, expected', [
@@ -29,29 +30,29 @@ from pygor.util.cli import dynamic_cli_parser
         'input': {
             'metavar': 'I',
             'type': 'str',
-            'help': 'Test input file (required)'
+            'help': 'Test input file'
         },
         'output': {
             'metavar': 'O',
             'type': 'str',
-            'help': 'Test output file (required)'
+            'help': 'Test output file'
         },
         'choice': {
             'metavar': 'C',
             'type': 'str',
             'choices': ['A', 'B', 'C'],
-            'help': 'Test of some choices (required)'
+            'help': 'Test of some choices'
         },
         '--option-1': {
             'type': 'int',
             'nargs': '?',
             'default': 1,
-            'help': "Test option 1 (default: 1, optional)"
+            'help': "Test option 1 (default: 1)"
         },
         '--option-2': {
             'type': 'int',
             'nargs': '*',
-            'help': "Test option 2 (optional)"
+            'help': "Test option 2"
         }
     }, ['test/input/location', 'B', 'test/output/location',
         '--option-1', '2', '--option-2', '5', '10'],
@@ -78,7 +79,8 @@ def test_dynamic_cli_parser(options, commandline_input, expected):
         If the performed test failed.
 
     """
-    parser = dynamic_cli_parser(options=options)
+    parser = argparse.ArgumentParser()
+    parser = dynamic_cli_options(parser=parser, options=options)
     parsed_arguments = parser.parse_args(commandline_input)
     assert parsed_arguments.input == expected[0]
     assert parsed_arguments.output == expected[1]
