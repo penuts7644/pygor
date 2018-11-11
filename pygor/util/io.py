@@ -19,6 +19,8 @@
 """Contains I/O related functions used in pygor."""
 
 
+import os
+
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
@@ -44,3 +46,44 @@ def read_fasta_as_dataframe(infile):
                 'sequence': sequence.upper(),
             }, ignore_index=True)
     return fasta_df
+
+
+def write_dataframe_to_csv(dataframe, filename, directory=None):
+    """Writes a pandas.DataFrame to a CSV formatted file.
+
+    The output CSV file is comma separated and if the file already exists, a
+    number will be appended to the filename. The given output directory is
+    created recursively if it does not exist. The column names in the dataframe
+    is used as first line in the csv file.
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+        The dataframe to be written to the CSV file.
+    filename : string
+        Base filename for writting the file, excluding the '.csv' extension.
+    directory : string, optional
+        An output directory to write the file to (default: current directory).
+
+    """
+    # Create directory's recursively if not exists.
+    if directory is not None:
+        if not os.path.isdir(directory):
+            os.makedirs(directory, exist_ok=True)
+    else:
+        directory = os.getcwd()
+
+    # Check if the filename is unique, modify name if necessary.
+    file_count = 1
+    updated_filename = filename
+
+    # Keep modifying the filename until it doesn't exist.
+    while os.path.isfile(os.path.join(directory, updated_filename + '.csv')):
+        updated_filename = str(filename) + '_' + str(file_count)
+        file_count += 1
+
+    # Write dataframe contents to csv file.
+    pandas.DataFrame.to_csv(dataframe, path_or_buf=os.path.join(
+        directory, updated_filename + '.csv'), sep=',', index=False)
+    print("Written '{}' file to '{}' directory".format(
+        updated_filename + '.csv', directory))
