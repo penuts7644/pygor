@@ -34,7 +34,7 @@ from pygor.util.io import read_fasta_as_dataframe
          ['J00596|IGLJ4*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAGATGA'],
          ['M16555|IGLJ4*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAG'],
          ['AF357974|IGLJ5*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAG']],
-        columns=['name', 'sequence']))
+        columns=['id', 'sequence']))
 ])
 def test_read_fasta_as_dataframe(infile, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
