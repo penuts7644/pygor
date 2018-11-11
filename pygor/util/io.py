@@ -85,5 +85,5 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
     # Write dataframe contents to csv file.
     pandas.DataFrame.to_csv(dataframe, path_or_buf=os.path.join(
         directory, updated_filename + '.csv'), sep=',', index=False)
-    print("Written '{}' file to '{}' directory".format(
+    print("Written '{}' file to '{}' directory.".format(
         updated_filename + '.csv', directory))

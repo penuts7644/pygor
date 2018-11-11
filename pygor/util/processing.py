@@ -62,7 +62,7 @@ def multiprocess_array(ary, func, **kwargs):
     num_workers = get_max_threads()
     if not isinstance(num_workers, int) or num_workers < 1:
         raise MaxThreadsValueException("The MAX_THREADS variable needs to be of " \
-                                       "type integer and higher than 0", num_workers)
+                                       "type integer and higher than zero", num_workers)
     if len(ary) < num_workers:
         num_workers = len(ary)
 
