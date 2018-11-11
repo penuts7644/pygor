@@ -38,11 +38,11 @@ def read_fasta_as_dataframe(infile):
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame()
+    fasta_df = pandas.DataFrame(columns=['id', 'sequence'])
     with open(infile, 'r') as fasta_file:
         for title, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
-                'name': title.split(None, 1)[0],
+                'id': title.split(None, 1)[0],
                 'sequence': sequence.upper(),
             }, ignore_index=True)
     return fasta_df

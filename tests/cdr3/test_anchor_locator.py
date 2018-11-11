@@ -34,31 +34,31 @@ def create_alignment():
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', None, pandas.DataFrame(
-        [['TGG', 'J00593|IGLJ2*01|Mus', 15.0],
-         ['TGG', 'J00583|IGLJ3*01|Mus', 15.0],
-         ['TGG', 'J00596|IGLJ4*01|Mus', 15.0],
-         ['TGG', 'M16555|IGLJ4*01|Mus', 15.0],
-         ['TGG', 'AF357974|IGLJ5*01|Mus', 15.0],
-         ['TGG', 'J00584|IGLJ3P*01|Mus', 18.0],
-         ['TTT', 'J00593|IGLJ2*01|Mus', 5.0],
-         ['TTT', 'J00583|IGLJ3*01|Mus', 5.0],
-         ['TTT', 'J00584|IGLJ3P*01|Mus', 8.0],
-         ['TTC', 'J00593|IGLJ2*01|Mus', 7.0],
-         ['TTC', 'J00583|IGLJ3*01|Mus', 7.0],
-         ['TTC', 'J00596|IGLJ4*01|Mus', 7.0],
-         ['TTC', 'M16555|IGLJ4*01|Mus', 7.0],
-         ['TTC', 'AF357974|IGLJ5*01|Mus', 7.0],
-         ['TTC', 'V00813|IGLJ1*01|Mus', 7.0]],
-        columns=['motif', 'seq_id', 'start_index'])
+        [['J00593|IGLJ2*01|Mus', 'TGG', 15],
+         ['J00583|IGLJ3*01|Mus', 'TGG', 15],
+         ['J00596|IGLJ4*01|Mus', 'TGG', 15],
+         ['M16555|IGLJ4*01|Mus', 'TGG', 15],
+         ['AF357974|IGLJ5*01|Mus', 'TGG', 15],
+         ['J00584|IGLJ3P*01|Mus', 'TGG', 18],
+         ['J00593|IGLJ2*01|Mus', 'TTT', 5],
+         ['J00583|IGLJ3*01|Mus', 'TTT', 5],
+         ['J00584|IGLJ3P*01|Mus', 'TTT', 8],
+         ['J00593|IGLJ2*01|Mus', 'TTC', 7],
+         ['J00583|IGLJ3*01|Mus', 'TTC', 7],
+         ['J00596|IGLJ4*01|Mus', 'TTC', 7],
+         ['M16555|IGLJ4*01|Mus', 'TTC', 7],
+         ['AF357974|IGLJ5*01|Mus', 'TTC', 7],
+         ['V00813|IGLJ1*01|Mus', 'TTC', 7]],
+        columns=['id', 'motif', 'anchor_index'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['TGG', 'J00593|IGLJ2*01|Mus', 15.0],
-         ['TGG', 'J00583|IGLJ3*01|Mus', 15.0],
-         ['TGG', 'J00596|IGLJ4*01|Mus', 15.0],
-         ['TGG', 'M16555|IGLJ4*01|Mus', 15.0],
-         ['TGG', 'AF357974|IGLJ5*01|Mus', 15.0],
-         ['TGG', 'J00584|IGLJ3P*01|Mus', 18.0]],
-        columns=['motif', 'seq_id', 'start_index'])),
+        [['J00593|IGLJ2*01|Mus', 'TGG', 15],
+         ['J00583|IGLJ3*01|Mus', 'TGG', 15],
+         ['J00596|IGLJ4*01|Mus', 'TGG', 15],
+         ['M16555|IGLJ4*01|Mus', 'TGG', 15],
+         ['AF357974|IGLJ5*01|Mus', 'TGG', 15],
+         ['J00584|IGLJ3P*01|Mus', 'TGG', 18]],
+        columns=['id', 'motif', 'anchor_index'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
 def test_anchor_locator(gene, motif, expected):
@@ -84,4 +84,6 @@ def test_anchor_locator(gene, motif, expected):
         result = locator.get_indices_motifs(motif)
     else:
         result = locator.get_indices_motifs()
-    assert result.equals(expected)
+    print(result)
+    print(expected)
+    assert (result == expected).all().all()

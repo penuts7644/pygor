@@ -21,7 +21,7 @@
 
 import argparse
 
-from pygor.cli.create_igor_cdr3_anchors import CreateIgorCdr3Anchors
+from pygor.cli.create_cdr3_anchors import CreateCdr3Anchors
 from pygor.util.cli import dynamic_cli_options
 from pygor.util.constant import set_max_threads
 
@@ -45,15 +45,15 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    cica = CreateIgorCdr3Anchors(subparsers=subparsers)
+    cca = CreateCdr3Anchors(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables and execute correct function.
     parsed_arguments = parser.parse_args()
     if parsed_arguments.max_threads is not None:
         set_max_threads(parsed_arguments.max_threads)
 
-    if parsed_arguments.subparser_name == cica.__class__.__name__:
-        cica.run(args=parsed_arguments)
+    if parsed_arguments.subparser_name == cca.__class__.__name__:
+        cca.run(args=parsed_arguments)
     else:
         print("No option specified, run 'pygor -h' to display all options.")
 
