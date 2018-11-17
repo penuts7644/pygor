@@ -41,6 +41,11 @@ class AnchorLocator(object):
     get_indices_motifs(*motifs)
         Returns the indices dictionarys for each of the given motif string.
 
+    Notes
+    -----
+        This class tries to follow IGoR CSV formatting standard for the
+        outputed CDR3 anchor files.
+
     """
     def __init__(self, alignment, gene):
         super(AnchorLocator, self).__init__()
@@ -98,7 +103,7 @@ class AnchorLocator(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         alignment = kwargs["alignment"]
-        seq_motif_indices = pandas.DataFrame(columns=['id', 'motif', 'anchor_index'])
+        seq_motif_indices = pandas.DataFrame(columns=['gene', 'motif', 'anchor_index'])
 
         # For each of the motifs in the input array.
         for motif in ary:
@@ -124,7 +129,7 @@ class AnchorLocator(object):
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
                     start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
                     seq_motif_indices = seq_motif_indices.append({
-                        'id': seq_record.id,
+                        'gene': seq_record.id,
                         'motif': motif,
                         'anchor_index': start_index,
                     }, ignore_index=True)
@@ -142,7 +147,7 @@ class AnchorLocator(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence identifiers - 'id', motifs - 'motif'
+            Containing columns with sequence identifiers - 'gene', motifs - 'motif'
             and start index values for the anchors - 'anchor_index'.
 
         Notes
