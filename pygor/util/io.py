@@ -24,6 +24,9 @@ import os
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
+from pygor.util.constant import get_separator
+from pygor.util.exception import SeparatorNotValidException
+
 
 def read_fasta_as_dataframe(infile):
     """Creates a pandas.DataFrame from the FASTA file.
@@ -51,9 +54,9 @@ def read_fasta_as_dataframe(infile):
 def write_dataframe_to_csv(dataframe, filename, directory=None):
     """Writes a pandas.DataFrame to a CSV formatted file.
 
-    The output CSV file is comma separated and if the file already exists, a
-    number will be appended to the filename. The given output directory is
-    created recursively if it does not exist. The column names in the dataframe
+    The output CSV file is comma separated (default) and if the file already
+    exists, a number will be appended to the filename. The given output directory
+    is created recursively if it does not exist. The column names in the dataframe
     is used as first line in the csv file.
 
     Parameters
@@ -65,7 +68,18 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
     directory : string, optional
         An output directory to write the file to (default: current directory).
 
+    Notes
+    -----
+        This function uses the global SEPARATOR variable to set the separator
+        string for the output CSV file.
+
     """
+    # Check out available worker count and adjust accordingly.
+    separator = get_separator()
+    if not isinstance(separator, str):
+        raise SeparatorNotValidException("The SEPARATOR variable needs to be " \
+                                         "of type string", separator)
+
     # Create directory's recursively if not exists.
     if directory is not None:
         if not os.path.isdir(directory):
@@ -84,6 +98,6 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
 
     # Write dataframe contents to csv file.
     pandas.DataFrame.to_csv(dataframe, path_or_buf=os.path.join(
-        directory, updated_filename + '.csv'), sep=',', index=False)
+        directory, updated_filename + '.csv'), sep=separator, index=False)
     print("Written '{}' file to '{}' directory.".format(
         updated_filename + '.csv', directory))

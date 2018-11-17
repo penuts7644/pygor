@@ -49,3 +49,13 @@ class MaxThreadsValueException(Exception):
 
     def __str__(self):
         return "{0}: '{1}'".format(self.message, self.character)
+
+class SeparatorNotValidException(Exception):
+    """Exception when the SEPARATOR variable is faulty."""
+    def __init__(self, message, character):
+        super(SeparatorNotValidException, self).__init__()
+        self.message = message
+        self.character = character
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.character)
