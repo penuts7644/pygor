@@ -28,7 +28,7 @@ from pygor.cdr3.anchor_locator import AnchorLocator
 
 def create_alignment():
     """Create an alignment to use for testing."""
-    aligner = MuscleAligner(infile='tests/test_data/IGL_J_mouse.fasta')
+    aligner = MuscleAligner(infile='tests/test_data/genomicJs.fasta')
     return aligner.get_muscle_alignment()
 
 
@@ -49,7 +49,7 @@ def create_alignment():
          ['M16555|IGLJ4*01|Mus', 'TTC', 7],
          ['AF357974|IGLJ5*01|Mus', 'TTC', 7],
          ['V00813|IGLJ1*01|Mus', 'TTC', 7]],
-        columns=['id', 'motif', 'anchor_index'])
+        columns=['gene', 'motif', 'anchor_index'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
         [['J00593|IGLJ2*01|Mus', 'TGG', 15],
@@ -58,7 +58,7 @@ def create_alignment():
          ['M16555|IGLJ4*01|Mus', 'TGG', 15],
          ['AF357974|IGLJ5*01|Mus', 'TGG', 15],
          ['J00584|IGLJ3P*01|Mus', 'TGG', 18]],
-        columns=['id', 'motif', 'anchor_index'])),
+        columns=['gene', 'motif', 'anchor_index'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
 def test_anchor_locator(gene, motif, expected):
