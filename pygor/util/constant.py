@@ -23,6 +23,7 @@ import pathos.helpers as ph
 
 
 MAX_THREADS = ph.cpu_count()
+SEPARATOR = ','
 
 
 def set_max_threads(max_threads):
@@ -32,3 +33,11 @@ def set_max_threads(max_threads):
 def get_max_threads():
     """Returns the global MAX_THREADS variable."""
     return MAX_THREADS
+
+def set_separator(separator):
+    """Sets the global SEPARATOR variable."""
+    globals().update(SEPARATOR=separator)
+
+def get_separator():
+    """Returns the global SEPARATOR variable."""
+    return SEPARATOR
