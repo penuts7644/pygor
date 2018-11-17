@@ -26,8 +26,8 @@ from pygor.alignment.muscle_aligner import MuscleAligner
 
 
 @pytest.mark.parametrize('infile, cmd, expected', [
-    ('tests/test_data/IGL_J_mouse.fasta', 'muscle', MultipleSeqAlignment),
-    pytest.param('tests/test_data/IGL_J_mouse.fasta', 'fake_command', MultipleSeqAlignment,
+    ('tests/test_data/genomicJs.fasta', 'muscle', MultipleSeqAlignment),
+    pytest.param('tests/test_data/genomicJs.fasta', 'fake_command', MultipleSeqAlignment,
                  marks=pytest.mark.xfail)
 ])
 def test_muscle_aligner(infile, cmd, expected):
