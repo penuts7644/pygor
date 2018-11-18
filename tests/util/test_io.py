@@ -26,21 +26,20 @@ from pygor.util.io import read_fasta_as_dataframe
 
 
 @pytest.mark.parametrize('infile, expected', [
-    ('tests/test_data/IGL_J_mouse.fasta', pandas.DataFrame(
-        [['V00813|IGLJ1*01|Mus', 'CTGGGTGTTCGGTGGAGGAACCAAACTGACTGTCCTAG'],
-         ['J00593|IGLJ2*01|Mus', 'TTATGTTTTCGGCGGTGGAACCAAGGTCACTGTCCTAG'],
-         ['J00583|IGLJ3*01|Mus', 'GTTTATTTTCGGCAGTGGAACCAAGGTCACTGTCCTAG'],
-         ['J00584|IGLJ3P*01|Mus', 'AGGTTCTTTTTCCTCAAATGGCCTATTGTATGCAGGAG'],
-         ['J00596|IGLJ4*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAGATGA'],
-         ['M16555|IGLJ4*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAG'],
-         ['AF357974|IGLJ5*01|Mus', 'TTGGGTGTTCGGAGGTGGAACCAGATTGACTGTCCTAG']],
-        columns=['id', 'sequence']))
+    ('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta',
+     pandas.DataFrame(
+         [['V00762|IGHJ1*01|Mus', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['V00770|IGHJ1*02|Mus', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
+          ['X63164|IGHJ1*03|Mus', 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['V00770|IGHJ2*01|Mus', 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
+          ['S73821|IGHJ2*02|Mus', 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
+         columns=['id', 'sequence']))
 ])
 def test_read_fasta_as_dataframe(infile, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
 
     The dataframe contains label name and sequence columns containing the
-    corresponding FASTA data.
+    corresponding FASTA data (only first five rows).
 
     Parameters
     ----------
@@ -56,4 +55,4 @@ def test_read_fasta_as_dataframe(infile, expected):
 
     """
     result = read_fasta_as_dataframe(infile=infile)
-    assert result.equals(expected)
+    assert result.head().equals(expected)

@@ -28,36 +28,22 @@ from pygor.cdr3.anchor_locator import AnchorLocator
 
 def create_alignment():
     """Create an alignment to use for testing."""
-    aligner = MuscleAligner(infile='tests/test_data/genomicJs.fasta')
+    filename = 'tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta'
+    aligner = MuscleAligner(infile=filename)
     return aligner.get_muscle_alignment()
 
 
 @pytest.mark.parametrize('gene, motif, expected', [
-    ('J', None, pandas.DataFrame(
-        [['J00593|IGLJ2*01|Mus', 'TGG', 15],
-         ['J00583|IGLJ3*01|Mus', 'TGG', 15],
-         ['J00596|IGLJ4*01|Mus', 'TGG', 15],
-         ['M16555|IGLJ4*01|Mus', 'TGG', 15],
-         ['AF357974|IGLJ5*01|Mus', 'TGG', 15],
-         ['J00584|IGLJ3P*01|Mus', 'TGG', 18],
-         ['J00593|IGLJ2*01|Mus', 'TTT', 5],
-         ['J00583|IGLJ3*01|Mus', 'TTT', 5],
-         ['J00584|IGLJ3P*01|Mus', 'TTT', 8],
-         ['J00593|IGLJ2*01|Mus', 'TTC', 7],
-         ['J00583|IGLJ3*01|Mus', 'TTC', 7],
-         ['J00596|IGLJ4*01|Mus', 'TTC', 7],
-         ['M16555|IGLJ4*01|Mus', 'TTC', 7],
-         ['AF357974|IGLJ5*01|Mus', 'TTC', 7],
-         ['V00813|IGLJ1*01|Mus', 'TTC', 7]],
+    ('J', 'TTT', pandas.DataFrame(
+        [['V00770|IGHJ1*02|Mus', 'TTT', 44]],
         columns=['gene', 'motif', 'anchor_index'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['J00593|IGLJ2*01|Mus', 'TGG', 15],
-         ['J00583|IGLJ3*01|Mus', 'TGG', 15],
-         ['J00596|IGLJ4*01|Mus', 'TGG', 15],
-         ['M16555|IGLJ4*01|Mus', 'TGG', 15],
-         ['AF357974|IGLJ5*01|Mus', 'TGG', 15],
-         ['J00584|IGLJ3P*01|Mus', 'TGG', 18]],
+        [['V00770|IGHJ3*01|Mus', 'TGG', 14],
+         ['S73821|IGHJ3*02|Mus', 'TGG', 14],
+         ['V00770|IGHJ1*02|Mus', 'TGG', 19],
+         ['X63164|IGHJ1*03|Mus', 'TGG', 19],
+         ['V00762|IGHJ1*01|Mus', 'TGG', 19]],
         columns=['gene', 'motif', 'anchor_index'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
@@ -81,9 +67,9 @@ def test_anchor_locator(gene, motif, expected):
     """
     locator = AnchorLocator(alignment=create_alignment(), gene=gene)
     if motif is not None:
-        result = locator.get_indices_motifs(motif)
+        result = locator.get_indices_motifs(motif).head()
     else:
-        result = locator.get_indices_motifs()
+        result = locator.get_indices_motifs().head()
     print(result)
     print(expected)
     assert (result == expected).all().all()
