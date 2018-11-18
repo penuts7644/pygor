@@ -26,9 +26,10 @@ from pygor.alignment.muscle_aligner import MuscleAligner
 
 
 @pytest.mark.parametrize('infile, cmd, expected', [
-    ('tests/test_data/genomicJs.fasta', 'muscle', MultipleSeqAlignment),
-    pytest.param('tests/test_data/genomicJs.fasta', 'fake_command', MultipleSeqAlignment,
-                 marks=pytest.mark.xfail)
+    ('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta', 'muscle',
+     MultipleSeqAlignment),
+    pytest.param('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta',
+                 'fake_command', MultipleSeqAlignment, marks=pytest.mark.xfail)
 ])
 def test_muscle_aligner(infile, cmd, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.

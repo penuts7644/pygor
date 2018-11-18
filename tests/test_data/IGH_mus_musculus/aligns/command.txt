@@ -1,0 +1,10 @@
+igor
+    -set_wd "$PWD"
+    -threads 4
+    -set_genomic
+        --J tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta
+        --V tests/test_data/IGH_mus_musculus/ref_genomes/genomicVs.fasta
+        --D tests/test_data/IGH_mus_musculus/ref_genomes/genomicDs.fasta
+    -read_seqs tests/test_data/IGH_mus_musculus/SRR6371447_sample.fasta
+    -align
+        --all
