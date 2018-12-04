@@ -31,7 +31,7 @@ from pygor.util.exception import SeparatorNotValidException
 def read_fasta_as_dataframe(infile):
     """Creates a pandas.DataFrame from the FASTA file.
 
-    The dataframe contains label name and sequence columns containing the
+    The dataframe contains header name and sequence columns containing the
     corresponding FASTA data.
 
     Parameters
@@ -41,14 +41,33 @@ def read_fasta_as_dataframe(infile):
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=['id', 'sequence'])
+    fasta_df = pandas.DataFrame(columns=['header', 'sequence'])
     with open(infile, 'r') as fasta_file:
         for title, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
-                'id': title.split(None, 1)[0],
+                'header': title,
                 'sequence': sequence.upper(),
             }, ignore_index=True)
     return fasta_df
+
+
+def read_csv_to_dataframe(filename):
+    """Read in a CSV file as pandas.DataFrame.
+
+    Parameters
+    ----------
+    filename : string
+        Filename to be read in as dtaframe.
+
+    Notes
+    -----
+        This function uses the global SEPARATOR variable to set the separator
+        string for the input CSV file. Comments ('#') in the file are skipped.
+
+    """
+    dataframe = pandas.read_csv(filename, sep=get_separator(), comment='#',
+                                header=0)
+    return dataframe
 
 
 def write_dataframe_to_csv(dataframe, filename, directory=None):
