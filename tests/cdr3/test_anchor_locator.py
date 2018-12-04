@@ -35,15 +35,15 @@ def create_alignment():
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', 'TTT', pandas.DataFrame(
-        [['V00770|IGHJ1*02|Mus', 'TTT', 44]],
+        [['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'TTT', 44]],
         columns=['gene', 'motif', 'anchor_index'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['V00770|IGHJ3*01|Mus', 'TGG', 14],
-         ['S73821|IGHJ3*02|Mus', 'TGG', 14],
-         ['V00770|IGHJ1*02|Mus', 'TGG', 19],
-         ['X63164|IGHJ1*03|Mus', 'TGG', 19],
-         ['V00762|IGHJ1*01|Mus', 'TGG', 19]],
+        [['V00770|IGHJ3*01|Mus musculus|F|J-REGION|766..813|48 nt|3| | | | |48+0=48| | |', 'TGG', 14],
+         ['S73821|IGHJ3*02|Mus musculus|P|J-REGION|650..697|48 nt|3| | | | |48+0=48| | |', 'TGG', 14],
+         ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'TGG', 19],
+         ['X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 'TGG', 19],
+         ['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 'TGG', 19]],
         columns=['gene', 'motif', 'anchor_index'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
@@ -70,6 +70,4 @@ def test_anchor_locator(gene, motif, expected):
         result = locator.get_indices_motifs(motif).head()
     else:
         result = locator.get_indices_motifs().head()
-    print(result)
-    print(expected)
     assert (result == expected).all().all()
