@@ -28,18 +28,18 @@ from pygor.util.io import read_fasta_as_dataframe
 @pytest.mark.parametrize('infile, expected', [
     ('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta',
      pandas.DataFrame(
-         [['V00762|IGHJ1*01|Mus', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
-          ['V00770|IGHJ1*02|Mus', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
-          ['X63164|IGHJ1*03|Mus', 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
-          ['V00770|IGHJ2*01|Mus', 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
-          ['S73821|IGHJ2*02|Mus', 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
-         columns=['id', 'sequence']))
+         [['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
+          ['X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['V00770|IGHJ2*01|Mus musculus|F|J-REGION|383..430|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
+          ['S73821|IGHJ2*02|Mus musculus|F|J-REGION|267..314|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
+         columns=['header', 'sequence']))
 ])
 def test_read_fasta_as_dataframe(infile, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
 
-    The dataframe contains label name and sequence columns containing the
-    corresponding FASTA data (only first five rows).
+    The dataframe contains header name and sequence columns containing the
+    corresponding FASTA data.
 
     Parameters
     ----------
