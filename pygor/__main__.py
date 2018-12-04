@@ -24,6 +24,7 @@ import argparse
 from pygor.cli.create_cdr3_anchors import CreateCdr3Anchors
 from pygor.util.cli import dynamic_cli_options
 from pygor.util.constant import set_max_threads
+from pygor.util.constant import set_separator
 
 
 def main():
@@ -55,6 +56,8 @@ def main():
 
     # Parse the commandline arguments, set variables and execute correct function.
     parsed_arguments = parser.parse_args()
+    if parsed_arguments.separator is not None:
+        set_separator(parsed_arguments.separator)
     if parsed_arguments.max_threads is not None:
         set_max_threads(parsed_arguments.max_threads)
 
