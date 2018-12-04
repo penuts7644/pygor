@@ -20,54 +20,14 @@ import numpy
 import pylab
 
 
-# Look for a given conserved motif in some alignments
-# In the end returns the beginning position of the motif that matches most of the alignments
-def find_conserved_motif(align, motif):
-    """From genomic templates multi-alignment return the index of the conserved
-    motif as a dictionary. The purpose of this function is to find conserved
-    Cystein/Tryptophan/Phenylalanin based on the provided multi-alignment. This
-    is an attempt at trying to make the labeling of conserved CDR3 position
-    systematic for V and J genomic templates. To do so it relies on the
-    multi-alignment object obtained by using the MUSCLE software.
-
-    """
-    motif_frac_arr = []
-    for i in range(0, align.get_alignment_length() - 3):
-        codon_align = align[:, i:i + 3]
-        mask = numpy.zeros(len(align))
-        for seq_rec, j in zip(codon_align, range(0, len(codon_align))):
-            mask[j] = (seq_rec.seq == motif)  # & (seq_rec.seq!="TGC")):
-        motif_frac_arr.append(float(sum(mask)) / len(codon_align))
-    index = pylab.find(numpy.asarray(motif_frac_arr) == max(motif_frac_arr))
-    motif_index_dict = {}
-    # print(index)
-    for seq_rec in align:
-        if seq_rec.seq[index:index + 3] == motif:
-            tmp = str(seq_rec.seq[0:index])
-            tmp = tmp.replace("-", '')
-            # print(len(tmp))
-            motif_index_dict[seq_rec.id] = len(tmp)
-            test = str(seq_rec.seq)
-            test = test.replace("-", '')
-            # print(test)
-            print(test[len(tmp):len(test)])
-    return motif_index_dict
-
-
-def find_conserved_cystein(align):
-    """Extracts conserved cystein index from multi-alignments."""
-    return find_conserved_motif(align, 'TGT')
-
-
-def find_conserved_tryptophan(align):
-    """Extracts conserved tryptophan index from multi-alignments."""
-    return find_conserved_motif(align, 'TGG')
-
-
 def find_seq_CDR3(sequence_index, sequence, v_aligns, j_aligns,
                   conserved_V_motif_index, conserved_J_motif_index):
     """Returns the sequence CDR3 based on provided alignments and conserved
     motifs indices.
+
+    ADDED NOTES FOR WOUT:
+        sequence_index, sequence are from output files IGoR from pandas dataframe
+        v_aligns, j_aligns are both pandas dataframes
 
     """
     # print(sequence)
