@@ -129,7 +129,7 @@ class AnchorLocator(object):
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
                     start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
                     seq_motif_indices = seq_motif_indices.append({
-                        'gene': seq_record.id,
+                        'gene': seq_record.description,
                         'motif': motif,
                         'anchor_index': start_index,
                     }, ignore_index=True)
@@ -165,7 +165,9 @@ class AnchorLocator(object):
         result = multiprocess_array(ary=motifs,
                                     func=self._find_conserved_motif_indices,
                                     alignment=self.alignment)
-        return pandas.concat(result, axis=0).reset_index(drop=True)
+        result = pandas.concat(result, axis=0).reset_index(drop=True)
+        result.drop_duplicates(inplace=True)
+        return result
 
 
 def main():
