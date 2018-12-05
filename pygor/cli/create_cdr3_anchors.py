@@ -82,17 +82,6 @@ class CreateCdr3Anchors(object):
                 'help': "The motifs to look for. If none specified, the default " \
                     "'V' (Cystein - TGT and TGC) or 'J' (Tryptophan - TGG, " \
                     "Phenylalanine - TTT and TTC)."
-            },
-            '--keep-motifs': {
-                'action': 'store_true',
-                'help': 'Should there be a motif column in the output data? ' \
-                        'Will not keep motifs in the output CSV by default.'
-            },
-            '--unique-only': {
-                'action': 'store_true',
-                'help': 'Should duplicate rows be removed from the output data? ' \
-                        'Will keep all rows by default. If given, keeps row with ' \
-                        'first occurences of the sequence id only.'
             }
         }
 
@@ -121,12 +110,6 @@ class CreateCdr3Anchors(object):
             anchors_df = locator.get_indices_motifs(args.motifs)
         else:
             anchors_df = locator.get_indices_motifs()
-
-        if args.unique_only:
-            anchors_df.drop_duplicates(subset=['gene'], inplace=True)
-
-        if not args.keep_motifs:
-            anchors_df.drop(columns=['motif'], inplace=True)
 
         # Write the pandas dataframe to a CSV file.
         write_dataframe_to_csv(dataframe=anchors_df, directory=args.output,

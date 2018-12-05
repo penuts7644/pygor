@@ -103,7 +103,7 @@ class AnchorLocator(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         alignment = kwargs["alignment"]
-        seq_motif_indices = pandas.DataFrame(columns=['gene', 'motif', 'anchor_index'])
+        seq_motif_indices = pandas.DataFrame(columns=['gene', 'anchor_index', 'motif'])
 
         # For each of the motifs in the input array.
         for motif in ary:
@@ -130,8 +130,8 @@ class AnchorLocator(object):
                     start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
                     seq_motif_indices = seq_motif_indices.append({
                         'gene': seq_record.description,
-                        'motif': motif,
                         'anchor_index': start_index,
+                        'motif': motif,
                     }, ignore_index=True)
         return seq_motif_indices
 
