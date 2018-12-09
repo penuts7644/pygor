@@ -55,14 +55,15 @@ class CreateCdr3Anchors(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates an alignment from the given FASTA and " \
-            "seaches the given alignment for conserved motif regions. The located " \
-            "regions  are written out to a CSV file. NOTE: FOLLOWS IGOR STANDARD!"
+        description = "This tool creates an alignment from the given reference " \
+            "genome FASTA file and seaches the given alignment for conserved " \
+            "motif regions. The located regions are written out to a CSV file. " \
+            "Note that the FASTA needs to conform to IGMT annotation."
         parser_options = {
             'input': {
                 'metavar': 'I',
                 'type': 'str',
-                'help': 'An input FASTA file.'
+                'help': 'An input reference genome FASTA file.'
             },
             'gene': {
                 'metavar': 'G',
