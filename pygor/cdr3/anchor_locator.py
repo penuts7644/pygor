@@ -147,8 +147,8 @@ class AnchorLocator(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence identifiers - 'gene', motifs - 'motif'
-            and start index values for the anchors - 'anchor_index'.
+            Containing columns with sequence identifiers - 'gene', start index
+            values for the anchors - 'anchor_index' and motifs - 'motif'
 
         Notes
         -----
