@@ -28,3 +28,42 @@ Development of pygor is active. If you would like to see new features, please op
 It is also possible to help out by developing your own new features by forking this project and creating a [pull request](https://github.com/penuts7644/pygor/compare).
 
 When using a forked copy pygor, make sure to have the correct Python version installed. Install the local Python development requirements via `make setup` command.
+
+### Package structure
+
+```
+pygor
+├── __init__.py
+├── __main__.py
+├── alignment
+│   ├── __init__.py
+│   ├── align_read.py
+│   └── muscle_aligner.py
+├── cdr3
+│   ├── __init__.py
+│   └── anchor_locator.py
+├── cli
+│   ├── __init__.py
+│   └── create_cdr3_anchors.py
+├── counter
+│   ├── __init__.py
+│   ├── bestscenarios
+│   │   ├── __init__.py
+│   │   └── bestscenarios.py
+│   └── coverage
+│       ├── __init__.py
+│       └── coverage.py
+├── model
+│   ├── __init__.py
+│   ├── entropy.py
+│   ├── genmodel.py
+│   └── hypermglobal.py
+└── util
+    ├── __init__.py
+    ├── cli.py
+    ├── constant.py
+    ├── conversion.py
+    ├── exception.py
+    ├── io.py
+    └── processing.py
+```
