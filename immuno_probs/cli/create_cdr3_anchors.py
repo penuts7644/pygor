@@ -19,10 +19,10 @@
 """Commandline tool for creating files containing CDR3 anchor indices."""
 
 
-from immunoprobs.alignment.muscle_aligner import MuscleAligner
-from immunoprobs.cdr3.anchor_locator import AnchorLocator
-from immunoprobs.util.cli import dynamic_cli_options
-from immunoprobs.util.io import write_dataframe_to_csv
+from immuno_probs.alignment.muscle_aligner import MuscleAligner
+from immuno_probs.cdr3.anchor_locator import AnchorLocator
+from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.io import write_dataframe_to_csv
 
 
 class CreateCdr3Anchors(object):

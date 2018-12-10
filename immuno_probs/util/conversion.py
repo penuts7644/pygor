@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains conversion functions used in immunoprobs."""
+"""Contains conversion functions used in immuno_probs."""
 
 
-from immunoprobs.util.exception import CharacterNotFoundException
+from immuno_probs.util.exception import CharacterNotFoundException
 
 
 def nucleotides_to_integers(seq):

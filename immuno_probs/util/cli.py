@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains command-line functions used in immunoprobs."""
+"""Contains command-line functions used in immuno_probs."""
 
 
 def dynamic_cli_options(parser, options):

@@ -16,13 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.util.cli file."""
+"""Test file for testing immuno_probs.util.cli file."""
 
 import argparse
 
 import pytest
 
-from immunoprobs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import dynamic_cli_options
 
 
 @pytest.mark.parametrize('options, commandline_input, expected', [

@@ -1,15 +1,15 @@
 # ImmunoProbs
 
 [![Build Status](https://img.shields.io/travis/penuts7644/ImmunoProbs.svg?branch=master&longCache=true&style=for-the-badge)](https://travis-ci.org/penuts7644/ImmunoProbs)
-[![PyPI version shields.io](https://img.shields.io/pypi/v/ImmunoProbs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/ImmunoProbs/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/ImmunoProbs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/ImmunoProbs/)
-[![PyPI license](https://img.shields.io/pypi/l/ImmunoProbs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/ImmunoProbs/)
+[![PyPI version shields.io](https://img.shields.io/pypi/v/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
+[![PyPI license](https://img.shields.io/pypi/l/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 
 ImmunoProbs Python package uses simplified manner for calculating the generation probability of V(D)J and CDR3 sequences.
 
 ### How to install
 
-ImmunoProbs is installable via PyPI using the following terminal command `pip install immunoprobs`.
+ImmunoProbs is installable via PyPI using the following terminal command `pip install immuno-probs`.
 
 ### Requirements
 
@@ -30,7 +30,7 @@ When using a forked copy ImmunoProbs, make sure to have the correct Python versi
 ### Package structure
 
 ```
-immunoprobs
+immuno_probs
 ├── __init__.py
 ├── __main__.py
 ├── alignment
@@ -43,19 +43,6 @@ immunoprobs
 ├── cli
 │   ├── __init__.py
 │   └── create_cdr3_anchors.py
-├── counter
-│   ├── __init__.py
-│   ├── bestscenarios
-│   │   ├── __init__.py
-│   │   └── bestscenarios.py
-│   └── coverage
-│       ├── __init__.py
-│       └── coverage.py
-├── model
-│   ├── __init__.py
-│   ├── entropy.py
-│   ├── genmodel.py
-│   └── hypermglobal.py
 └── util
     ├── __init__.py
     ├── cli.py

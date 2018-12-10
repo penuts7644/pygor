@@ -22,8 +22,8 @@
 import pandas
 import numpy
 
-from immunoprobs.util.exception import GeneIdentifierException, IndexNotFoundException
-from immunoprobs.util.processing import multiprocess_array
+from immuno_probs.util.exception import GeneIdentifierException, IndexNotFoundException
+from immuno_probs.util.processing import multiprocess_array
 
 
 class AnchorLocator(object):

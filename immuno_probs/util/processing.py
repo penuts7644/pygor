@@ -16,15 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains processing functions used in immunoprobs."""
+"""Contains processing functions used in immuno_probs."""
 
 
 import numpy
 import pathos.pools as pp
 import pathos.helpers as help
 
-from immunoprobs.util.constant import get_max_threads
-from immunoprobs.util.exception import MaxThreadsValueException
+from immuno_probs.util.constant import get_max_threads
+from immuno_probs.util.exception import MaxThreadsValueException
 
 
 def multiprocess_array(ary, func, **kwargs):
@@ -52,7 +52,7 @@ def multiprocess_array(ary, func, **kwargs):
 
     Notes
     -----
-        This function uses the MAX_THREADS constant from immunoprobs.util.constant and
+        This function uses the MAX_THREADS constant from immuno_probs.util.constant and
         will limit the number of workers to create based on this value. Overwrite
         MAX_THREADS constant to increase the maximum number of workers. By default
         uses the cpu count from pathos package.

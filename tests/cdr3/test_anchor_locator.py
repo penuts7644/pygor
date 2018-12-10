@@ -16,14 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.cdr3.anchor_locator file."""
+"""Test file for testing immuno_probs.cdr3.anchor_locator file."""
 
 
 import pandas
 import pytest
 
-from immunoprobs.alignment.muscle_aligner import MuscleAligner
-from immunoprobs.cdr3.anchor_locator import AnchorLocator
+from immuno_probs.alignment.muscle_aligner import MuscleAligner
+from immuno_probs.cdr3.anchor_locator import AnchorLocator
 
 
 def create_alignment():

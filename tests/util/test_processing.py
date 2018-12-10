@@ -16,13 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.util.processing file."""
+"""Test file for testing immuno_probs.util.processing file."""
 
 
 import pytest
 
-from immunoprobs.util.constant import set_max_threads
-from immunoprobs.util.processing import multiprocess_array
+from immuno_probs.util.constant import set_max_threads
+from immuno_probs.util.processing import multiprocess_array
 
 
 def sum_integers_plus_value(args):

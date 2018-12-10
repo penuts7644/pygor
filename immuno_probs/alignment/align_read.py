@@ -21,7 +21,7 @@ import re as regex
 import numpy
 import pandas
 
-from immunoprobs.util.conversion import string_array_to_list
+from immuno_probs.util.conversion import string_array_to_list
 
 
 def extract_best_aligns(aligns_df):
