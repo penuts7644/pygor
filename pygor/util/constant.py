@@ -14,3 +14,30 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""Contains global constant variables used in pygor."""
+
+
+import pathos.helpers as ph
+
+
+MAX_THREADS = ph.cpu_count()
+SEPARATOR = ','
+
+
+def set_max_threads(max_threads):
+    """Sets the global MAX_THREADS variable."""
+    globals().update(MAX_THREADS=max_threads)
+
+def get_max_threads():
+    """Returns the global MAX_THREADS variable."""
+    return MAX_THREADS
+
+def set_separator(separator):
+    """Sets the global SEPARATOR variable."""
+    globals().update(SEPARATOR=separator)
+
+def get_separator():
+    """Returns the global SEPARATOR variable."""
+    return SEPARATOR

@@ -39,3 +39,35 @@ class GeneIdentifierException(Exception):
 
     def __str__(self):
         return "{0}: '{1}''".format(self.message, self.identifier)
+
+
+class IndexNotFoundException(Exception):
+    """Exception for being unable to collect and index from a list."""
+    def __init__(self, message, identifier):
+        super(IndexNotFoundException, self).__init__()
+        self.message = message
+        self.identifier = identifier
+
+    def __str__(self):
+        return "{0}: '{1}''".format(self.message, self.identifier)
+
+
+class MaxThreadsValueException(Exception):
+    """Exception when the MAX_THREADS variable is faulty."""
+    def __init__(self, message, character):
+        super(MaxThreadsValueException, self).__init__()
+        self.message = message
+        self.character = character
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.character)
+
+class SeparatorNotValidException(Exception):
+    """Exception when the SEPARATOR variable is faulty."""
+    def __init__(self, message, character):
+        super(SeparatorNotValidException, self).__init__()
+        self.message = message
+        self.character = character
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.character)

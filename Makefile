@@ -21,7 +21,7 @@ help:
 ##			additional development requirements.
 ##
 setup:
-	pip install -e .[development]
+	pip install -r requirements-travis.txt && pip install -e .[development]
 
 ##		make test
 ##			Run pytest tests from the tests directory on the pygor source.
@@ -50,5 +50,5 @@ test-deploy:
 ##		make deploy
 ##			Tests, cleans, builds and upload all distribution files to PyPI.
 ##
-deploy: test clean build-dist
+deploy: test clean build
 	python -m twine upload dist/*

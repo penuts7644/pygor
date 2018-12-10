@@ -38,8 +38,8 @@ def test_nucleotides_to_integers(seq, expected):
     ----------
     seq : string
         A nucleotide sequence string.
-    expected : object
-        The expected output type object.
+    expected : str
+        The expected output string.
 
     Raises
     -------
@@ -62,8 +62,8 @@ def test_integers_to_nucleotides(int_seq, expected):
     ----------
     int_seq : string
         A integer sequence string.
-    expected : object
-        The expected output type object.
+    expected : str
+        The expected output string.
 
     Raises
     -------
@@ -86,8 +86,8 @@ def test_reverse_complement(seq, expected):
     ----------
     seq : string
         A nucleotide sequence string.
-    expected : object
-        The expected output type object.
+    expected : str
+        The expected output string.
 
     Raises
     -------
@@ -121,8 +121,8 @@ def test_string_array_to_list(in_str, dtype, l_bound, r_bound, sep, expected):
         A string specifying the right boundary character(s).
     sep : string
         The separator character used in the input string.
-    expected : object
-        The expected output type object.
+    expected : list
+        The expected output list.
 
     Raises
     -------

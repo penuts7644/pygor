@@ -14,7 +14,3 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from pygor.cdr3.anchor_locator import *
-from pygor.cdr3.sequence_container import *
