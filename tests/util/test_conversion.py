@@ -16,15 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.util.conversion file."""
+"""Test file for testing immuno_probs.util.conversion file."""
 
 
 import pytest
 
-from immunoprobs.util.conversion import nucleotides_to_integers
-from immunoprobs.util.conversion import integers_to_nucleotides
-from immunoprobs.util.conversion import reverse_complement
-from immunoprobs.util.conversion import string_array_to_list
+from immuno_probs.util.conversion import nucleotides_to_integers
+from immuno_probs.util.conversion import integers_to_nucleotides
+from immuno_probs.util.conversion import reverse_complement
+from immuno_probs.util.conversion import string_array_to_list
 
 
 @pytest.mark.parametrize('seq, expected', [

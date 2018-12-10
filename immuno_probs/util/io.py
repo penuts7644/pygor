@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains I/O related functions used in immunoprobs."""
+"""Contains I/O related functions used in immuno_probs."""
 
 
 import os
@@ -24,8 +24,8 @@ import os
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
-from immunoprobs.util.constant import get_separator
-from immunoprobs.util.exception import SeparatorNotValidException
+from immuno_probs.util.constant import get_separator
+from immuno_probs.util.exception import SeparatorNotValidException
 
 
 def read_fasta_as_dataframe(infile):

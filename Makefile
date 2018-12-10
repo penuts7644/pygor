@@ -1,5 +1,5 @@
 ##
-##	immunoprobs
+##	ImmunoProbs
 ##		ImmunoProbs Python package uses simplified manner for calculating the
 ##		generation probability of V(D)J and CDR3 sequences.
 ##		Copyright (C) 2018 Wout van Helvoirt
@@ -21,10 +21,10 @@ help:
 ##			additional development requirements.
 ##
 setup:
-	pip install -r requirements-travis.txt && pip install -e .[development]
+	pip install -r requirements_travis.txt && pip install -e .[development]
 
 ##		make test
-##			Run pytest tests from the tests directory on the immunoprobs source.
+##			Run pytest tests from the tests directory on the immuno_probs source.
 ##
 test:
 	python -m pytest -v tests

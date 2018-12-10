@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains global constant variables used in immunoprobs."""
+"""Contains global constant variables used in immuno_probs."""
 
 
 import pathos.helpers as ph

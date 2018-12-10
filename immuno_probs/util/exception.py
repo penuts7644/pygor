@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains custom exception classes used in immunoprobs."""
+"""Contains custom exception classes used in immuno_probs."""
 
 
 class CharacterNotFoundException(Exception):

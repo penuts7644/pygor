@@ -16,13 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.alignment.muscle_aligner file."""
+"""Test file for testing immuno_probs.alignment.muscle_aligner file."""
 
 
 from Bio.Align import MultipleSeqAlignment
 import pytest
 
-from immunoprobs.alignment.muscle_aligner import MuscleAligner
+from immuno_probs.alignment.muscle_aligner import MuscleAligner
 
 
 @pytest.mark.parametrize('infile, cmd, expected', [

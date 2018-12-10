@@ -16,15 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""immunoprobs executable file for running functions located in immunoprobs.cli directory."""
+"""Executable file for running functions located in immuno_probs.cli directory."""
 
 
 import argparse
 
-from immunoprobs.cli.create_cdr3_anchors import CreateCdr3Anchors
-from immunoprobs.util.cli import dynamic_cli_options
-from immunoprobs.util.constant import set_max_threads
-from immunoprobs.util.constant import set_separator
+from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
+from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.constant import set_max_threads
+from immuno_probs.util.constant import set_separator
 
 
 def main():
@@ -46,9 +46,9 @@ def main():
                     '(default: max threads).'
         }
     }
-    parser = argparse.ArgumentParser(prog='immunoprobs', description=description)
+    parser = argparse.ArgumentParser(prog='immuno-probs', description=description)
     parser = dynamic_cli_options(parser=parser, options=parser_general_options)
-    subparsers = parser.add_subparsers(help='Supported ImmunoProbs options, command plus help ' \
+    subparsers = parser.add_subparsers(help='Supported immuno-probs options, command plus help ' \
                                             'displays more information for the option.',
                                        dest='subparser_name')
 
@@ -65,7 +65,7 @@ def main():
     if parsed_arguments.subparser_name == cca.__class__.__name__:
         cca.run(args=parsed_arguments)
     else:
-        print("No option specified, run 'immunoprobs -h' to display all options.")
+        print("No option specified, run 'immuno-probs -h' to display all options.")
 
 
 if __name__ == '__main__':

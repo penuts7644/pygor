@@ -16,13 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immunoprobs.util.io file."""
+"""Test file for testing immuno_probs.util.io file."""
 
 
 import pandas
 import pytest
 
-from immunoprobs.util.io import read_fasta_as_dataframe
+from immuno_probs.util.io import read_fasta_as_dataframe
 
 
 @pytest.mark.parametrize('infile, expected', [
