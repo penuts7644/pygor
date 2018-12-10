@@ -5,23 +5,23 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 [![PyPI license](https://img.shields.io/pypi/l/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 
-ImmunoProbs Python package uses simplified manner for calculating the generation probability of V(D)J and CDR3 sequences.
+ImmunoProbs Python package uses a simplified manner for calculating the generation probability of V(D)J and CDR3 sequences.
 
 ### How to install
 
-ImmunoProbs is installable via PyPI using the following terminal command `pip install immuno-probs`.
+ImmunoProbs is installable via PyPI using the following terminal command `pip install immuno-probs`. To see all available tools for ImmunoProbs use the `immuno-probs -h` command after installation. Each ImmunoProbs tool has its own specific arguments. The options for a specific tools are available via `immuno-probs <TOOL NAME> -h`.
 
 ### Requirements
 
-All Python dependencies that are used by this package are installed when installing ImmunoProbs via the pip command. However, some software needs to installed manually when planning on using specific functionalities within ImmunoProbs:
+All Python dependencies that are used by this package are installed through pip upon installation of ImmunoProbs. However, some software (not available via pip) needs to installed manually when planning on using certain command-line tools from ImmunoProbs:
 
 | Function | Requirement |
 | -------- | ----------- |
-| Creating CDR3 anchors (`cdr3` module) | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+| CreateCdr3Anchors | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
 
 ### Development
 
-Development of ImmunoProbs is active. If you would like to see new features, please open a new [issue](https://github.com/penuts7644/ImmunoProbs/issues/new).
+Development of ImmunoProbs is currently active. If you would like to see new features, please open a new [issue](https://github.com/penuts7644/ImmunoProbs/issues/new).
 
 It is also possible to help out by developing your own new features by forking this project and creating a [pull request](https://github.com/penuts7644/ImmunoProbs/compare).
 

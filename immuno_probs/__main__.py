@@ -1,4 +1,4 @@
-# ImmunoProbs Python package uses simplified manner for calculating the
+# ImmunoProbs Python package uses a simplified manner for calculating the
 # generation probability of V(D)J and CDR3 sequences.
 # Copyright (C) 2018 Wout van Helvoirt
 
@@ -30,7 +30,7 @@ from immuno_probs.util.constant import set_separator
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
     # Create the parser with general commands and set the subparser.
-    description = 'ImmunoProbs Python package uses simplified manner for calculating ' \
+    description = 'ImmunoProbs Python package uses a simplified manner for calculating ' \
         'the generation probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '--separator': {
