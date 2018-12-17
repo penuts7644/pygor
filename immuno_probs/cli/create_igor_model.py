@@ -16,17 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Commandline tool for creating files containing CDR3 anchor indices."""
+"""Commandline tool for creating a custom IGoR V(D)J model."""
 
 
-from immuno_probs.alignment.muscle_aligner import MuscleAligner
-from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
-class CreateCdr3Anchors(object):
-    """Commandline tool for creating compatible CDR3 anchor CSV files.
+class CreateIgorModel(object):
+    """Commandline tool for creating custom IGoR V(D)J models.
 
     Parameters
     ----------
@@ -36,12 +34,12 @@ class CreateCdr3Anchors(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to locate the CDR3
-        anchors and write them to a file.
+        Uses the given Namespace commandline arguments to locate the run IGoR
+        for creating a custom model. As of now, still requires an initial model.
 
     """
     def __init__(self, subparsers):
-        super(CreateCdr3Anchors, self).__init__()
+        super(CreateIgorModel, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -55,39 +53,53 @@ class CreateCdr3Anchors(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates an alignment from the given reference " \
-            "genome FASTA file and seaches the given alignment for conserved " \
-            "motif regions. The located regions are written out to a CSV file. " \
-            "Note that the FASTA needs to conform to IGMT annotation."
+        description = "This tool creates a V(D)J model by executing IGoR via a " \
+            "python subprocess. The resulting files are written to the " \
+            "'immuno_probs' directory."
         parser_options = {
-            'ref': {
-                'metavar': 'R',
+            'seqs': {
+                'metavar': 'S',
                 'type': 'str',
-                'help': 'An input reference genome FASTA file.'
+                'help': 'An input FASTA file with sequences for training the model.'
             },
-            'gene': {
-                'metavar': 'G',
+            'v-gene': {
+                'metavar': 'V',
                 'type': 'str',
-                'choices': ['V', 'J'],
-                'help': 'The gene (%(choices)s) type of the input file.'
+                'help': 'Reference genome FASTA for the V gene.'
             },
-            '--output': {
+            'j-gene': {
+                'metavar': 'J',
+                'type': 'str',
+                'help': 'Reference genome FASTA for the J gene.'
+            },
+            'init-model': {
+                'metavar': 'M',
+                'type': 'str',
+                'help': "An initial IGoR model's parameters file."
+            },
+            '--d-gene': {
                 'type': 'str',
                 'nargs': '?',
-                'help': 'An optional output file path location. By default, the ' \
-                    'file is written to the current working directory.'
+                'help': 'Optional reference genome FASTA for the D gene if ' \
+                    'available.'
             },
-            '--motifs': {
+            '--set-wd': {
                 'type': 'str',
-                'nargs': '*',
-                'help': "The motifs to look for. If none specified, the default " \
-                    "'V' (Cystein - TGT and TGC) or 'J' (Tryptophan - TGG, " \
-                    "Phenylalanine - TTT and TTC)."
+                'nargs': '?',
+                'help': 'An optional location for creating the IGoR files. By ' \
+                    'default, uses the current directory for written files.'
+            },
+            '--n-iter': {
+                'type': 'int',
+                'nargs': '?',
+                'default': '1',
+                'help': 'The number of inference iterations to perform when ' \
+                    'creating the model. (default: %(default)s)'
             }
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser('CreateCdr3Anchors',
+        parser_tool = self.subparsers.add_parser('CreateIgorModel',
                                                  help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
@@ -102,19 +114,7 @@ class CreateCdr3Anchors(object):
             Object containing our parsed commandline arguments.
 
         """
-        # Create the alignment and locate the motifs.
-        aligner = MuscleAligner(infile=args.ref)
-        locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
-                                gene=args.gene)
-
-        if args.motifs is not None:
-            anchors_df = locator.get_indices_motifs(args.motifs)
-        else:
-            anchors_df = locator.get_indices_motifs()
-
-        # Write the pandas dataframe to a CSV file.
-        write_dataframe_to_csv(dataframe=anchors_df, directory=args.output,
-                               filename='{}_gene_CDR3_anchors'.format(args.gene))
+        # TODO
 
 
 def main():
