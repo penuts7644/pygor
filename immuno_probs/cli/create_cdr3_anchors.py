@@ -60,8 +60,8 @@ class CreateCdr3Anchors(object):
             "motif regions. The located regions are written out to a CSV file. " \
             "Note that the FASTA needs to conform to IGMT annotation."
         parser_options = {
-            'input': {
-                'metavar': 'I',
+            'ref': {
+                'metavar': 'R',
                 'type': 'str',
                 'help': 'An input reference genome FASTA file.'
             },
@@ -103,7 +103,7 @@ class CreateCdr3Anchors(object):
 
         """
         # Create the alignment and locate the motifs.
-        aligner = MuscleAligner(infile=args.input)
+        aligner = MuscleAligner(infile=args.ref)
         locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                 gene=args.gene)
 
