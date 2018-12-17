@@ -22,6 +22,7 @@
 import argparse
 
 from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
+from immuno_probs.cli.create_igor_model import CreateIgorModel
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import set_max_threads
 from immuno_probs.util.constant import set_separator
@@ -54,6 +55,7 @@ def main():
 
     # Add main- and suboptions to the subparser.
     cca = CreateCdr3Anchors(subparsers=subparsers)
+    cim = CreateIgorModel(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables and execute correct function.
     parsed_arguments = parser.parse_args()
@@ -64,6 +66,8 @@ def main():
 
     if parsed_arguments.subparser_name == cca.__class__.__name__:
         cca.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == cim.__class__.__name__:
+        cim.run(args=parsed_arguments)
     else:
         print("No option specified, run 'immuno-probs -h' to display all options.")
 
