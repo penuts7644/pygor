@@ -52,10 +52,10 @@ class IndexNotFoundException(Exception):
         return "{0}: '{1}''".format(self.message, self.identifier)
 
 
-class MaxThreadsValueException(Exception):
-    """Exception when the MAX_THREADS variable is faulty."""
+class NumThreadsValueException(Exception):
+    """Exception when the NUM_THREADS variable is faulty."""
     def __init__(self, message, character):
-        super(MaxThreadsValueException, self).__init__()
+        super(NumThreadsValueException, self).__init__()
         self.message = message
         self.character = character
 

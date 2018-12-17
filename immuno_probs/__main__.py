@@ -24,7 +24,7 @@ import argparse
 from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
 from immuno_probs.cli.create_igor_model import CreateIgorModel
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_max_threads
+from immuno_probs.util.constant import set_num_threads
 from immuno_probs.util.constant import set_separator
 
 
@@ -40,11 +40,11 @@ def main():
             'help': 'The separator character to be used when writing files ' \
                     '(default: comma character).'
         },
-        '--max-threads': {
+        '--threads': {
             'type': 'int',
             'nargs': '?',
-            'help': 'The max number of threads the program is allowed to use ' \
-                    '(default: max threads).'
+            'help': 'The number of threads the program is allowed to use ' \
+                    '(default: max available threads).'
         }
     }
     parser = argparse.ArgumentParser(prog='immuno-probs', description=description)
@@ -61,8 +61,8 @@ def main():
     parsed_arguments = parser.parse_args()
     if parsed_arguments.separator is not None:
         set_separator(parsed_arguments.separator)
-    if parsed_arguments.max_threads is not None:
-        set_max_threads(parsed_arguments.max_threads)
+    if parsed_arguments.threads is not None:
+        set_num_threads(parsed_arguments.threads)
 
     if parsed_arguments.subparser_name == cca.__class__.__name__:
         cca.run(args=parsed_arguments)

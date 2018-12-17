@@ -173,7 +173,7 @@ class AnchorLocator(object):
             It locates the most common 'V' (Cystein - TGT and TGC) or 'J'
             (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
             all sequences in the multi-alignment (Or custom motifs).
-            This function uses the MAX_THREADS variable for multiprocessing.
+            This function uses the NUM_THREADS variable for multiprocessing.
 
         """
         # Set the motifs arrays (given or not) and perform the multiprocessing task.
