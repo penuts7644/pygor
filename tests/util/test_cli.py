@@ -23,6 +23,7 @@ import argparse
 import pytest
 
 from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import subprocess_builder
 
 
 @pytest.mark.parametrize('options, commandline_input, expected', [
@@ -87,3 +88,35 @@ def test_dynamic_cli_parser(options, commandline_input, expected):
     assert parsed_arguments.choice == expected[2]
     assert parsed_arguments.option_1 == expected[3]
     assert parsed_arguments.option_2 == expected[4]
+
+
+@pytest.mark.parametrize('options, level, expected', [
+    (['test', '1', '2'], 1, '-test 1 2'),
+    (['test', ['sub', '1', '2'], '3'], 0, 'test -sub 1 2 3'),
+    (['test', ['sub', '1'], ['sub', '2', ['sub-sub', '3']]], 0,
+     'test -sub 1 -sub 2 --sub-sub 3'),
+])
+def test_subprocess_builder(options, level, expected):
+    """Test if the subprocess builder creates the string command properly.
+
+    Parameters
+    ----------
+    options : list
+        A Python nested ordered list with each value being a command/option.
+        White spaces will seperate the options. Note: the depth of the nested
+        lists will determine the number '-' characters to add in front of the
+        first element for each list.
+    level : int
+        The initial start depth level for indication the number of '-' characters
+        to add to the first item in the lists. (default: 0)
+    expected : str
+        The correctly formatted command-line string.
+
+    Raises
+    -------
+    AssertionError
+        If the performed test failed.
+
+    """
+    command = subprocess_builder(options=options, level=level)
+    assert command == expected
