@@ -19,6 +19,16 @@
 """Contains custom exception classes used in immuno_probs."""
 
 
+class AlignerException(Exception):
+    """Exception for when an error occured with one of the aligner programs."""
+    def __init__(self, aligner_message):
+        super(AlignerException, self).__init__()
+        self.message = aligner_message
+
+    def __str__(self):
+        return "An error occured with the aligner:\n{0}".format(self.message)
+
+
 class CharacterNotFoundException(Exception):
     """Exception for when a character has not been found."""
     def __init__(self, message, character):

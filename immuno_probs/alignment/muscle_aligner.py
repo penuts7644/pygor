@@ -19,9 +19,12 @@
 """MuscleAligner class for performing MUSCLE alignments."""
 
 
+from immuno_probs.util.exception import AlignerException
+
 from Bio.Align.Applications import MuscleCommandline
 from StringIO import StringIO
 from Bio import AlignIO
+from Bio.Application import ApplicationError
 
 
 class MuscleAligner(object):
@@ -60,14 +63,22 @@ class MuscleAligner(object):
     def _align_fasta(self):
         """Uses MUSCLE via commandline to create a multi-alignment from fasta.
 
+        Raises
+        ------
+        AlignerException
+            When the Muscle command-line program returns an error.
+
         Notes
         -----
             This function uses the given fasta file for creating an alignment.
 
         """
-        muscle_cline = MuscleCommandline(input=self.fasta, **self.kwargs)
-        stdout, _ = muscle_cline()
-        return AlignIO.read(StringIO(stdout), "fasta")
+        try:
+            muscle_cline = MuscleCommandline(input=self.fasta, **self.kwargs)
+            stdout, _ = muscle_cline()
+            return AlignIO.read(StringIO(stdout), "fasta")
+        except ApplicationError as err:
+            raise AlignerException(err.stderr)
 
 
 def main():
