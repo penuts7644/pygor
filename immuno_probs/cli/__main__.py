@@ -49,8 +49,8 @@ def main():
     }
     parser = argparse.ArgumentParser(prog='immuno-probs', description=description)
     parser = dynamic_cli_options(parser=parser, options=parser_general_options)
-    subparsers = parser.add_subparsers(help='Supported immuno-probs options, command plus help ' \
-                                            'displays more information for the option.',
+    subparsers = parser.add_subparsers(help='Supported immuno-probs options, ' \
+        'command plus help displays more information for the option.',
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
@@ -64,9 +64,9 @@ def main():
     if parsed_arguments.threads is not None:
         set_num_threads(parsed_arguments.threads)
 
-    if parsed_arguments.subparser_name == cca.__class__.__name__:
+    if parsed_arguments.subparser_name == 'create-cdr3-anchors':
         cca.run(args=parsed_arguments)
-    elif parsed_arguments.subparser_name == cim.__class__.__name__:
+    elif parsed_arguments.subparser_name == 'create-igor-model':
         cim.run(args=parsed_arguments)
     else:
         print("No option specified, run 'immuno-probs -h' to display all options.")
