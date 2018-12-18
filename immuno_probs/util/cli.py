@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains command-line functions used in immuno_probs."""
+"""Contains commandline functions used in immuno_probs."""
 
 
 def dynamic_cli_options(parser, options):
@@ -27,10 +27,10 @@ def dynamic_cli_options(parser, options):
     parser : argparse.ArgumentParser
         ArgumentParser to append options to.
     options : dict
-        A Python dict with key being the full name of the option. The value is
-        a dict that corresponds to input arguments of the
-        ArgumentParser.add_argument function. Note: type argument values must be
-        surrounded by quotes.
+        A Python dict with key being the full name of the option. The value
+        is a dict that corresponds to input arguments of the
+        ArgumentParser.add_argument function. Note: type argument values must
+        be surrounded by quotes.
 
     Returns
     -------
@@ -51,35 +51,3 @@ def dynamic_cli_options(parser, options):
 
     # Return the updated parser.
     return parser
-
-
-def subprocess_builder(options, level=0):
-    """Creates a subprocess command-line string from ordered input dictionary.
-
-    Parameters
-    ----------
-    options : list
-        A Python nested ordered list with each value being a command/option.
-        White spaces will seperate the options. Note: the depth of the nested
-        lists will determine the number '-' characters to add in front of the
-        first element for each list.
-    level : int, optional
-        The initial start depth level for indication the number of '-' characters
-        to add to the first item in the lists. (default: 0)
-
-    Returns
-    -------
-    str
-        The formatted command-line command as string.
-
-    """
-    # Create the commandline string from the options in the list.
-    command_str = ""
-    for index, val in enumerate(options):
-        if isinstance(val, list):
-            val = subprocess_builder(val, level=level+1)
-        if isinstance(val, str):
-            if index == 0:
-                val = (level * '-') + val
-            command_str += ' ' + val
-    return command_str.strip(' ')
