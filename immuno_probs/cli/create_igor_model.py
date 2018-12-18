@@ -19,8 +19,11 @@
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
 
+import os
+
+from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.io import write_dataframe_to_csv
+from immuno_probs.util.constant import get_num_threads
 
 
 class CreateIgorModel(object):
@@ -53,56 +56,52 @@ class CreateIgorModel(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates a V(D)J model by executing IGoR via a " \
-            "python subprocess. The resulting files are written to the " \
-            "'immuno_probs' directory."
+        description = "This tool creates a V(D)J model by executing IGoR " \
+            "via a python subprocess."
         parser_options = {
-            'seqs': {
-                'metavar': 'S',
+            '-seqs': {
+                'metavar': '<fasta>',
+                'required': 'True',
                 'type': 'str',
-                'help': 'An input FASTA file with sequences for training the model.'
+                'help': 'An input FASTA file with sequences for training ' \
+                        'the model.'
             },
-            'v-gene': {
-                'metavar': 'V',
+            '-ref': {
+                'metavar': ('<gene>', '<fasta>'),
                 'type': 'str',
-                'help': 'Reference genome FASTA for the V gene.'
+                'action': 'append',
+                'nargs': 2,
+                'required': 'True',
+                'help': 'A gene (V, D or J) followed by a reference genome ' \
+                        'FASTA file.'
             },
-            'j-gene': {
-                'metavar': 'J',
-                'type': 'str',
-                'help': 'Reference genome FASTA for the J gene.'
-            },
-            'init-model': {
-                'metavar': 'M',
+            '-model-params': {
+                'metavar': '<txt>',
+                'required': 'True',
                 'type': 'str',
                 'help': "An initial IGoR model's parameters file."
-            },
-            '--d-gene': {
-                'type': 'str',
-                'nargs': '?',
-                'help': 'Optional reference genome FASTA for the D gene if ' \
-                    'available.'
             },
             '--set-wd': {
                 'type': 'str',
                 'nargs': '?',
-                'help': 'An optional location for creating the IGoR files. By ' \
-                    'default, uses the current directory for written files.'
+                'help': 'An optional location for creating the IGoR files. ' \
+                        'By default, uses the current directory for ' \
+                        'written files.'
             },
             '--n-iter': {
                 'type': 'int',
                 'nargs': '?',
-                'default': '1',
+                'default': 1,
                 'help': 'The number of inference iterations to perform when ' \
                     'creating the model. (default: %(default)s)'
             }
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser('CreateIgorModel',
-                                                 help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
-
+        parser_tool = self.subparsers.add_parser(
+            'create-igor-model', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool,
+                                          options=parser_options)
 
     @staticmethod
     def run(args):
@@ -114,7 +113,42 @@ class CreateIgorModel(object):
             Object containing our parsed commandline arguments.
 
         """
-        # TODO
+        # Add general igor commands.
+        command_list = []
+        if args.set_wd:
+            command_list.append(['set_wd', str(args.set_wd)])
+        else:
+            command_list.append(['set-wd', str(os.getcwd())])
+        if args.threads:
+            command_list.append(['threads', str(args.threads)])
+        else:
+            command_list.append(['threads', str(get_num_threads())])
+
+        # Add sequence and file paths commands.
+        if args.ref:
+            ref_list = ['set_genomic']
+            for i in args.ref:
+                ref_list.append([str(i[0]), str(i[1])])
+            command_list.append(ref_list)
+        if args.model_params:
+            command_list.append(['set_custom_model', str(args.model_params)])
+        if args.seqs:
+            command_list.append(['read_seqs', str(args.seqs)])
+
+        # Add alignment commands.
+        command_list.append(['align', ['all']])
+
+        # Add inference commands.
+        if args.n_iter:
+            command_list.append(['infer', ['N_iter', str(args.n_iter)]])
+
+        igor_cline = IgorInterface(args=command_list)
+        code, stdout, stderr, cmd = igor_cline.call()
+
+        if code != 0:
+            print("Error for executing command: '{}'".format(cmd))
+            print("stderr: '{}'".format(stderr))
+            print("stdout: '{}'".format(stdout))
 
 
 def main():
