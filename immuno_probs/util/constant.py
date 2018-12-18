@@ -26,18 +26,48 @@ NUM_THREADS = ph.cpu_count()
 SEPARATOR = ','
 
 
-def set_num_threads(num_threads):
-    """Sets the global NUM_THREADS variable."""
-    globals().update(NUM_THREADS=num_threads)
+def set_num_threads(value):
+    """Updates the global NUM_THREADS variable.
+
+    Parameters
+    ----------
+    value : int
+        The number of threads the program is allowed to use (default: max
+        available threads).
+
+    """
+    globals().update(NUM_THREADS=value)
 
 def get_num_threads():
-    """Returns the global NUM_THREADS variable."""
+    """Returns the global NUM_THREADS variable.
+
+    Returns
+    -------
+    str
+        The globally set value for the number of threads.
+
+    """
     return NUM_THREADS
 
-def set_separator(separator):
-    """Sets the global SEPARATOR variable."""
-    globals().update(SEPARATOR=separator)
+def set_separator(value):
+    """Updates the global SEPARATOR variable.
+
+    Parameters
+    ----------
+    value : str
+        The separator character to be used when writing files (default:
+        comma character).
+
+    """
+    globals().update(SEPARATOR=value)
 
 def get_separator():
-    """Returns the global SEPARATOR variable."""
+    """Returns the global SEPARATOR variable.
+
+    Returns
+    -------
+    str
+        The globally set separator value.
+
+    """
     return SEPARATOR

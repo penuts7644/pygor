@@ -43,10 +43,10 @@ class AnchorLocator(object):
 
     Notes
     -----
-        This class followes OLGA's CSV formatting standard for the outputed CDR3
-        anchor files. The reference genome alignment's gene name should be
-        located in the second position and the function on the fourth position
-        in the sequence header (separated by '|').
+        This class followes OLGA's CSV formatting standard for the outputed
+        CDR3 anchor files. The reference genome alignment's gene name should
+        be located in the second position and the function on the fourth
+        position in the sequence header (separated by '|').
 
     """
     def __init__(self, alignment, gene):
@@ -78,7 +78,8 @@ class AnchorLocator(object):
         """
         gene = gene.upper()
         if gene not in ["V", "J"]:
-            raise GeneIdentifierException("Gene identifier needs to be 'V' or 'J'", gene)
+            raise GeneIdentifierException(
+                "Gene identifier needs can be either 'V' or 'J'", gene)
         return gene
 
     @staticmethod
@@ -104,8 +105,9 @@ class AnchorLocator(object):
         Raises
         ------
         IndexNotFoundException
-            When the sequence header is not splitable by '|', if the header index
-            1 (gene name) or if the header index 3 (function) can be found.
+            When the sequence header is not splitable by '|', if the header
+            index 1 (gene name) or if the header index 3 (function) can be
+            found.
 
         """
         # Set the arguments and pandas.DataFrame.
@@ -117,28 +119,34 @@ class AnchorLocator(object):
         # For each of the motifs in the input array.
         for motif in ary:
 
-            # Loop over alignment (codon length) and collect occurences of motif.
+            # Loop over alignment (codon len) and collect occurences of motif.
             motif_index_occurances = []
             for i in range(0, alignment.get_alignment_length() - len(motif)):
                 motif_counts = numpy.zeros(len(alignment))
                 alignment_codon = alignment[:, i:i + len(motif)]
 
-                # For the motif alignment, count motif occurences and add to the counts.
-                for seq_record, j in zip(alignment_codon, range(0, len(alignment_codon))):
+                # For the motif alignment, count motif occurences and add to
+                # the counts.
+                for seq_record, j in zip(alignment_codon,
+                                         range(0, len(alignment_codon))):
                     motif_counts[j] = (seq_record.seq == motif)
 
-                # Calculate average of occurences (between 0 and 1) and add to start index.
-                motif_index_occurances.append(float(sum(motif_counts)) / len(alignment_codon))
+                # Calculate average of occurences (between 0 and 1) and add to
+                # start index.
+                motif_index_occurances.append(
+                    float(sum(motif_counts)) / len(alignment_codon))
 
             # Collect index with highest value attached.
             max_index = numpy.argmax(motif_index_occurances)
             for seq_record in alignment:
 
-                # Only process sequences that contain the motif at the conserved index location.
+                # Only process sequences that contain the motif at the conserved
+                # index location.
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
                     try:
                         description_list = seq_record.description.split('|')
-                        start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
+                        start_index = len(str(seq_record.seq[0:max_index])
+                                          .replace('-', ''))
                         seq_motif_indices = seq_motif_indices.append({
                             'gene': description_list[1],
                             'anchor_index': start_index,
@@ -146,9 +154,10 @@ class AnchorLocator(object):
                             'motif': motif,
                         }, ignore_index=True)
                     except IndexError:
-                        raise IndexNotFoundException("FASTA header needs to be separated by '|', " \
-                            "needs to have gene name on index 1 and function on index 3",
-                                                     seq_record.description)
+                        raise IndexNotFoundException(
+                            "FASTA header needs to be separated by '|', " \
+                            "needs to have gene name on index 1 and function " \
+                            "on index 3", seq_record.description)
         return seq_motif_indices
 
     def get_indices_motifs(self, *motifs):
@@ -176,7 +185,7 @@ class AnchorLocator(object):
             This function uses the NUM_THREADS variable for multiprocessing.
 
         """
-        # Set the motifs arrays (given or not) and perform the multiprocessing task.
+        # Set the motifs arrays and perform the multiprocessing task.
         if not motifs:
             motifs = self.default_motifs[self.gene]
         result = multiprocess_array(ary=motifs,

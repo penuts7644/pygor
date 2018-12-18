@@ -46,7 +46,7 @@ class CreateCdr3Anchors(object):
         self._add_options()
 
     def _add_options(self):
-        """Function for adding the parser and options to the given ArgumentParser.
+        """Function for adding the parser/options to the input ArgumentParser.
 
         Notes
         -----
@@ -55,41 +55,41 @@ class CreateCdr3Anchors(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates an alignment from the given reference " \
-            "genome FASTA file and seaches the given alignment for conserved " \
-            "motif regions. The located regions are written out to a CSV file. " \
-            "Note that the FASTA needs to conform to IGMT annotation."
+        description = "This tool creates an alignment from the given " \
+            "reference genome FASTA file and seaches the given alignment for " \
+            "conserved motif regions. The located regions are written out to " \
+            "a CSV file. Note: the FASTA needs to conform to IGMT annotation."
         parser_options = {
-            'ref': {
-                'metavar': 'R',
+            '-ref': {
+                'metavar': ('<gene>', '<fasta>'),
                 'type': 'str',
-                'help': 'An input reference genome FASTA file.'
-            },
-            'gene': {
-                'metavar': 'G',
-                'type': 'str',
-                'choices': ['V', 'J'],
-                'help': 'The gene (%(choices)s) type of the input file.'
+                'action': 'append',
+                'nargs': 2,
+                'required': 'True',
+                'help': 'A gene (V or J) followed by a reference genome ' \
+                        'FASTA file.'
             },
             '--output': {
                 'type': 'str',
                 'nargs': '?',
-                'help': 'An optional output file path location. By default, the ' \
-                    'file is written to the current working directory.'
+                'help': 'An optional output file path directory location. ' \
+                        'By default, the file is written to the current ' \
+                        'working directory.'
             },
             '--motifs': {
                 'type': 'str',
                 'nargs': '*',
-                'help': "The motifs to look for. If none specified, the default " \
-                    "'V' (Cystein - TGT and TGC) or 'J' (Tryptophan - TGG, " \
-                    "Phenylalanine - TTT and TTC)."
+                'help': "The motifs to look for. If none specified, the " \
+                        "default 'V' (Cystein - TGT and TGC) or 'J' " \
+                        "(Tryptophan - TGG, Phenylalanine - TTT and TTC)."
             }
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser('CreateCdr3Anchors',
-                                                 help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
+        parser_tool = self.subparsers.add_parser(
+            'create-cdr3-anchors', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool,
+                                          options=parser_options)
 
 
     @staticmethod
@@ -103,18 +103,23 @@ class CreateCdr3Anchors(object):
 
         """
         # Create the alignment and locate the motifs.
-        aligner = MuscleAligner(infile=args.ref)
-        locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
-                                gene=args.gene)
+        for gene in args.ref:
+            aligner = MuscleAligner(infile=gene[1])
+            locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
+                                    gene=gene[0])
 
-        if args.motifs is not None:
-            anchors_df = locator.get_indices_motifs(args.motifs)
-        else:
-            anchors_df = locator.get_indices_motifs()
+            if args.motifs is not None:
+                anchors_df = locator.get_indices_motifs(args.motifs)
+            else:
+                anchors_df = locator.get_indices_motifs()
 
-        # Write the pandas dataframe to a CSV file.
-        write_dataframe_to_csv(dataframe=anchors_df, directory=args.output,
-                               filename='{}_gene_CDR3_anchors'.format(args.gene))
+            # Write the pandas dataframe to a CSV file.
+            directory, filename = write_dataframe_to_csv(
+                dataframe=anchors_df, directory=args.output,
+                filename='{}_gene_CDR3_anchors'.format(gene[0]))
+
+            print("Written '{}' file to '{}' directory."
+                  .format(filename, directory))
 
 
 def main():

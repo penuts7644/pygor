@@ -52,22 +52,24 @@ def multiprocess_array(ary, func, **kwargs):
 
     Notes
     -----
-        This function uses the NUM_THREADS constant from immuno_probs.util.constant and
-        will limit the number of workers to create based on this value. Overwrite
-        NUM_THREADS constant to increase the number of workers. By default uses the
-        cpu count from pathos package.
+        This function uses the NUM_THREADS constant from
+        immuno_probs.util.constant and will limit the number of workers to
+        create based on this value. Overwrite NUM_THREADS constant to increase
+        the number of workers. By default uses the cpu count from pathos
+        package.
 
     """
     # Check out available worker count and adjust accordingly.
     num_workers = get_num_threads()
     if not isinstance(num_workers, int) or num_workers < 1:
-        raise NumThreadsValueException("The NUM_THREADS variable needs to be of " \
-                                       "type integer and higher than zero", num_workers)
+        raise NumThreadsValueException(
+            "The NUM_THREADS variable needs to be of type integer and higher " \
+            "than zero", num_workers)
     if len(ary) < num_workers:
         num_workers = len(ary)
 
     # Divide the array into chucks for the workers.
     pool = pp.ProcessPool(nodes=num_workers)
-    result = pool.map(func, [(d, kwargs)
-                             for d in numpy.array_split(ary, num_workers)])
-    return result
+    result = pool.amap(func, [(d, kwargs)
+                              for d in numpy.array_split(ary, num_workers)])
+    return result.get()

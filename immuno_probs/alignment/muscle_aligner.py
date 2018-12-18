@@ -66,7 +66,7 @@ class MuscleAligner(object):
         Raises
         ------
         AlignerException
-            When the Muscle command-line program returns an error.
+            When the Muscle commandline program returns an error.
 
         Notes
         -----
