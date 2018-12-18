@@ -23,8 +23,8 @@ import numpy
 import pathos.pools as pp
 import pathos.helpers as help
 
-from immuno_probs.util.constant import get_max_threads
-from immuno_probs.util.exception import MaxThreadsValueException
+from immuno_probs.util.constant import get_num_threads
+from immuno_probs.util.exception import NumThreadsValueException
 
 
 def multiprocess_array(ary, func, **kwargs):
@@ -46,28 +46,30 @@ def multiprocess_array(ary, func, **kwargs):
 
     Raises
     ------
-    MaxThreadsValueException
-        When the MAX_THREADS global variable is not an integer or is smaller
+    NumThreadsValueException
+        When the NUM_THREADS global variable is not an integer or is smaller
         then 1.
 
     Notes
     -----
-        This function uses the MAX_THREADS constant from immuno_probs.util.constant and
-        will limit the number of workers to create based on this value. Overwrite
-        MAX_THREADS constant to increase the maximum number of workers. By default
-        uses the cpu count from pathos package.
+        This function uses the NUM_THREADS constant from
+        immuno_probs.util.constant and will limit the number of workers to
+        create based on this value. Overwrite NUM_THREADS constant to increase
+        the number of workers. By default uses the cpu count from pathos
+        package.
 
     """
     # Check out available worker count and adjust accordingly.
-    num_workers = get_max_threads()
+    num_workers = get_num_threads()
     if not isinstance(num_workers, int) or num_workers < 1:
-        raise MaxThreadsValueException("The MAX_THREADS variable needs to be of " \
-                                       "type integer and higher than zero", num_workers)
+        raise NumThreadsValueException(
+            "The NUM_THREADS variable needs to be of type integer and higher " \
+            "than zero", num_workers)
     if len(ary) < num_workers:
         num_workers = len(ary)
 
     # Divide the array into chucks for the workers.
     pool = pp.ProcessPool(nodes=num_workers)
-    result = pool.map(func, [(d, kwargs)
-                             for d in numpy.array_split(ary, num_workers)])
-    return result
+    result = pool.amap(func, [(d, kwargs)
+                              for d in numpy.array_split(ary, num_workers)])
+    return result.get()

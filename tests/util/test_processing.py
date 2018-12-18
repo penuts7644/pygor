@@ -21,7 +21,7 @@
 
 import pytest
 
-from immuno_probs.util.constant import set_max_threads
+from immuno_probs.util.constant import set_num_threads
 from immuno_probs.util.processing import multiprocess_array
 
 
@@ -31,12 +31,12 @@ def sum_integers_plus_value(args):
     return sum(ary) + kwargs['plus']
 
 
-@pytest.mark.parametrize('ary, func, max_workers, plus, expected', [
+@pytest.mark.parametrize('ary, func, num_workers, plus, expected', [
     ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 1, 10, [55]),
     ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 2, 5, [15, 40]),
     ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 4, -4, [-1, 8, 9, 13])
 ])
-def test_multiprocess_array(ary, func, max_workers, plus, expected):
+def test_multiprocess_array(ary, func, num_workers, plus, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
     Parameters
@@ -45,8 +45,8 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
         List 'like' object to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
-    max_workers : int
-        For this test we will set the global MAX_THREADS variable.
+    num_workers : int
+        For this test we will set the global NUM_THREADS variable.
     **kwargs
         The remaining arguments to be given to the input function.
     expected : numpy.ndarray
@@ -58,6 +58,6 @@ def test_multiprocess_array(ary, func, max_workers, plus, expected):
         If the performed test failed.
 
     """
-    set_max_threads(max_workers)
+    set_num_threads(num_workers)
     result = multiprocess_array(ary=ary, func=func, plus=plus)
     assert result == expected

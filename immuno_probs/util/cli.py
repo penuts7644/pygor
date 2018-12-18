@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains command-line functions used in immuno_probs."""
+"""Contains commandline functions used in immuno_probs."""
 
 
 def dynamic_cli_options(parser, options):
@@ -27,10 +27,10 @@ def dynamic_cli_options(parser, options):
     parser : argparse.ArgumentParser
         ArgumentParser to append options to.
     options : dict
-        A Python dict with key being the full name of the option. The value is
-        a dict that corresponds to input arguments of the
-        ArgumentParser.add_argument function. Note: type argument values must be
-        surrounded by quotes.
+        A Python dict with key being the full name of the option. The value
+        is a dict that corresponds to input arguments of the
+        ArgumentParser.add_argument function. Note: type argument values must
+        be surrounded by quotes.
 
     Returns
     -------

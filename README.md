@@ -13,11 +13,12 @@ ImmunoProbs is installable via PyPI using the following terminal command `pip in
 
 ### Requirements
 
-All Python dependencies that are used by this package are installed through pip upon installation of ImmunoProbs. However, some software (not available via pip) needs to installed manually when planning on using certain command-line tools from ImmunoProbs:
+All Python dependencies that are used by this package are installed through pip upon installation of ImmunoProbs. However, some software (not available via pip) needs to installed manually when planning on using certain commandline tools from ImmunoProbs:
 
 | Function | Requirement |
 | -------- | ----------- |
-| CreateCdr3Anchors | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+| create-cdr3-anchors | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+| create-igor-model | This will use Python's subprocess package to execute commands for the [IGoR](https://github.com/qmarcou/IGoR) package. For this tool to work properly, make sure that you have at least installed IGoR 1.3.0 using the installation steps from [IGoR's documentation](https://qmarcou.github.io/IGoR/#install). |
 
 ### Development
 

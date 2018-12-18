@@ -87,6 +87,17 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
     directory : string, optional
         An output directory to write the file to (default: current directory).
 
+    Returns
+    -------
+    tuple
+        Containing the output directory and the name of the file that has been
+        written to disk.
+
+    Raises
+    ------
+    SeparatorNotValidException
+        When the SEPARATOR global variable is not of type string.
+
     Notes
     -----
         This function uses the global SEPARATOR variable to set the separator
@@ -115,8 +126,7 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
         updated_filename = str(filename) + '_' + str(file_count)
         file_count += 1
 
-    # Write dataframe contents to csv file.
+    # Write dataframe contents to csv file and return info.
     pandas.DataFrame.to_csv(dataframe, path_or_buf=os.path.join(
         directory, updated_filename + '.csv'), sep=separator, index=False)
-    print("Written '{}' file to '{}' directory.".format(
-        updated_filename + '.csv', directory))
+    return (directory, updated_filename + '.csv')
