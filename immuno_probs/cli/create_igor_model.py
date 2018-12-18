@@ -118,7 +118,7 @@ class CreateIgorModel(object):
         if args.set_wd:
             command_list.append(['set_wd', str(args.set_wd)])
         else:
-            command_list.append(['set-wd', str(os.getcwd())])
+            command_list.append(['set_wd', str(os.getcwd())])
         if args.threads:
             command_list.append(['threads', str(args.threads)])
         else:
@@ -143,12 +143,12 @@ class CreateIgorModel(object):
             command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         igor_cline = IgorInterface(args=command_list)
-        code, stdout, stderr, cmd = igor_cline.call()
+        code, stdout, stderr, _ = igor_cline.call()
 
         if code != 0:
-            print("Error for executing command: '{}'".format(cmd))
-            print("stderr: '{}'".format(stderr))
-            print("stdout: '{}'".format(stdout))
+            print("An error occureud during for execution of IGoR command: \n")
+            print("stderr:\n{}".format(stderr))
+            print("stdout:\n{}".format(stdout))
 
 
 def main():
