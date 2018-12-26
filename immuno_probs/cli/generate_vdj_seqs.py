@@ -19,8 +19,6 @@
 """Commandline tool for generating V(D)J sequences from and IGoR model."""
 
 
-import sys
-
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir
@@ -92,7 +90,6 @@ class GenerateVdjSeqs(object):
             Object containing our parsed commandline arguments.
 
         """
-        print(args)
         # Add general igor commands.
         command_list = []
         if args.set_wd:
@@ -117,7 +114,7 @@ class GenerateVdjSeqs(object):
         code, stdout, stderr, _ = igor_cline.call()
 
         if code != 0:
-            print("An error occurred during for execution of IGoR command: \n")
+            print("An error occurred during execution of IGoR command: \n")
             print("stderr:\n{}".format(stderr))
             print("stdout:\n{}".format(stdout))
 

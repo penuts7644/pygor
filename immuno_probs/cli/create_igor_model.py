@@ -73,11 +73,11 @@ class CreateIgorModel(object):
                 'help': 'A gene (V, D or J) followed by a reference genome ' \
                         'FASTA file.'
             },
-            '-model-params': {
-                'metavar': '<txt>',
+            '-model': {
+                'metavar': '<parameters>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An initial IGoR model's parameters file."
+                'help': "An initial IGoR model parameters txt file."
             },
             '--set-wd': {
                 'type': 'str',
@@ -128,8 +128,8 @@ class CreateIgorModel(object):
             for i in args.ref:
                 ref_list.append([str(i[0]), str(i[1])])
             command_list.append(ref_list)
-        if args.model_params:
-            command_list.append(['set_custom_model', str(args.model_params)])
+        if args.model:
+            command_list.append(['set_custom_model', str(args.model)])
         if args.seqs:
             command_list.append(['read_seqs', str(args.seqs)])
 
@@ -144,7 +144,7 @@ class CreateIgorModel(object):
         code, stdout, stderr, _ = igor_cline.call()
 
         if code != 0:
-            print("An error occurred during for execution of IGoR command: \n")
+            print("An error occurred during execution of IGoR command: \n")
             print("stderr:\n{}".format(stderr))
             print("stdout:\n{}".format(stdout))
 
