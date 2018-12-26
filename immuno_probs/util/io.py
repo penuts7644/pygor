@@ -24,7 +24,7 @@ import os
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
-from immuno_probs.util.constant import get_separator
+from immuno_probs.util.constant import get_separator, get_working_dir
 from immuno_probs.util.exception import SeparatorNotValidException
 
 
@@ -70,7 +70,7 @@ def read_csv_to_dataframe(filename):
     return dataframe
 
 
-def write_dataframe_to_csv(dataframe, filename, directory=None):
+def write_dataframe_to_csv(dataframe, filename):
     """Writes a pandas.DataFrame to a CSV formatted file.
 
     The output CSV file is comma separated (default) and if the file already
@@ -84,8 +84,6 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
         The dataframe to be written to the CSV file.
     filename : string
         Base filename for writting the file, excluding the '.csv' extension.
-    directory : string, optional
-        An output directory to write the file to (default: current directory).
 
     Returns
     -------
@@ -111,11 +109,9 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
                                          "of type string", separator)
 
     # Create directory's recursively if not exists.
-    if directory is not None:
-        if not os.path.isdir(directory):
-            os.makedirs(directory, exist_ok=True)
-    else:
-        directory = os.getcwd()
+    directory = get_working_dir()
+    if not os.path.isdir(directory):
+        os.makedirs(directory, exist_ok=True)
 
     # Check if the filename is unique, modify name if necessary.
     file_count = 1

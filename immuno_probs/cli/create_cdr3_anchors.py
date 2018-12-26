@@ -69,13 +69,6 @@ class CreateCdr3Anchors(object):
                 'help': 'A gene (V or J) followed by a reference genome ' \
                         'FASTA file.'
             },
-            '--output': {
-                'type': 'str',
-                'nargs': '?',
-                'help': 'An optional output file path directory location. ' \
-                        'By default, the file is written to the current ' \
-                        'working directory.'
-            },
             '--motifs': {
                 'type': 'str',
                 'nargs': '*',
@@ -115,7 +108,7 @@ class CreateCdr3Anchors(object):
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=anchors_df, directory=args.output,
+                dataframe=anchors_df,
                 filename='{}_gene_CDR3_anchors'.format(gene[0]))
 
             print("Written '{}' file to '{}' directory."

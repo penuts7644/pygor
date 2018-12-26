@@ -19,11 +19,14 @@
 """Contains global constant variables used in immuno_probs."""
 
 
+import os
+
 import pathos.helpers as ph
 
 
 NUM_THREADS = ph.cpu_count()
 SEPARATOR = ','
+WORKING_DIR = os.getcwd()
 
 
 def set_num_threads(value):
@@ -71,3 +74,26 @@ def get_separator():
 
     """
     return SEPARATOR
+
+def set_working_dir(value):
+    """Updates the global WORKING_DIR variable.
+
+    Parameters
+    ----------
+    value : str
+        The directory path to use when writing output files (default:
+        the current working directory).
+
+    """
+    globals().update(WORKING_DIR=value)
+
+def get_working_dir():
+    """Returns the global WORKING_DIR variable.
+
+    Returns
+    -------
+    str
+        The globally set working directory value.
+
+    """
+    return WORKING_DIR
