@@ -23,8 +23,9 @@ import argparse
 
 from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
 from immuno_probs.cli.create_igor_model import CreateIgorModel
+from immuno_probs.cli.generate_vdj_seqs import GenerateVdjSeqs
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_num_threads, set_separator
+from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
 
 
 def main():
@@ -45,7 +46,13 @@ def main():
             'nargs': '?',
             'help': 'The number of threads the program is allowed to use ' \
                     '(default: max available threads).'
-        }
+        },
+        '--set-wd': {
+            'type': 'str',
+            'nargs': '?',
+            'help': 'An optional location for writing files. (default: ' \
+                    'the current working diretory).'
+        },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
                                      description=description)
@@ -57,6 +64,7 @@ def main():
     # Add main- and suboptions to the subparser.
     cca = CreateCdr3Anchors(subparsers=subparsers)
     cim = CreateIgorModel(subparsers=subparsers)
+    gvs = GenerateVdjSeqs(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables, execute correct function.
     parsed_arguments = parser.parse_args()
@@ -64,11 +72,15 @@ def main():
         set_separator(parsed_arguments.separator)
     if parsed_arguments.threads is not None:
         set_num_threads(parsed_arguments.threads)
+    if parsed_arguments.set_wd is not None:
+        set_working_dir(parsed_arguments.set_wd)
 
     if parsed_arguments.subparser_name == 'create-cdr3-anchors':
         cca.run(args=parsed_arguments)
     elif parsed_arguments.subparser_name == 'create-igor-model':
         cim.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'generate-vdj-seqs':
+        gvs.run(args=parsed_arguments)
     else:
         print("No option selected, run 'immuno-probs -h' to show all options.")
 
