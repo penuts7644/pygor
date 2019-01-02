@@ -18,6 +18,9 @@
 
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
+import os
+
+from Bio import SeqIO
 
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
@@ -35,8 +38,8 @@ class CreateIgorModel(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to locate the run IGoR
-        for creating a custom model. As of now, still requires an initial model.
+        Uses the given Namespace commandline arguments to execute IGoR
+        for creating a custom model.
 
     """
     def __init__(self, subparsers):
@@ -55,7 +58,8 @@ class CreateIgorModel(object):
         """
         # Create the description and options for the parser.
         description = "This tool creates a V(D)J model by executing IGoR " \
-            "via a python subprocess."
+            "via a python subprocess. Note: the FASTA reference genome files " \
+            "needs to conform to IGMT annotation."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta>',
@@ -71,20 +75,13 @@ class CreateIgorModel(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file.'
+                        'FASTA file (IMGT).'
             },
             '-model': {
                 'metavar': '<parameters>',
                 'required': 'True',
                 'type': 'str',
                 'help': "An initial IGoR model parameters txt file."
-            },
-            '--set-wd': {
-                'type': 'str',
-                'nargs': '?',
-                'help': 'An optional location for creating the IGoR files. ' \
-                        'By default, uses the current directory for ' \
-                        'written files.'
             },
             '--n-iter': {
                 'type': 'int',
