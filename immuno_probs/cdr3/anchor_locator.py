@@ -22,6 +22,7 @@
 import pandas
 import numpy
 
+from immuno_probs.util.constant import get_num_threads
 from immuno_probs.util.exception import GeneIdentifierException, IndexNotFoundException
 from immuno_probs.util.processing import multiprocess_array
 
@@ -190,6 +191,7 @@ class AnchorLocator(object):
             motifs = self.default_motifs[self.gene]
         result = multiprocess_array(ary=motifs,
                                     func=self._find_conserved_motif_indices,
+                                    num_workers=get_num_threads(),
                                     alignment=self.alignment)
         result = pandas.concat(result, axis=0).reset_index(drop=True)
         result.drop_duplicates(inplace=True)
