@@ -21,7 +21,6 @@
 
 import pytest
 
-from immuno_probs.util.constant import set_num_threads
 from immuno_probs.util.processing import multiprocess_array
 
 
@@ -58,6 +57,6 @@ def test_multiprocess_array(ary, func, num_workers, plus, expected):
         If the performed test failed.
 
     """
-    set_num_threads(num_workers)
-    result = multiprocess_array(ary=ary, func=func, plus=plus)
+    result = multiprocess_array(ary=ary, func=func, num_workers=num_workers,
+                                plus=plus)
     assert result == expected

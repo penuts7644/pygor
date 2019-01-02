@@ -23,11 +23,8 @@ import numpy
 import pathos.pools as pp
 import pathos.helpers as help
 
-from immuno_probs.util.constant import get_num_threads
-from immuno_probs.util.exception import NumThreadsValueException
 
-
-def multiprocess_array(ary, func, **kwargs):
+def multiprocess_array(ary, func, num_workers, **kwargs):
     """Applies multiprocessing on a multi array using the given function.
 
     Parameters
@@ -36,6 +33,8 @@ def multiprocess_array(ary, func, **kwargs):
         List 'like' object to be split for multiple workers.
     func : Object
         A function object that the workers should apply.
+    num_workers : int
+        The number of threads the program is allowed to use.
     **kwargs
         The remaining arguments to be given to the input function.
 
@@ -44,27 +43,8 @@ def multiprocess_array(ary, func, **kwargs):
     list
         Containing the results from each of the workers.
 
-    Raises
-    ------
-    NumThreadsValueException
-        When the NUM_THREADS global variable is not an integer or is smaller
-        then 1.
-
-    Notes
-    -----
-        This function uses the NUM_THREADS constant from
-        immuno_probs.util.constant and will limit the number of workers to
-        create based on this value. Overwrite NUM_THREADS constant to increase
-        the number of workers. By default uses the cpu count from pathos
-        package.
-
     """
     # Check out available worker count and adjust accordingly.
-    num_workers = get_num_threads()
-    if not isinstance(num_workers, int) or num_workers < 1:
-        raise NumThreadsValueException(
-            "The NUM_THREADS variable needs to be of type integer and higher " \
-            "than zero", num_workers)
     if len(ary) < num_workers:
         num_workers = len(ary)
 
