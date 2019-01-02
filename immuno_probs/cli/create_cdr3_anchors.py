@@ -22,6 +22,7 @@
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.constant import get_working_dir, get_separator
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
@@ -67,7 +68,7 @@ class CreateCdr3Anchors(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V or J) followed by a reference genome ' \
-                        'FASTA file.'
+                        'FASTA file (IMGT).'
             },
             '--motifs': {
                 'type': 'str',
@@ -109,7 +110,9 @@ class CreateCdr3Anchors(object):
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
-                filename='{}_gene_CDR3_anchors'.format(gene[0]))
+                filename='{}_gene_CDR3_anchors'.format(gene[0]),
+                directory=get_working_dir(),
+                separator=get_separator())
 
             print("Written '{}' file to '{}' directory."
                   .format(filename, directory))
