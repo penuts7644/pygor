@@ -31,13 +31,13 @@ class AlignerException(Exception):
 
 class CharacterNotFoundException(Exception):
     """Exception for when a character has not been found."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(CharacterNotFoundException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
 
 
 class GeneIdentifierException(Exception):
@@ -64,20 +64,30 @@ class IndexNotFoundException(Exception):
 
 class NumThreadsValueException(Exception):
     """Exception when the NUM_THREADS variable is faulty."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(NumThreadsValueException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
 
 class SeparatorNotValidException(Exception):
     """Exception when the SEPARATOR variable is faulty."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(SeparatorNotValidException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
+
+class DirectoryNonExistingException(Exception):
+    """Exception when the WORKING_DIR variable is faulty."""
+    def __init__(self, message, value):
+        super(DirectoryNonExistingException, self).__init__()
+        self.message = message
+        self.value = value
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.value)
