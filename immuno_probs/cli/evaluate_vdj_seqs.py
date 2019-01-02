@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Commandline tool for generating V(D)J sequences from and IGoR model."""
+"""Commandline tool for evaluating V(D)J sequences using an IGoR model."""
 
 
 from immuno_probs.model.igor_interface import IgorInterface
@@ -24,8 +24,8 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir
 
 
-class GenerateVdjSeqs(object):
-    """Commandline tool for generating V(D)J sequences from and IGoR model.
+class EvaluateVdjSeqs(object):
+    """Commandline tool for evaluating V(D)J sequences using an IGoR model.
 
     Parameters
     ----------
@@ -36,11 +36,11 @@ class GenerateVdjSeqs(object):
     -------
     run(args)
         Uses the given Namespace commandline arguments to execute IGoR
-        for generating V(D)J sequences.
+        for evaluating V(D)J sequences.
 
     """
     def __init__(self, subparsers):
-        super(GenerateVdjSeqs, self).__init__()
+        super(EvaluateVdjSeqs, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -54,9 +54,16 @@ class GenerateVdjSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool generates V(D)J sequences given an IGoR " \
-            "model by executing IGoR via a python subprocess."
+        description = "This tool evaluates V(D)J sequences through IGoR " \
+            "commandline python subprocess."
         parser_options = {
+            '-seqs': {
+                'metavar': '<csv>',
+                'required': 'True',
+                'type': 'str',
+                'help': 'An input CSV file with sequences for evaluation. ' \
+                        'Note: uses IGoR file formatting.'
+            },
             '-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
@@ -64,19 +71,12 @@ class GenerateVdjSeqs(object):
                 'required': 'True',
                 'help': 'A IGoR parameters txt file followed by an IGoR ' \
                         'marginals txt file.'
-            },
-            '--generate': {
-                'type': 'int',
-                'nargs': '?',
-                'default': 1,
-                'help': 'The number of V(D)J sequences to generate. ' \
-                        '(default: %(default)s)'
             }
         }
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'generate-vdj-seqs', help=description, description=description)
+            'evaluate-vdj-seqs', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -101,14 +101,16 @@ class GenerateVdjSeqs(object):
         else:
             command_list.append(['threads', str(get_num_threads())])
 
-        # Add the model command.
+        # Add the model and sequence commands.
         if args.model:
             command_list.append(['set_custom_model', str(args.model[0]),
                                  str(args.model[1])])
+        if args.seqs:
+            command_list.append(['read_seqs', str(args.seqs)])
 
-        # Add generate command.
-        if args.generate:
-            command_list.append(['generate', str(args.generate)])
+        # Add evaluation commands.
+        command_list.append(['evaluate'])
+        command_list.append(['output', ['Pgen']])
 
         igor_cline = IgorInterface(args=command_list)
         code, stdout, stderr, _ = igor_cline.call()
