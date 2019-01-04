@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,23 +19,20 @@
 
 
 import argparse
-import os
 
-from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
-from immuno_probs.cli.create_igor_model import CreateIgorModel
+from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
+from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_vdj_seqs import GenerateVdjSeqs
 from immuno_probs.cli.evaluate_vdj_seqs import EvaluateVdjSeqs
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
-from immuno_probs.util.io import create_directory_path
 
 
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
     # Create the parser with general commands and set the subparser.
-    description = 'ImmunoProbs Python package uses a simplified manner ' \
-        'for calculating the generation probability of V(D)J and CDR3 ' \
-        'sequences.'
+    description = 'ImmunoProbs Python package able to calculate the ' \
+        'generation probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '--separator': {
             'type': 'str',
@@ -54,7 +50,7 @@ def main():
             'type': 'str',
             'nargs': '?',
             'help': 'An optional location for writing files. (default: ' \
-                    'the current working diretory in immuno_probs directory).'
+                    'the current working directory).'
         },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
@@ -65,8 +61,8 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    cca = CreateCdr3Anchors(subparsers=subparsers)
-    cim = CreateIgorModel(subparsers=subparsers)
+    lca = LocateCdr3Anchors(subparsers=subparsers)
+    bim = BuildIgorModel(subparsers=subparsers)
     gvs = GenerateVdjSeqs(subparsers=subparsers)
     evs = EvaluateVdjSeqs(subparsers=subparsers)
 
@@ -77,14 +73,12 @@ def main():
     if parsed_arguments.threads is not None:
         set_num_threads(parsed_arguments.threads)
     if parsed_arguments.set_wd is not None:
-        updated_directory = create_directory_path(directory=os.path.join(
-            parsed_arguments.set_wd, 'immuno_probs'))
-        set_working_dir(updated_directory)
+        set_working_dir(parsed_arguments.set_wd)
 
-    if parsed_arguments.subparser_name == 'create-cdr3-anchors':
-        cca.run(args=parsed_arguments)
-    elif parsed_arguments.subparser_name == 'create-igor-model':
-        cim.run(args=parsed_arguments)
+    if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
+        lca.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'build-igor-model':
+        bim.run(args=parsed_arguments)
     elif parsed_arguments.subparser_name == 'generate-vdj-seqs':
         gvs.run(args=parsed_arguments)
     elif parsed_arguments.subparser_name == 'evaluate-vdj-seqs':

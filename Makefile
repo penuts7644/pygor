@@ -1,8 +1,7 @@
 ##
 ##	ImmunoProbs
-##		ImmunoProbs Python package uses a simplified manner for calculating the
-##		generation probability of V(D)J and CDR3 sequences.
-##		Copyright (C) 2018 Wout van Helvoirt
+##		ImmunoProbs Python package able to calculate the generation probability
+##		of V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 ##
 
 default: help

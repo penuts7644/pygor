@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +26,7 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir
 
 
-class CreateIgorModel(object):
+class BuildIgorModel(object):
     """Commandline tool for creating custom IGoR V(D)J models.
 
     Parameters
@@ -43,7 +42,7 @@ class CreateIgorModel(object):
 
     """
     def __init__(self, subparsers):
-        super(CreateIgorModel, self).__init__()
+        super(BuildIgorModel, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -94,7 +93,7 @@ class CreateIgorModel(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'create-igor-model', help=description, description=description)
+            'build-igor-model', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -108,22 +107,49 @@ class CreateIgorModel(object):
             Object containing our parsed commandline arguments.
 
         """
+        # -------------------------------
+        # NOTE: IGoR has uses the whole header of the reference genome FASTA
+        # files as gene name. The IMGT versions of these files includes more
+        # information. We have to rewrite the input FASTA files to make it more
+        # consistent. This is a quick fix.
+        ref_directory = None
+        # End ---------------------------
+
         # Add general igor commands.
         command_list = []
         if args.set_wd:
             command_list.append(['set_wd', str(args.set_wd)])
+            # Can be removed ----------------
+            ref_directory = os.path.join(str(args.set_wd), 'genomic_templates')
+            # End ---------------------------
         else:
             command_list.append(['set_wd', str(get_working_dir())])
+            # Can be removed ----------------
+            ref_directory = os.path.join(str(get_working_dir()), 'genomic_templates')
+            # End ---------------------------
         if args.threads:
             command_list.append(['threads', str(args.threads)])
         else:
             command_list.append(['threads', str(get_num_threads())])
 
+        # Can be removed ----------------
+        if not os.path.isdir(ref_directory):
+            os.makedirs(ref_directory)
+        # End ---------------------------
+
         # Add sequence and file paths commands.
         if args.ref:
             ref_list = ['set_genomic']
             for i in args.ref:
-                ref_list.append([str(i[0]), str(i[1])])
+                # Can be removed ----------------
+                records = list(SeqIO.parse(str(i[1]), "fasta"))
+                for rec in records:
+                    rec.id = rec.description.split('|')[1]
+                    rec.description = ""
+                name = os.path.join(ref_directory, os.path.basename(str(i[1])))
+                SeqIO.write(records, str(name), "fasta")
+                # End ---------------------------
+                ref_list.append([str(i[0]), str(name)])
             command_list.append(ref_list)
         if args.model:
             command_list.append(['set_custom_model', str(args.model)])
@@ -138,12 +164,11 @@ class CreateIgorModel(object):
             command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         igor_cline = IgorInterface(args=command_list)
-        code, stdout, stderr, _ = igor_cline.call()
+        code, _ = igor_cline.call()
 
         if code != 0:
-            print("An error occurred during execution of IGoR command: \n")
-            print("stderr:\n{}".format(stderr))
-            print("stdout:\n{}".format(stdout))
+            print("An error occurred during execution of IGoR " \
+                  "command (exit code {})".format(code))
 
 
 def main():

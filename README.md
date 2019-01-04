@@ -5,7 +5,7 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 [![PyPI license](https://img.shields.io/pypi/l/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 
-ImmunoProbs Python package uses a simplified manner for calculating the generation probability of V(D)J and CDR3 sequences.
+ImmunoProbs Python package able to calculate the generation probability of V(D)J and CDR3 sequences.
 
 ### How to install
 
@@ -17,8 +17,8 @@ All Python dependencies that are used by this package are installed through pip 
 
 | Category | Command | Requirement |
 | -------- | ------- | ----------- |
-| Build | create-cdr3-anchors | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
-| Build | create-igor-model | This will use Python's subprocess package to execute commands for the [IGoR](https://github.com/qmarcou/IGoR) package. For this tool to work properly, make sure that you have at least installed IGoR 1.3.0 using the installation steps from [IGoR's documentation](https://qmarcou.github.io/IGoR/#install). |
+| Build | locate-cdr3-anchors | This requires [MUSCLE](http://www.drive5.com/muscle/) to be installed on the computer. For macOS users, muscle can also be install via HomeBrew by tapping into `brewsci/bio` and installing MUSCLE via `brew install muscle` |
+| Build | build-igor-model | This will use Python's subprocess package to execute commands for the [IGoR](https://github.com/qmarcou/IGoR) package. For this tool to work properly, make sure that you have at least installed IGoR 1.3.0 using the installation steps from [IGoR's documentation](https://qmarcou.github.io/IGoR/#install). |
 
 ### Development
 
