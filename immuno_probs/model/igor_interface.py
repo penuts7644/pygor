@@ -18,7 +18,7 @@
 """IgorInterface class for interfacing with IGoR's commandline tool."""
 
 
-from subprocess import Popen, PIPE
+import subprocess
 
 
 class IgorInterface(object):
@@ -81,8 +81,8 @@ class IgorInterface(object):
         Returns
         -------
         tuple
-            A tuple containing the exit code, standard output, standard
-            error and executed command in the given order.
+            A tuple containing the exit code and executed command in the
+            given order.
 
         Notes
         -----
@@ -91,9 +91,8 @@ class IgorInterface(object):
         """
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
-        process = Popen(updated_command.split(' '), stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = process.communicate()
-        return (process.returncode, stdout, stderr, updated_command)
+        returncode = subprocess.call(updated_command.split(' '))
+        return (returncode, updated_command)
 
     def get_command(self):
         """Getter function for collecting the IGoR command.

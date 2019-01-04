@@ -110,12 +110,11 @@ class GenerateVdjSeqs(object):
             command_list.append(['generate', str(args.generate)])
 
         igor_cline = IgorInterface(args=command_list)
-        code, stdout, stderr, _ = igor_cline.call()
+        code, _ = igor_cline.call()
 
         if code != 0:
-            print("An error occurred during execution of IGoR command: \n")
-            print("stderr:\n{}".format(stderr))
-            print("stdout:\n{}".format(stdout))
+            print("An error occurred during execution of IGoR " \
+                  "command (exit code {})".format(code))
 
 
 def main():
