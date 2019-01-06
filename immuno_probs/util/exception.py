@@ -39,6 +39,17 @@ class CharacterNotFoundException(Exception):
         return "{0}: '{1}'".format(self.message, self.value)
 
 
+class DirectoryNonExistingException(Exception):
+    """Exception when the WORKING_DIR variable is faulty."""
+    def __init__(self, message, value):
+        super(DirectoryNonExistingException, self).__init__()
+        self.message = message
+        self.value = value
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.value)
+
+
 class GeneIdentifierException(Exception):
     """Exception for incorrect gene identifier value."""
     def __init__(self, message, identifier):
@@ -81,12 +92,12 @@ class SeparatorNotValidException(Exception):
     def __str__(self):
         return "{0}: '{1}'".format(self.message, self.value)
 
-class DirectoryNonExistingException(Exception):
-    """Exception when the WORKING_DIR variable is faulty."""
-    def __init__(self, message, value):
-        super(DirectoryNonExistingException, self).__init__()
-        self.message = message
-        self.value = value
+
+class SubprocessException(Exception):
+    """Exception for when an error occured with a subprocess execution."""
+    def __init__(self, subprocess_message):
+        super(SubprocessException, self).__init__()
+        self.message = subprocess_message
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.value)
+        return "An error occured with the subprocess:\n{0}".format(self.message)
