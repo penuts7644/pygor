@@ -40,14 +40,21 @@ clean:
 build: test clean
 	python setup.py bdist_wheel
 
-##		make test-deploy
-##			Upload all distribution files to PyPI test server.
+##		make build-docker
+##			Perfoms tests, a dir clean, builds the new distribution package for
+##			ImmunoProbs and finally builds a docker image of all executables.
 ##
-test-deploy:
+build-docker: test clean build
+	docker build -t immuno-probs:latest .
+
+##		make test-deploy
+##			Tests, cleans, builds and uploads all distribution files to PyPI test server.
+##
+test-deploy: test clean build
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 ##		make deploy
-##			Tests, cleans, builds and upload all distribution files to PyPI.
+##			Tests, cleans, builds and uploads all distribution files to PyPI.
 ##
 deploy: test clean build
 	python -m twine upload dist/*
