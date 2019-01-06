@@ -22,8 +22,8 @@ import argparse
 
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.cli.build_igor_model import BuildIgorModel
-from immuno_probs.cli.generate_vdj_seqs import GenerateVdjSeqs
-from immuno_probs.cli.evaluate_vdj_seqs import EvaluateVdjSeqs
+from immuno_probs.cli.generate_seqs import GenerateSeqs
+from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
 
@@ -63,8 +63,8 @@ def main():
     # Add main- and suboptions to the subparser.
     lca = LocateCdr3Anchors(subparsers=subparsers)
     bim = BuildIgorModel(subparsers=subparsers)
-    gvs = GenerateVdjSeqs(subparsers=subparsers)
-    evs = EvaluateVdjSeqs(subparsers=subparsers)
+    ges = GenerateSeqs(subparsers=subparsers)
+    evs = EvaluateSeqs(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables, execute correct function.
     parsed_arguments = parser.parse_args()
@@ -79,9 +79,9 @@ def main():
         lca.run(args=parsed_arguments)
     elif parsed_arguments.subparser_name == 'build-igor-model':
         bim.run(args=parsed_arguments)
-    elif parsed_arguments.subparser_name == 'generate-vdj-seqs':
-        gvs.run(args=parsed_arguments)
-    elif parsed_arguments.subparser_name == 'evaluate-vdj-seqs':
+    elif parsed_arguments.subparser_name == 'generate-seqs':
+        ges.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'evaluate-seqs':
         evs.run(args=parsed_arguments)
     else:
         print("No option selected, run 'immuno-probs -h' to show all options.")

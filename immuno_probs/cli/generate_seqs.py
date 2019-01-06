@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Commandline tool for evaluating V(D)J sequences using an IGoR model."""
+"""Commandline tool for generating V(D)J sequences from and IGoR model."""
 
 
 from immuno_probs.model.igor_interface import IgorInterface
@@ -23,8 +23,8 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir
 
 
-class EvaluateVdjSeqs(object):
-    """Commandline tool for evaluating V(D)J sequences using an IGoR model.
+class GenerateSeqs(object):
+    """Commandline tool for generating sequences from and IGoR model.
 
     Parameters
     ----------
@@ -34,12 +34,11 @@ class EvaluateVdjSeqs(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to execute IGoR
-        for evaluating V(D)J sequences.
+        Uses the given Namespace commandline arguments for generating sequences.
 
     """
     def __init__(self, subparsers):
-        super(EvaluateVdjSeqs, self).__init__()
+        super(GenerateSeqs, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -53,16 +52,10 @@ class EvaluateVdjSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool evaluates V(D)J sequences through IGoR " \
-            "commandline python subprocess."
+        description = "This tool generates V(D)J sequences given an IGoR " \
+            "model by executing IGoR via a python subprocess and gnerates " \
+            "CDR3 sequences by using the OLGA python package."
         parser_options = {
-            '-seqs': {
-                'metavar': '<csv>',
-                'required': 'True',
-                'type': 'str',
-                'help': 'An input CSV file with sequences for evaluation. ' \
-                        'Note: uses IGoR file formatting.'
-            },
             '-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
@@ -70,12 +63,26 @@ class EvaluateVdjSeqs(object):
                 'required': 'True',
                 'help': 'A IGoR parameters txt file followed by an IGoR ' \
                         'marginals txt file.'
+            },
+            '-type': {
+                'type': 'str',
+                'choices': ['CDR3', 'VDJ'],
+                'required': 'True',
+                'help': 'The type of sequences to generate. (select one: ' \
+                        '%(choices)s)'
+            },
+            '--generate': {
+                'type': 'int',
+                'nargs': '?',
+                'default': 1,
+                'help': 'The number of sequences to generate. (default: ' \
+                        '%(default)s)'
             }
         }
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'evaluate-vdj-seqs', help=description, description=description)
+            'generate-seqs', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -89,34 +96,39 @@ class EvaluateVdjSeqs(object):
             Object containing our parsed commandline arguments.
 
         """
-        # Add general igor commands.
-        command_list = []
-        if args.set_wd:
-            command_list.append(['set_wd', str(args.set_wd)])
-        else:
-            command_list.append(['set_wd', str(get_working_dir())])
-        if args.threads:
-            command_list.append(['threads', str(args.threads)])
-        else:
-            command_list.append(['threads', str(get_num_threads())])
+        # If the given type of sequences generation is VDJ, use IGoR.
+        if args.type == 'VDJ':
 
-        # Add the model and sequence commands.
-        if args.model:
-            command_list.append(['set_custom_model', str(args.model[0]),
-                                 str(args.model[1])])
-        if args.seqs:
-            command_list.append(['read_seqs', str(args.seqs)])
+            # Add general igor commands.
+            command_list = []
+            if args.set_wd:
+                command_list.append(['set_wd', str(args.set_wd)])
+            else:
+                command_list.append(['set_wd', str(get_working_dir())])
+            if args.threads:
+                command_list.append(['threads', str(args.threads)])
+            else:
+                command_list.append(['threads', str(get_num_threads())])
 
-        # Add evaluation commands.
-        command_list.append(['evaluate'])
-        command_list.append(['output', ['Pgen']])
+            # Add the model command.
+            if args.model:
+                command_list.append(['set_custom_model', str(args.model[0]),
+                                     str(args.model[1])])
 
-        igor_cline = IgorInterface(args=command_list)
-        code, _ = igor_cline.call()
+            # Add generate command.
+            if args.generate:
+                command_list.append(['generate', str(args.generate)])
 
-        if code != 0:
-            print("An error occurred during execution of IGoR " \
-                  "command (exit code {})".format(code))
+            igor_cline = IgorInterface(args=command_list)
+            code, _ = igor_cline.call()
+
+            if code != 0:
+                print("An error occurred during execution of IGoR " \
+                      "command (exit code {})".format(code))
+
+        # If the given type of sequences generation is CDR3, use OLGA.
+        elif args.type == 'CDR3':
+            print('CDR3 sequence generation is not yet supported')
 
 
 def main():
