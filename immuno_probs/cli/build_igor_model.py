@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,15 +17,16 @@
 
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
-
 import os
+
+from Bio import SeqIO
 
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads
+from immuno_probs.util.constant import get_num_threads, get_working_dir
 
 
-class CreateIgorModel(object):
+class BuildIgorModel(object):
     """Commandline tool for creating custom IGoR V(D)J models.
 
     Parameters
@@ -37,13 +37,14 @@ class CreateIgorModel(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to locate the run IGoR
-        for creating a custom model. As of now, still requires an initial model.
+        Uses the given Namespace commandline arguments to execute IGoR
+        for creating a custom model.
 
     """
     def __init__(self, subparsers):
-        super(CreateIgorModel, self).__init__()
+        super(BuildIgorModel, self).__init__()
         self.subparsers = subparsers
+        self.ref_dir = None
         self._add_options()
 
     def _add_options(self):
@@ -57,7 +58,8 @@ class CreateIgorModel(object):
         """
         # Create the description and options for the parser.
         description = "This tool creates a V(D)J model by executing IGoR " \
-            "via a python subprocess."
+            "via a python subprocess. Note: the FASTA reference genome files " \
+            "needs to conform to IGMT annotation."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta>',
@@ -73,20 +75,13 @@ class CreateIgorModel(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file.'
+                        'FASTA file (IMGT).'
             },
-            '-model-params': {
-                'metavar': '<txt>',
+            '-model': {
+                'metavar': '<parameters>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An initial IGoR model's parameters file."
-            },
-            '--set-wd': {
-                'type': 'str',
-                'nargs': '?',
-                'help': 'An optional location for creating the IGoR files. ' \
-                        'By default, uses the current directory for ' \
-                        'written files.'
+                'help': "An initial IGoR model parameters txt file."
             },
             '--n-iter': {
                 'type': 'int',
@@ -99,12 +94,38 @@ class CreateIgorModel(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'create-igor-model', help=description, description=description)
+            'build-igor-model', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    @staticmethod
-    def run(args):
+    def _format_imgt_reference_fasta(self, fasta):
+        """Function for formatting the IMGT reference genome files for IGoR.
+
+        Parameters
+        ----------
+        fasta : str
+            A FASTA file path for a reference genomic template file.
+
+        Returns
+        -------
+        str
+            A string file path to the new reference genomic template file.
+
+        """
+        # Create the reference genomic template directory.
+        if not os.path.isdir(self.ref_dir):
+            os.makedirs(self.ref_dir)
+
+        # Open the fasta file, update the fasta header and write out.
+        records = list(SeqIO.parse(str(fasta), "fasta"))
+        for rec in records:
+            rec.id = rec.description.split('|')[1]
+            rec.description = ""
+        updated_path = os.path.join(self.ref_dir, os.path.basename(str(fasta)))
+        SeqIO.write(records, str(updated_path), "fasta")
+        return updated_path
+
+    def run(self, args):
         """Function to execute the commandline tool.
 
         Parameters
@@ -117,8 +138,10 @@ class CreateIgorModel(object):
         command_list = []
         if args.set_wd:
             command_list.append(['set_wd', str(args.set_wd)])
+            self.ref_dir = os.path.join(str(args.set_wd), 'genomic_templates')
         else:
-            command_list.append(['set_wd', str(os.getcwd())])
+            command_list.append(['set_wd', str(get_working_dir())])
+            self.ref_dir = os.path.join(str(get_working_dir()), 'genomic_templates')
         if args.threads:
             command_list.append(['threads', str(args.threads)])
         else:
@@ -128,10 +151,11 @@ class CreateIgorModel(object):
         if args.ref:
             ref_list = ['set_genomic']
             for i in args.ref:
-                ref_list.append([str(i[0]), str(i[1])])
+                filename = self._format_imgt_reference_fasta(i[1])
+                ref_list.append([str(i[0]), str(filename)])
             command_list.append(ref_list)
-        if args.model_params:
-            command_list.append(['set_custom_model', str(args.model_params)])
+        if args.model:
+            command_list.append(['set_custom_model', str(args.model)])
         if args.seqs:
             command_list.append(['read_seqs', str(args.seqs)])
 
@@ -143,12 +167,11 @@ class CreateIgorModel(object):
             command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         igor_cline = IgorInterface(args=command_list)
-        code, stdout, stderr, _ = igor_cline.call()
+        code, _ = igor_cline.call()
 
         if code != 0:
-            print("An error occureud during for execution of IGoR command: \n")
-            print("stderr:\n{}".format(stderr))
-            print("stdout:\n{}".format(stdout))
+            print("An error occurred during execution of IGoR " \
+                  "command (exit code {})".format(code))
 
 
 def main():

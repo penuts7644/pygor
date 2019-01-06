@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,13 +18,16 @@
 """Commandline tool for creating files containing CDR3 anchor indices."""
 
 
+import os
+
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.constant import get_working_dir, get_separator
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
-class CreateCdr3Anchors(object):
+class LocateCdr3Anchors(object):
     """Commandline tool for creating compatible CDR3 anchor CSV files.
 
     Parameters
@@ -41,7 +43,7 @@ class CreateCdr3Anchors(object):
 
     """
     def __init__(self, subparsers):
-        super(CreateCdr3Anchors, self).__init__()
+        super(LocateCdr3Anchors, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -67,14 +69,7 @@ class CreateCdr3Anchors(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V or J) followed by a reference genome ' \
-                        'FASTA file.'
-            },
-            '--output': {
-                'type': 'str',
-                'nargs': '?',
-                'help': 'An optional output file path directory location. ' \
-                        'By default, the file is written to the current ' \
-                        'working directory.'
+                        'FASTA file (IMGT).'
             },
             '--motifs': {
                 'type': 'str',
@@ -87,7 +82,7 @@ class CreateCdr3Anchors(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'create-cdr3-anchors', help=description, description=description)
+            'locate-cdr3-anchors', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -102,6 +97,11 @@ class CreateCdr3Anchors(object):
             Object containing our parsed commandline arguments.
 
         """
+        # Create the directory for the output files.
+        directory = os.path.join(get_working_dir(), 'cdr3_anchors')
+        if not os.path.isdir(directory):
+            os.makedirs(os.path.join(get_working_dir(), 'cdr3_anchors'))
+
         # Create the alignment and locate the motifs.
         for gene in args.ref:
             aligner = MuscleAligner(infile=gene[1])
@@ -115,8 +115,10 @@ class CreateCdr3Anchors(object):
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=anchors_df, directory=args.output,
-                filename='{}_gene_CDR3_anchors'.format(gene[0]))
+                dataframe=anchors_df,
+                filename='{}_gene_CDR3_anchors'.format(gene[0]),
+                directory=directory,
+                separator=get_separator())
 
             print("Written '{}' file to '{}' directory."
                   .format(filename, directory))

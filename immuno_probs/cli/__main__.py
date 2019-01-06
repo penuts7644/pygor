@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,18 +20,19 @@
 
 import argparse
 
-from immuno_probs.cli.create_cdr3_anchors import CreateCdr3Anchors
-from immuno_probs.cli.create_igor_model import CreateIgorModel
+from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
+from immuno_probs.cli.build_igor_model import BuildIgorModel
+from immuno_probs.cli.generate_seqs import GenerateSeqs
+from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_num_threads, set_separator
+from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
 
 
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
     # Create the parser with general commands and set the subparser.
-    description = 'ImmunoProbs Python package uses a simplified manner ' \
-        'for calculating the generation probability of V(D)J and CDR3 ' \
-        'sequences.'
+    description = 'ImmunoProbs Python package able to calculate the ' \
+        'generation probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '--separator': {
             'type': 'str',
@@ -45,7 +45,13 @@ def main():
             'nargs': '?',
             'help': 'The number of threads the program is allowed to use ' \
                     '(default: max available threads).'
-        }
+        },
+        '--set-wd': {
+            'type': 'str',
+            'nargs': '?',
+            'help': 'An optional location for writing files. (default: ' \
+                    'the current working directory).'
+        },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
                                      description=description)
@@ -55,8 +61,10 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    cca = CreateCdr3Anchors(subparsers=subparsers)
-    cim = CreateIgorModel(subparsers=subparsers)
+    lca = LocateCdr3Anchors(subparsers=subparsers)
+    bim = BuildIgorModel(subparsers=subparsers)
+    ges = GenerateSeqs(subparsers=subparsers)
+    evs = EvaluateSeqs(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables, execute correct function.
     parsed_arguments = parser.parse_args()
@@ -64,11 +72,17 @@ def main():
         set_separator(parsed_arguments.separator)
     if parsed_arguments.threads is not None:
         set_num_threads(parsed_arguments.threads)
+    if parsed_arguments.set_wd is not None:
+        set_working_dir(parsed_arguments.set_wd)
 
-    if parsed_arguments.subparser_name == 'create-cdr3-anchors':
-        cca.run(args=parsed_arguments)
-    elif parsed_arguments.subparser_name == 'create-igor-model':
-        cim.run(args=parsed_arguments)
+    if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
+        lca.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'build-igor-model':
+        bim.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'generate-seqs':
+        ges.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'evaluate-seqs':
+        evs.run(args=parsed_arguments)
     else:
         print("No option selected, run 'immuno-probs -h' to show all options.")
 

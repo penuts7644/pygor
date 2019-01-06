@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,13 +30,24 @@ class AlignerException(Exception):
 
 class CharacterNotFoundException(Exception):
     """Exception for when a character has not been found."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(CharacterNotFoundException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
+
+
+class DirectoryNonExistingException(Exception):
+    """Exception when the WORKING_DIR variable is faulty."""
+    def __init__(self, message, value):
+        super(DirectoryNonExistingException, self).__init__()
+        self.message = message
+        self.value = value
+
+    def __str__(self):
+        return "{0}: '{1}'".format(self.message, self.value)
 
 
 class GeneIdentifierException(Exception):
@@ -64,20 +74,30 @@ class IndexNotFoundException(Exception):
 
 class NumThreadsValueException(Exception):
     """Exception when the NUM_THREADS variable is faulty."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(NumThreadsValueException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
 
 class SeparatorNotValidException(Exception):
     """Exception when the SEPARATOR variable is faulty."""
-    def __init__(self, message, character):
+    def __init__(self, message, value):
         super(SeparatorNotValidException, self).__init__()
         self.message = message
-        self.character = character
+        self.value = value
 
     def __str__(self):
-        return "{0}: '{1}'".format(self.message, self.character)
+        return "{0}: '{1}'".format(self.message, self.value)
+
+
+class SubprocessException(Exception):
+    """Exception for when an error occured with a subprocess execution."""
+    def __init__(self, subprocess_message):
+        super(SubprocessException, self).__init__()
+        self.message = subprocess_message
+
+    def __str__(self):
+        return "An error occured with the subprocess:\n{0}".format(self.message)

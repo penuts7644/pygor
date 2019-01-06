@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +18,10 @@
 """IgorInterface class for interfacing with IGoR's commandline tool."""
 
 
-from subprocess import Popen, PIPE
+import shlex
+import subprocess
+
+from immuno_probs.util.exception import SubprocessException
 
 
 class IgorInterface(object):
@@ -82,8 +84,13 @@ class IgorInterface(object):
         Returns
         -------
         tuple
-            A tuple containing the exit code, standard output, standard
-            error and executed command in the given order.
+            A tuple containing the exit code and executed command in the
+            given order.
+
+        Raises
+        ------
+        SubprocessException
+            When the subprocess program execution returns an error.
 
         Notes
         -----
@@ -92,9 +99,11 @@ class IgorInterface(object):
         """
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
-        process = Popen(updated_command.split(' '), stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = process.communicate()
-        return (process.returncode, stdout, stderr, updated_command)
+        try:
+            returncode = subprocess.call(shlex.split(updated_command))
+            return (returncode, updated_command)
+        except OSError as err:
+            raise SubprocessException(err)
 
     def get_command(self):
         """Getter function for collecting the IGoR command.

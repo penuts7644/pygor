@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,8 +23,35 @@ import os
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
-from immuno_probs.util.constant import get_separator
-from immuno_probs.util.exception import SeparatorNotValidException
+
+def create_directory_path(directory):
+    """Updates and creates given directory path by adding a number at the end.
+
+    Parameters
+    ----------
+    directory : string
+        A directory path location to create recursively.
+
+    Returns
+    -------
+    str
+        The (updated) output directory location path.
+
+    """
+    # Check if the directory name is unique, modify name if necessary.
+    dir_count = 1
+    updated_directory = directory
+
+    # Keep modifying the name until it doesn't exist.
+    while os.path.isdir(os.path.join(directory, updated_directory)):
+        updated_directory = str(directory) + '_' + str(dir_count)
+        dir_count += 1
+
+    # Finally create directory's recursively if not exists.
+    if not os.path.isdir(updated_directory):
+        os.makedirs(updated_directory)
+
+    return updated_directory
 
 
 def read_fasta_as_dataframe(infile):
@@ -51,13 +77,15 @@ def read_fasta_as_dataframe(infile):
     return fasta_df
 
 
-def read_csv_to_dataframe(filename):
+def read_csv_to_dataframe(filename, separator):
     """Read in a CSV file as pandas.DataFrame.
 
     Parameters
     ----------
     filename : string
-        Filename to be read in as dtaframe.
+        Filename to be read in as dataframe.
+    separator : string
+        A separator character used for separating the fields in the CSV file.
 
     Notes
     -----
@@ -65,12 +93,12 @@ def read_csv_to_dataframe(filename):
         string for the input CSV file. Comments ('#') in the file are skipped.
 
     """
-    dataframe = pandas.read_csv(filename, sep=get_separator(), comment='#',
+    dataframe = pandas.read_csv(filename, sep=separator, comment='#',
                                 header=0)
     return dataframe
 
 
-def write_dataframe_to_csv(dataframe, filename, directory=None):
+def write_dataframe_to_csv(dataframe, filename, directory, separator):
     """Writes a pandas.DataFrame to a CSV formatted file.
 
     The output CSV file is comma separated (default) and if the file already
@@ -84,8 +112,10 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
         The dataframe to be written to the CSV file.
     filename : string
         Base filename for writting the file, excluding the '.csv' extension.
-    directory : string, optional
-        An output directory to write the file to (default: current directory).
+    directory : string
+        A directory path location to create recursively.
+    separator : string
+        A separator character used for separating the fields in the CSV file.
 
     Returns
     -------
@@ -93,30 +123,7 @@ def write_dataframe_to_csv(dataframe, filename, directory=None):
         Containing the output directory and the name of the file that has been
         written to disk.
 
-    Raises
-    ------
-    SeparatorNotValidException
-        When the SEPARATOR global variable is not of type string.
-
-    Notes
-    -----
-        This function uses the global SEPARATOR variable to set the separator
-        string for the output CSV file.
-
     """
-    # Check out available worker count and adjust accordingly.
-    separator = get_separator()
-    if not isinstance(separator, str):
-        raise SeparatorNotValidException("The SEPARATOR variable needs to be " \
-                                         "of type string", separator)
-
-    # Create directory's recursively if not exists.
-    if directory is not None:
-        if not os.path.isdir(directory):
-            os.makedirs(directory, exist_ok=True)
-    else:
-        directory = os.getcwd()
-
     # Check if the filename is unique, modify name if necessary.
     file_count = 1
     updated_filename = filename

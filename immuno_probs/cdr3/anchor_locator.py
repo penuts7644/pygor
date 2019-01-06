@@ -1,6 +1,5 @@
-# ImmunoProbs Python package uses a simplified manner for calculating the
-# generation probability of V(D)J and CDR3 sequences.
-# Copyright (C) 2018 Wout van Helvoirt
+# ImmunoProbs Python package able to calculate the generation probability of
+# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +21,7 @@
 import pandas
 import numpy
 
+from immuno_probs.util.constant import get_num_threads
 from immuno_probs.util.exception import GeneIdentifierException, IndexNotFoundException
 from immuno_probs.util.processing import multiprocess_array
 
@@ -190,6 +190,7 @@ class AnchorLocator(object):
             motifs = self.default_motifs[self.gene]
         result = multiprocess_array(ary=motifs,
                                     func=self._find_conserved_motif_indices,
+                                    num_workers=get_num_threads(),
                                     alignment=self.alignment)
         result = pandas.concat(result, axis=0).reset_index(drop=True)
         result.drop_duplicates(inplace=True)
