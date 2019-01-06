@@ -44,6 +44,7 @@ class BuildIgorModel(object):
     def __init__(self, subparsers):
         super(BuildIgorModel, self).__init__()
         self.subparsers = subparsers
+        self.ref_dir = None
         self._add_options()
 
     def _add_options(self):
@@ -97,8 +98,34 @@ class BuildIgorModel(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    @staticmethod
-    def run(args):
+    def _format_imgt_reference_fasta(self, fasta):
+        """Function for formatting the IMGT reference genome files for IGoR.
+
+        Parameters
+        ----------
+        fasta : str
+            A FASTA file path for a reference genomic template file.
+
+        Returns
+        -------
+        str
+            A string file path to the new reference genomic template file.
+
+        """
+        # Create the reference genomic template directory.
+        if not os.path.isdir(self.ref_dir):
+            os.makedirs(self.ref_dir)
+
+        # Open the fasta file, update the fasta header and write out.
+        records = list(SeqIO.parse(str(fasta), "fasta"))
+        for rec in records:
+            rec.id = rec.description.split('|')[1]
+            rec.description = ""
+        updated_path = os.path.join(self.ref_dir, os.path.basename(str(fasta)))
+        SeqIO.write(records, str(updated_path), "fasta")
+        return updated_path
+
+    def run(self, args):
         """Function to execute the commandline tool.
 
         Parameters
@@ -107,49 +134,25 @@ class BuildIgorModel(object):
             Object containing our parsed commandline arguments.
 
         """
-        # -------------------------------
-        # NOTE: IGoR has uses the whole header of the reference genome FASTA
-        # files as gene name. The IMGT versions of these files includes more
-        # information. We have to rewrite the input FASTA files to make it more
-        # consistent. This is a quick fix.
-        ref_directory = None
-        # End ---------------------------
-
         # Add general igor commands.
         command_list = []
         if args.set_wd:
             command_list.append(['set_wd', str(args.set_wd)])
-            # Can be removed ----------------
-            ref_directory = os.path.join(str(args.set_wd), 'genomic_templates')
-            # End ---------------------------
+            self.ref_dir = os.path.join(str(args.set_wd), 'genomic_templates')
         else:
             command_list.append(['set_wd', str(get_working_dir())])
-            # Can be removed ----------------
-            ref_directory = os.path.join(str(get_working_dir()), 'genomic_templates')
-            # End ---------------------------
+            self.ref_dir = os.path.join(str(get_working_dir()), 'genomic_templates')
         if args.threads:
             command_list.append(['threads', str(args.threads)])
         else:
             command_list.append(['threads', str(get_num_threads())])
 
-        # Can be removed ----------------
-        if not os.path.isdir(ref_directory):
-            os.makedirs(ref_directory)
-        # End ---------------------------
-
         # Add sequence and file paths commands.
         if args.ref:
             ref_list = ['set_genomic']
             for i in args.ref:
-                # Can be removed ----------------
-                records = list(SeqIO.parse(str(i[1]), "fasta"))
-                for rec in records:
-                    rec.id = rec.description.split('|')[1]
-                    rec.description = ""
-                name = os.path.join(ref_directory, os.path.basename(str(i[1])))
-                SeqIO.write(records, str(name), "fasta")
-                # End ---------------------------
-                ref_list.append([str(i[0]), str(name)])
+                filename = self._format_imgt_reference_fasta(i[1])
+                ref_list.append([str(i[0]), str(filename)])
             command_list.append(ref_list)
         if args.model:
             command_list.append(['set_custom_model', str(args.model)])
