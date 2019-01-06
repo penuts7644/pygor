@@ -11,7 +11,7 @@ ImmunoProbs Python package able to calculate the generation probability of V(D)J
 
 ImmunoProbs is installable via PyPI using the following terminal command `pip install immuno-probs`. To see all available tools for ImmunoProbs use the `immuno-probs -h` command after installation. Each ImmunoProbs tool has its own specific arguments. The options for a specific tools are available via `immuno-probs <TOOL NAME> -h`. Make sure to install the necessary requirements.
 
-###### Using docker
+##### Using ImmunoProbs as docker image
 
 It is also possible to use a docker image of ImmunoProbs with all necessary requirement pre-installed in an ubuntu environment. Make sure to install [docker](https://www.docker.com) first and pull the most recent version of the image with `docker pull immuno-probs:0.1.3`. Use the following to execute a command: `docker run --rm --volume "$PWD":/tmp immuno-probs:0.1.3 <TOOL NAME>`. This will execute the image in a container while having access to you local machine's working directory. The container is removed after execution.
 
