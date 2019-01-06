@@ -18,6 +18,7 @@
 """IgorInterface class for interfacing with IGoR's commandline tool."""
 
 
+import shlex
 import subprocess
 
 
@@ -91,7 +92,7 @@ class IgorInterface(object):
         """
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
-        returncode = subprocess.call(updated_command.split(' '))
+        returncode = subprocess.call(shlex.split(updated_command))
         return (returncode, updated_command)
 
     def get_command(self):
