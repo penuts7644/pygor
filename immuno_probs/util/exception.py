@@ -71,6 +71,15 @@ class IndexNotFoundException(Exception):
     def __str__(self):
         return "{0}: '{1}''".format(self.message, self.identifier)
 
+class ModelLoaderException(Exception):
+    """Exception when loading a IGoR model producers errors."""
+    def __init__(self, message):
+        super(ModelLoaderException, self).__init__()
+        self.message = message
+
+    def __str__(self):
+        return "An error occured while loading the model:\n{0}".format(
+            self.message)
 
 class NumThreadsValueException(Exception):
     """Exception when the NUM_THREADS variable is faulty."""
@@ -81,6 +90,16 @@ class NumThreadsValueException(Exception):
 
     def __str__(self):
         return "{0}: '{1}'".format(self.message, self.value)
+
+class OlgaException(Exception):
+    """Exception when the OLGA produces an exception."""
+    def __init__(self, message):
+        super(OlgaException, self).__init__()
+        self.message = message
+
+    def __str__(self):
+        return "An error occured while loading the model:\n{0}".format(
+            self.message)
 
 class SeparatorNotValidException(Exception):
     """Exception when the SEPARATOR variable is faulty."""
