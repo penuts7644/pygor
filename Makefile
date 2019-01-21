@@ -1,7 +1,7 @@
 ##
 ##	ImmunoProbs
 ##		ImmunoProbs Python package able to calculate the generation probability
-##		of V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
+##		of V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 ##
 
 default: help
@@ -45,7 +45,7 @@ build: test clean
 ##			ImmunoProbs and finally builds a docker image of all executables.
 ##
 build-docker: test clean build
-	docker build -t penuts7644/immuno-probs:0.1.3 .
+	docker build -t penuts7644/immuno-probs:0.1.4 .
 
 ##		make test-deploy
 ##			Tests, cleans, builds and uploads all distribution files to PyPI test server.

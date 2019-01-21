@@ -15,32 +15,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immuno_probs.alignment.muscle_aligner file."""
+"""Test file for testing immuno_probs.model.igor_loader file."""
 
 
-from Bio.Align import MultipleSeqAlignment
 import pytest
 
-from immuno_probs.alignment.muscle_aligner import MuscleAligner
+from immuno_probs.model.igor_loader import IgorLoader
 
 
-@pytest.mark.parametrize('infile, cmd, expected', [
-    ('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta', 'muscle',
-     MultipleSeqAlignment),
-    pytest.param('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta',
-                 'fake_command', MultipleSeqAlignment, marks=pytest.mark.xfail)
+@pytest.mark.parametrize('infiles, expected', [
+    (['tests/test_data/TRA_homo_sapiens/model_params.txt',
+      'tests/test_data/TRA_homo_sapiens/model_marginals.txt',
+      'tests/test_data/TRA_homo_sapiens/V_gene_CDR3_anchors.csv',
+      'tests/test_data/TRA_homo_sapiens/J_gene_CDR3_anchors.csv'],
+     IgorLoader)
 ])
-def test_muscle_aligner(infile, cmd, expected):
+def test_igor_loader(infiles, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
     Parameters
     ----------
-    infile : string
-        A file path to a FASTA file containining the genomic data to align.
-    cmd : string
-        The MUSCLE terminal command executable location/name.
-    expected : MultipleSeqAlignment
-        The expected output type MultipleSeqAlignment.
+    infiles : list
+        A list of file paths to an IGoR model and CDR3 anchor files.
+    expected : IgorLoader
+        The expected output type IgorLoader.
 
     Raises
     -------
@@ -48,6 +46,6 @@ def test_muscle_aligner(infile, cmd, expected):
         If the performed test failed.
 
     """
-    aligner = MuscleAligner(infile=infile, cmd=cmd)
-    alignment = aligner.get_muscle_alignment()
-    assert isinstance(alignment, expected)
+    model = IgorLoader(model_params=infiles[0], model_marginals=infiles[1],
+                       v_anchors=infiles[2], j_anchors=infiles[3])
+    assert isinstance(model, expected)

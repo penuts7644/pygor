@@ -1,5 +1,5 @@
 # ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2018 Wout van Helvoirt
+# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,15 @@
 """Commandline tool for evaluating V(D)J sequences using an IGoR model."""
 
 
+import os
+import sys
+
+from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.igor_interface import IgorInterface
+from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
 
 
 class EvaluateSeqs(object):
@@ -77,7 +83,16 @@ class EvaluateSeqs(object):
                 'required': 'True',
                 'help': 'The type of sequences to generate. (select one: ' \
                         '%(choices)s)'
-            }
+            },
+            '--anchors': {
+                'metavar': ('<v_gene>', '<j_gene>'),
+                'type': 'str',
+                'nargs': 2,
+                'required': '-type=CDR3' in sys.argv or
+                            ('-type' in sys.argv and 'CDR3' in sys.argv),
+                'help': 'The V and J gene CDR3 anchor files. (required ' \
+                        'for -type=CDR3)'
+            },
         }
 
         # Add the options to the parser and return the updated parser.
@@ -96,7 +111,7 @@ class EvaluateSeqs(object):
             Object containing our parsed commandline arguments.
 
         """
-        # If the given type of sequences generation is VDJ, use IGoR.
+        # If the given type of sequences evaluation is VDJ, use IGoR.
         if args.type == 'VDJ':
 
             # Add general igor commands.
@@ -128,9 +143,32 @@ class EvaluateSeqs(object):
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
 
-        # If the given type of sequences generation is CDR3, use OLGA.
+        # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.type == 'CDR3':
-            print('CDR3 sequence evaluation is not yet supported')
+
+            # Create the directory for the output files.
+            directory = os.path.join(get_working_dir(), 'output')
+            if not os.path.isdir(directory):
+                os.makedirs(os.path.join(get_working_dir(), 'output'))
+
+            # Load the model, create the sequence evaluator and evaluate the sequences.
+            model = IgorLoader(
+                model_params=args.model[0], model_marginals=args.model[1],
+                v_anchors=args.anchors[0], j_anchors=args.anchors[1])
+            seq_evaluator = OlgaContainer(igor_model=model)
+            sequence_df = read_csv_to_dataframe(filename=args.seqs,
+                                                separator=get_separator())
+            cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
+
+            # Write the pandas dataframe to a CSV file.
+            directory, filename = write_dataframe_to_csv(
+                dataframe=cdr3_pgen_df,
+                filename='CDR3_pgen',
+                directory=directory,
+                separator=get_separator())
+
+            print("Written '{}' file to '{}' directory."
+                  .format(filename, directory))
 
 
 def main():
