@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immuno_probs.cdr3.anchor_locator file."""
+"""Test file for testing immuno_probs.cdr3.olga_container file."""
 
 
 import pandas

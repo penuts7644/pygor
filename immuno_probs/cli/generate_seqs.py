@@ -18,9 +18,15 @@
 """Commandline tool for generating V(D)J sequences from and IGoR model."""
 
 
+import os
+import sys
+
+from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.igor_interface import IgorInterface
+from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.io import write_dataframe_to_csv
 
 
 class GenerateSeqs(object):
@@ -77,7 +83,16 @@ class GenerateSeqs(object):
                 'default': 1,
                 'help': 'The number of sequences to generate. (default: ' \
                         '%(default)s)'
-            }
+            },
+            '--anchors': {
+                'metavar': ('<v_gene>', '<j_gene>'),
+                'type': 'str',
+                'nargs': 2,
+                'required': '-type=CDR3' in sys.argv or
+                            ('-type' in sys.argv and 'CDR3' in sys.argv),
+                'help': 'The V and J gene CDR3 anchor files. (required ' \
+                        'for -type=CDR3)'
+            },
         }
 
         # Add the options to the parser and return the updated parser.
@@ -119,16 +134,37 @@ class GenerateSeqs(object):
             if args.generate:
                 command_list.append(['generate', str(args.generate)])
 
+            # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
             code, _ = igor_cline.call()
-
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
-            print('CDR3 sequence generation is not yet supported')
+
+            # Create the directory for the output files.
+            directory = os.path.join(get_working_dir(), 'generated')
+            if not os.path.isdir(directory):
+                os.makedirs(os.path.join(get_working_dir(), 'generated'))
+
+            # Load the model, create the sequence generator and generate the sequences.
+            model = IgorLoader(
+                model_params=args.model[0], model_marginals=args.model[1],
+                v_anchors=args.anchors[0], j_anchors=args.anchors[1])
+            seq_generator = OlgaContainer(igor_model=model)
+            cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
+
+            # Write the pandas dataframe to a CSV file.
+            directory, filename = write_dataframe_to_csv(
+                dataframe=cdr3_seqs_df,
+                filename='generated_CDR3_seqs',
+                directory=directory,
+                separator=get_separator())
+
+            print("Written '{}' file to '{}' directory."
+                  .format(filename, directory))
 
 
 def main():
