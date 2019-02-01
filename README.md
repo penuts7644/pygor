@@ -9,11 +9,43 @@ ImmunoProbs Python package able to calculate the generation probability of V(D)J
 
 ### How to install
 
-ImmunoProbs is installable via PyPI using the following terminal command `pip install immuno-probs`. To see all available tools for ImmunoProbs use the `immuno-probs -h` command after installation. Each ImmunoProbs tool has its own specific arguments. The options for a specific tools are available via `immuno-probs <TOOL NAME> -h`. Make sure to install the necessary requirements.
+ImmunoProbs is installable via PyPI using the following terminal command:
 
-##### Using ImmunoProbs as docker image
+```
+pip install immuno-probs
+```
 
-It is also possible to use a docker image of ImmunoProbs with all necessary requirement pre-installed in an ubuntu environment. Make sure to install [docker](https://www.docker.com) first and pull the most recent version of the image with `docker pull penuts7644/immuno-probs:0.1.4`. Use the following to execute a command: `docker run --rm --volume "$PWD":/tmp penuts7644/immuno-probs:0.1.4 <TOOL NAME>`. This will execute the image in a container while having access to you local machine's working directory. The container is removed after execution.
+In order to see all available tools/functionalities for ImmunoProbs use the help command after installation:
+
+```
+immuno-probs -h
+```
+
+Each ImmunoProbs tool has its own specific arguments (accompanying the top-level ones). The options for a specific tools are available via the tool's help command:
+
+```
+immuno-probs <TOOL NAME> -h
+```
+
+Make sure to install the necessary requirements (see the requirements section).
+
+##### Using ImmunoProbs via docker image
+
+It is also possible to use a docker image of ImmunoProbs with all necessary requirement pre-installed in an ubuntu environment. Make sure to install [docker](https://www.docker.com) first and pull the most recent version of the image with the following command:
+
+```
+docker pull penuts7644/immuno-probs:0.1.4
+```
+
+Now you can use the ImmunoProbs image however you like.
+
+You can also execute the ImmunoProbs image while using your local machine's working directory:
+
+```
+docker run --rm --volume "$PWD":/tmp penuts7644/immuno-probs:0.1.4 <TOOL NAME>
+```
+
+Note that the container is removed after execution and that you'll need to link to the `/tmp` directory of the container since that is the location where output files are created.
 
 ### Requirements
 
@@ -26,11 +58,15 @@ All Python dependencies that are used by this package are installed through pip 
 
 ### Development
 
-Development of ImmunoProbs is in an active fase. If you would like to see new features, please open a new [issue](https://github.com/penuts7644/ImmunoProbs/issues/new).
+Development of ImmunoProbs is in an active state. If you would like to see new features, please open a new [issue](https://github.com/penuts7644/ImmunoProbs/issues/new).
 
 It is also possible to help out ImmunoProbs development by forking this project and creating a [pull request](https://github.com/penuts7644/ImmunoProbs/compare) to submit new features.
 
-When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements via `make setup` command.
+When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements using the make command:
+
+```
+make setup
+```
 
 ### Package structure
 
