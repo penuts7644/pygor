@@ -58,15 +58,16 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - 'nt_sequence',
-            ammino acid CDR3 sequence - 'aa_sequence', the index of the chosen
-            V gene - 'gene_choice_v' and the index of the chosen J
-            gene - 'gene_choice_j'.
+            Containing columns with sequence index - 'seq_index', nucleotide
+            CDR3 sequence - 'nt_sequence', ammino acid CDR3 sequence -
+            'aa_sequence', the index of the chosen V gene - 'gene_choice_v'
+            and the index of the chosen J gene - 'gene_choice_j'.
 
         """
         # Create the dataframe and set the generation objects.
-        generated_seqs = pandas.DataFrame(columns=['nt_sequence', 'aa_sequence',
-                                                   'gene_choice_v', 'gene_choice_j'])
+        generated_seqs = pandas.DataFrame(
+            columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v',
+                     'gene_choice_j'])
         seq_gen_model = None
         if self.igor_model.is_vdj():
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -80,9 +81,10 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a SequenceGeneration object")
 
         # Generate the sequences, add them to the dataframe and return.
-        for _ in range(num_seqs):
+        for i in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
             generated_seqs = generated_seqs.append({
+                'seq_index': i,
                 'nt_sequence': generated_seq[0],
                 'aa_sequence': generated_seq[1],
                 'gene_choice_v': generated_seq[2],
