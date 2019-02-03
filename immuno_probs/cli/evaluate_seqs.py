@@ -93,6 +93,11 @@ class EvaluateSeqs(object):
                 'help': 'The V and J gene CDR3 anchor files. (required ' \
                         'for -type=CDR3)'
             },
+            '--combine': {
+                'action': 'store_false',
+                'help': 'Should generated sequence files be combined with ' \
+                        'the calculated Pgen estimate? (default True)'
+            },
         }
 
         # Add the options to the parser and return the updated parser.
