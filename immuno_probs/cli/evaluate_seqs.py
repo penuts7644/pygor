@@ -121,14 +121,9 @@ class EvaluateSeqs(object):
 
             # Add general igor commands.
             command_list = []
-            if args.set_wd:
-                command_list.append(['set_wd', str(args.set_wd)])
-            else:
-                command_list.append(['set_wd', str(get_working_dir())])
-            if args.threads:
-                command_list.append(['threads', str(args.threads)])
-            else:
-                command_list.append(['threads', str(get_num_threads())])
+            directory = get_working_dir()
+            command_list.append(['set_wd', str(directory)])
+            command_list.append(['threads', str(get_num_threads())])
 
             # Add the model and sequence commands.
             if args.model:
