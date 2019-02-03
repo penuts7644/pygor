@@ -26,7 +26,7 @@ from immuno_probs.util.exception import SeparatorNotValidException, NumThreadsVa
 
 
 NUM_THREADS = ph.cpu_count()
-SEPARATOR = ','
+SEPARATOR = ';'
 WORKING_DIR = os.getcwd()
 
 
@@ -71,7 +71,7 @@ def set_separator(value):
     ----------
     value : str
         The separator character to be used when writing files (default:
-        comma character).
+        semicolon character).
 
     Raises
     ------
