@@ -101,28 +101,28 @@ class OlgaContainer(object):
         args : list
             The arguments from the multiprocess_array function. Consists of an
             pandas.DataFrame and additional kwargs like the
-            GenerationProbability object and the name of the column to generate
-            probabilities for.
+            GenerationProbability object and the column name containing the
+            nucleotide sequences.
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - <given by function>
-            and the generation probability of the sequences - 'pgen_estimate'.
+            Containing columns sequence index number - 'seq_index' and the
+            generation probability of the sequence - 'nt_pgen_estimate'.
 
         """
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        column_name = kwargs["column"]
-        pgen_seqs = pandas.DataFrame(columns=['nt_sequence', 'pgen_estimate'])
+        nt_column = kwargs["nt_column"]
+        pgen_seqs = pandas.DataFrame(columns=['seq_index', 'nt_pgen_estimate'])
 
         # Evaluate the sequences, add them to the dataframe and return.
         for _, row in ary.iterrows():
-            seq_pgen = model.compute_nt_CDR3_pgen(row[column_name])
+            seq_nt_pgen = model.compute_nt_CDR3_pgen(row[nt_column])
             pgen_seqs = pgen_seqs.append({
-                column_name: row[column_name],
-                'pgen_estimate': seq_pgen,
+                'seq_index': row['seq_index'],
+                'nt_pgen_estimate': seq_nt_pgen,
             }, ignore_index=True)
         return pgen_seqs
 
@@ -138,8 +138,8 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - 'nt_sequence'
-            and the generation probability of the sequence - 'pgen_estimate'.
+            Containing columns sequence index number - 'seq_index' and the
+            generation probability of the sequence - 'nt_pgen_estimate'.
 
         """
         # Set the evaluation objects.
@@ -160,7 +160,7 @@ class OlgaContainer(object):
                                     func=self._evaluate,
                                     num_workers=get_num_threads(),
                                     model=pgen_model,
-                                    column='nt_sequence')
+                                    nt_column='nt_sequence')
         result = pandas.concat(result, axis=0).reset_index(drop=True)
         result.drop_duplicates(inplace=True)
         return result
