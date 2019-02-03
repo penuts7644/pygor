@@ -24,6 +24,7 @@ from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_seqs import GenerateSeqs
 from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
+from immuno_probs.cli.combine_outputs import CombineOutputs
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
 
@@ -65,6 +66,7 @@ def main():
     bim = BuildIgorModel(subparsers=subparsers)
     ges = GenerateSeqs(subparsers=subparsers)
     evs = EvaluateSeqs(subparsers=subparsers)
+    coo = CombineOutputs(subparsers=subparsers)
 
     # Parse the commandline arguments, set variables, execute correct function.
     parsed_arguments = parser.parse_args()
@@ -83,6 +85,8 @@ def main():
         ges.run(args=parsed_arguments)
     elif parsed_arguments.subparser_name == 'evaluate-seqs':
         evs.run(args=parsed_arguments)
+    elif parsed_arguments.subparser_name == 'combine-outputs':
+        coo.run(args=parsed_arguments)
     else:
         print("No option selected, run 'immuno-probs -h' to show all options.")
 
