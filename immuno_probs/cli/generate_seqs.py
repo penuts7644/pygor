@@ -26,7 +26,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
 
 
 class GenerateSeqs(object):
@@ -116,14 +116,9 @@ class GenerateSeqs(object):
 
             # Add general igor commands.
             command_list = []
-            if args.set_wd:
-                command_list.append(['set_wd', str(args.set_wd)])
-            else:
-                command_list.append(['set_wd', str(get_working_dir())])
-            if args.threads:
-                command_list.append(['threads', str(args.threads)])
-            else:
-                command_list.append(['threads', str(get_num_threads())])
+            directory = get_working_dir()
+            command_list.append(['set_wd', str(directory)])
+            command_list.append(['threads', str(get_num_threads())])
 
             # Add the model command.
             if args.model:
@@ -140,6 +135,26 @@ class GenerateSeqs(object):
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
+
+            # Merge IGoR generated sequence outputs and remove old files.
+            sequence_df = read_csv_to_dataframe(
+                filename=os.path.join(
+                    directory, 'generated/generated_seqs_werr.csv'),
+                separator=';')
+            realizations_df = read_csv_to_dataframe(
+                filename=os.path.join(
+                    directory, 'generated/generated_realizations_werr.csv'),
+                separator=';')
+            gen_df = sequence_df.merge(realizations_df, on='seq_index')
+            directory, filename = write_dataframe_to_csv(
+                dataframe=gen_df,
+                filename='generated/generated_VDJ_seqs',
+                directory=directory,
+                separator=';')
+            os.remove(os.path.join(
+                directory, 'generated/generated_seqs_werr.csv'))
+            os.remove(os.path.join(
+                directory, 'generated/generated_realizations_werr.csv'))
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
