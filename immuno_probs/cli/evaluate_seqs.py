@@ -138,10 +138,27 @@ class EvaluateSeqs(object):
 
             igor_cline = IgorInterface(args=command_list)
             code, _ = igor_cline.call()
-
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
+
+            # Merge IGoR generated sequence outputs and remove old file.
+            if args.combine:
+                sequence_df = read_csv_to_dataframe(
+                    filename=args.seqs,
+                    separator=get_separator())
+                realizations_df = read_csv_to_dataframe(
+                    filename=os.path.join(
+                        directory, 'output/Pgen_counts.csv'),
+                    separator=';')
+                gen_df = sequence_df.merge(realizations_df, on='seq_index')
+                directory, filename = write_dataframe_to_csv(
+                    dataframe=gen_df,
+                    filename='output/VDJ_seqs_pgen_estimate',
+                    directory=directory,
+                    separator=get_separator())
+                os.remove(os.path.join(
+                    directory, 'output/Pgen_counts.csv'))
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.type == 'CDR3':
@@ -159,11 +176,17 @@ class EvaluateSeqs(object):
             sequence_df = read_csv_to_dataframe(filename=args.seqs,
                                                 separator=get_separator())
             cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
+            filename = 'CDR3_pgen'
+
+            # Merge IGoR generated sequence outputs and remove old file.
+            if args.combine:
+                filename = 'CDR3_seqs_pgen_estimate'
+                cdr3_pgen_df = sequence_df.merge(cdr3_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_pgen_df,
-                filename='CDR3_pgen',
+                filename=filename,
                 directory=directory,
                 separator=get_separator())
 
