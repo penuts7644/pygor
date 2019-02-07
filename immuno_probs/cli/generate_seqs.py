@@ -127,7 +127,7 @@ class GenerateSeqs(object):
 
             # Add generate command.
             if args.generate:
-                command_list.append(['generate', str(args.generate)])
+                command_list.append(['generate', str(args.generate), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
@@ -135,26 +135,7 @@ class GenerateSeqs(object):
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
-
-            # Merge IGoR generated sequence outputs and remove old files.
-            sequence_df = read_csv_to_dataframe(
-                filename=os.path.join(
-                    directory, 'generated/generated_seqs_werr.csv'),
-                separator=';')
-            realizations_df = read_csv_to_dataframe(
-                filename=os.path.join(
-                    directory, 'generated/generated_realizations_werr.csv'),
-                separator=';')
-            gen_df = sequence_df.merge(realizations_df, on='seq_index')
-            directory, filename = write_dataframe_to_csv(
-                dataframe=gen_df,
-                filename='generated/generated_VDJ_seqs',
-                directory=directory,
-                separator=';')
-            os.remove(os.path.join(
-                directory, 'generated/generated_seqs_werr.csv'))
-            os.remove(os.path.join(
-                directory, 'generated/generated_realizations_werr.csv'))
+                sys.exit()
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
