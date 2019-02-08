@@ -38,7 +38,7 @@ def main():
             'type': 'str',
             'nargs': '?',
             'help': 'The separator character to be used when writing files ' \
-                    '(default: comma character).'
+                    '(default: semicolon character).'
         },
         '--threads': {
             'type': 'int',

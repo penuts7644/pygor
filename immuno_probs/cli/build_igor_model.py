@@ -18,6 +18,7 @@
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
 import os
+import sys
 
 from Bio import SeqIO
 
@@ -136,16 +137,10 @@ class BuildIgorModel(object):
         """
         # Add general igor commands.
         command_list = []
-        if args.set_wd:
-            command_list.append(['set_wd', str(args.set_wd)])
-            self.ref_dir = os.path.join(str(args.set_wd), 'genomic_templates')
-        else:
-            command_list.append(['set_wd', str(get_working_dir())])
-            self.ref_dir = os.path.join(str(get_working_dir()), 'genomic_templates')
-        if args.threads:
-            command_list.append(['threads', str(args.threads)])
-        else:
-            command_list.append(['threads', str(get_num_threads())])
+        directory = get_working_dir()
+        command_list.append(['set_wd', str(directory)])
+        command_list.append(['threads', str(get_num_threads())])
+        self.ref_dir = os.path.join(str(directory), 'genomic_templates')
 
         # Add sequence and file paths commands.
         if args.ref:
@@ -172,6 +167,7 @@ class BuildIgorModel(object):
         if code != 0:
             print("An error occurred during execution of IGoR " \
                   "command (exit code {})".format(code))
+            sys.exit()
 
 
 def main():

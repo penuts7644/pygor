@@ -58,15 +58,16 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - 'nt_sequence',
-            ammino acid CDR3 sequence - 'aa_sequence', the index of the chosen
-            V gene - 'gene_choice_v' and the index of the chosen J
-            gene - 'gene_choice_j'.
+            Containing columns with sequence index - 'seq_index', nucleotide
+            CDR3 sequence - 'nt_sequence', ammino acid CDR3 sequence -
+            'aa_sequence', the index of the chosen V gene - 'gene_choice_v'
+            and the index of the chosen J gene - 'gene_choice_j'.
 
         """
         # Create the dataframe and set the generation objects.
-        generated_seqs = pandas.DataFrame(columns=['nt_sequence', 'aa_sequence',
-                                                   'gene_choice_v', 'gene_choice_j'])
+        generated_seqs = pandas.DataFrame(
+            columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v',
+                     'gene_choice_j'])
         seq_gen_model = None
         if self.igor_model.is_vdj():
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -80,9 +81,10 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a SequenceGeneration object")
 
         # Generate the sequences, add them to the dataframe and return.
-        for _ in range(num_seqs):
+        for i in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
             generated_seqs = generated_seqs.append({
+                'seq_index': i,
                 'nt_sequence': generated_seq[0],
                 'aa_sequence': generated_seq[1],
                 'gene_choice_v': generated_seq[2],
@@ -99,28 +101,28 @@ class OlgaContainer(object):
         args : list
             The arguments from the multiprocess_array function. Consists of an
             pandas.DataFrame and additional kwargs like the
-            GenerationProbability object and the name of the column to generate
-            probabilities for.
+            GenerationProbability object and the column name containing the
+            nucleotide sequences.
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - <given by function>
-            and the generation probability of the sequences - 'pgen_estimate'.
+            Containing columns sequence index number - 'seq_index' and the
+            generation probability of the sequence - 'nt_pgen_estimate'.
 
         """
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        column_name = kwargs["column"]
-        pgen_seqs = pandas.DataFrame(columns=['nt_sequence', 'pgen_estimate'])
+        nt_column = kwargs["nt_column"]
+        pgen_seqs = pandas.DataFrame(columns=['seq_index', 'nt_pgen_estimate'])
 
         # Evaluate the sequences, add them to the dataframe and return.
         for _, row in ary.iterrows():
-            seq_pgen = model.compute_nt_CDR3_pgen(row[column_name])
+            seq_nt_pgen = model.compute_nt_CDR3_pgen(row[nt_column])
             pgen_seqs = pgen_seqs.append({
-                column_name: row[column_name],
-                'pgen_estimate': seq_pgen,
+                'seq_index': row['seq_index'],
+                'nt_pgen_estimate': seq_nt_pgen,
             }, ignore_index=True)
         return pgen_seqs
 
@@ -136,8 +138,8 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with nucleotide CDR3 sequence - 'nt_sequence'
-            and the generation probability of the sequence - 'pgen_estimate'.
+            Containing columns sequence index number - 'seq_index' and the
+            generation probability of the sequence - 'nt_pgen_estimate'.
 
         """
         # Set the evaluation objects.
@@ -158,7 +160,7 @@ class OlgaContainer(object):
                                     func=self._evaluate,
                                     num_workers=get_num_threads(),
                                     model=pgen_model,
-                                    column='nt_sequence')
+                                    nt_column='nt_sequence')
         result = pandas.concat(result, axis=0).reset_index(drop=True)
         result.drop_duplicates(inplace=True)
         return result

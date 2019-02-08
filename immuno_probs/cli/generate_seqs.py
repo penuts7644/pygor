@@ -26,7 +26,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
 
 
 class GenerateSeqs(object):
@@ -116,14 +116,9 @@ class GenerateSeqs(object):
 
             # Add general igor commands.
             command_list = []
-            if args.set_wd:
-                command_list.append(['set_wd', str(args.set_wd)])
-            else:
-                command_list.append(['set_wd', str(get_working_dir())])
-            if args.threads:
-                command_list.append(['threads', str(args.threads)])
-            else:
-                command_list.append(['threads', str(get_num_threads())])
+            directory = get_working_dir()
+            command_list.append(['set_wd', str(directory)])
+            command_list.append(['threads', str(get_num_threads())])
 
             # Add the model command.
             if args.model:
@@ -132,7 +127,7 @@ class GenerateSeqs(object):
 
             # Add generate command.
             if args.generate:
-                command_list.append(['generate', str(args.generate)])
+                command_list.append(['generate', str(args.generate), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
@@ -140,6 +135,7 @@ class GenerateSeqs(object):
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
+                sys.exit()
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':

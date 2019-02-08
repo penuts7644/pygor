@@ -93,6 +93,13 @@ class EvaluateSeqs(object):
                 'help': 'The V and J gene CDR3 anchor files. (required ' \
                         'for -type=CDR3)'
             },
+            '--igor-realizations': {
+                'metavar': '<csv>',
+                'type': 'str',
+                'help': 'An optional IGoR realizations file that ' \
+                        'corresponds to the given input sequences. ' \
+                        '(used when -type=VDJ)'
+            },
         }
 
         # Add the options to the parser and return the updated parser.
@@ -116,14 +123,9 @@ class EvaluateSeqs(object):
 
             # Add general igor commands.
             command_list = []
-            if args.set_wd:
-                command_list.append(['set_wd', str(args.set_wd)])
-            else:
-                command_list.append(['set_wd', str(get_working_dir())])
-            if args.threads:
-                command_list.append(['threads', str(args.threads)])
-            else:
-                command_list.append(['threads', str(get_num_threads())])
+            directory = get_working_dir()
+            command_list.append(['set_wd', str(directory)])
+            command_list.append(['threads', str(get_num_threads())])
 
             # Add the model and sequence commands.
             if args.model:
@@ -138,10 +140,33 @@ class EvaluateSeqs(object):
 
             igor_cline = IgorInterface(args=command_list)
             code, _ = igor_cline.call()
-
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
+                sys.exit()
+
+            # Read in all data frame files, merge them and write out new file.
+            sequence_df = read_csv_to_dataframe(
+                filename=args.seqs,
+                separator=get_separator())
+            pgen_df = read_csv_to_dataframe(
+                filename=os.path.join(directory, 'output/Pgen_counts.csv'),
+                separator=';')
+            if args.igor_realizations:
+                realizations_df = read_csv_to_dataframe(
+                    filename=args.igor_realizations,
+                    separator=get_separator())
+                gen_df = sequence_df.merge(
+                    realizations_df.merge(pgen_df, on='seq_index'),
+                    on='seq_index')
+            else:
+                gen_df = sequence_df.merge(pgen_df, on='seq_index')
+            directory, filename = write_dataframe_to_csv(
+                dataframe=gen_df,
+                filename='output/VDJ_seqs_pgen_estimate',
+                directory=directory,
+                separator=get_separator())
+            os.remove(os.path.join(directory, 'output/Pgen_counts.csv'))
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.type == 'CDR3':
@@ -160,10 +185,13 @@ class EvaluateSeqs(object):
                                                 separator=get_separator())
             cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
 
+            # Merge IGoR generated sequence outputs and remove old file.
+            cdr3_pgen_df_merged = sequence_df.merge(cdr3_pgen_df, on='seq_index')
+
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=cdr3_pgen_df,
-                filename='CDR3_pgen',
+                dataframe=cdr3_pgen_df_merged,
+                filename='CDR3_seqs_pgen_estimate',
                 directory=directory,
                 separator=get_separator())
 
