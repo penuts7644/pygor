@@ -66,4 +66,4 @@ def test_olga_container(option, expected):
         pgen_seqs = expected.drop(['nt_pgen_estimate'], axis=1)
         result = olga_container.evaluate(seqs=pgen_seqs)
         for index, row in result.iterrows():
-            assert row['nt_pgen_estimate'] == expected['nt_pgen_estimate'][index]
+            assert (row['nt_pgen_estimate'] - expected['nt_pgen_estimate'][index]) < 0.0000001
