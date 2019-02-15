@@ -27,7 +27,7 @@ from immuno_probs.model.igor_loader import IgorLoader
 
 @pytest.mark.parametrize('option, expected', [
     ('generate', [['seq_index', int], ['nt_sequence', str], ['aa_sequence', str],
-                  ['gene_choice_v', int], ['gene_choice_j', int]]),
+                  ['gene_choice_v', str], ['gene_choice_j', str]]),
     ('evaluate', pandas.DataFrame(
         [[0, 'TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', 0],
          [1, 'TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', 6.022455403460228e-08],
