@@ -165,8 +165,9 @@ class OlgaContainer(object):
                                     num_workers=get_num_threads(),
                                     model=pgen_model,
                                     nt_column='nt_sequence')
-        result = pandas.concat(result, axis=0).reset_index(drop=True)
+        result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)
+        result.reset_index(inplace=True, drop=True)
         return result
 
 
