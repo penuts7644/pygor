@@ -83,6 +83,43 @@ def integers_to_nucleotides(int_seq):
     return ''.join(nuc_sequence)
 
 
+def nucleotides_to_aminoacids(seq):
+    """Converts a nucleotide sequence to an aminoacid sequence.
+
+    Parameters
+    ----------
+    seq : string
+        A nucleotide sequence string.
+
+    Returns
+    -------
+    string
+        A aminoacid sequence string.
+
+    """
+    codon_aa_dict = {
+        'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M',
+        'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T',
+        'AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K',
+        'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R',
+        'CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L',
+        'CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P',
+        'CAC':'H', 'CAT':'H', 'CAA':'Q', 'CAG':'Q',
+        'CGA':'R', 'CGC':'R', 'CGG':'R', 'CGT':'R',
+        'GTA':'V', 'GTC':'V', 'GTG':'V', 'GTT':'V',
+        'GCA':'A', 'GCC':'A', 'GCG':'A', 'GCT':'A',
+        'GAC':'D', 'GAT':'D', 'GAA':'E', 'GAG':'E',
+        'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G',
+        'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S',
+        'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L',
+        'TAC':'Y', 'TAT':'Y', 'TAA':'_', 'TAG':'_',
+        'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W',
+    }
+    return ''.join([codon_aa_dict[''.join([seq[i], seq[i + 1], seq[i + 2]])]
+                    for i in range(0, len(seq), 3)
+                    if i + 2 < len(seq)])
+
+
 def reverse_complement(seq):
     """Converts a nucleotide sequence to reverse complement.
 
