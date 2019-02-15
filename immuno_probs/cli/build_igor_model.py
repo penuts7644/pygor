@@ -120,7 +120,7 @@ class BuildIgorModel(object):
         # Open the fasta file, update the fasta header and write out.
         records = list(SeqIO.parse(str(fasta), "fasta"))
         for rec in records:
-            rec.id = rec.description.split('|')[1]
+            rec.id = rec.description.split('|')[1].split('*')[0]
             rec.description = ""
         updated_path = os.path.join(self.ref_dir, os.path.basename(str(fasta)))
         SeqIO.write(records, str(updated_path), "fasta")
