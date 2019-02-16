@@ -21,6 +21,8 @@
 import os
 import sys
 
+import pandas
+
 from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
@@ -109,7 +111,55 @@ class EvaluateSeqs(object):
                                           options=parser_options)
 
     @staticmethod
-    def run(args):
+    def _process_realizations(data, model):
+        """Function for processing an IGoR realization dataframe with indices.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            A pandas dataframe object with the IGoR realization data.
+        model : IgorLoader
+            Object containing the IGoR model.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A pandas dataframe object with 'seq_index', 'gene_choice_v',
+            'gene_choice_j' and optionally 'gene_choice_d' columns containing
+            the names of the selected genes.
+
+        """
+        # If the suplied model is VDJ, locate important columns and update index values.
+        if model.is_vdj():
+            real_df = pandas.concat([data[['seq_index']],
+                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+                                     data.filter(regex=("GeneChoice_J_gene_.*")),
+                                     data.filter(regex=("GeneChoice_D_gene_.*"))],
+                                    ignore_index=True, axis=1, sort=False)
+            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j', 'gene_choice_d']
+            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
+            d_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genD]
+            for i, row in real_df.iterrows():
+                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
+                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
+                real_df.ix[i, 'gene_choice_d'] = d_gene_names[int(row['gene_choice_d'].strip('()'))]
+
+        # Or do the same if the model is VJ.
+        elif model.is_vj():
+            real_df = pandas.concat([data[['seq_index']],
+                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+                                     data.filter(regex=("GeneChoice_J_gene_.*"))],
+                                    ignore_index=True, axis=1, sort=False)
+            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j']
+            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
+            for i, row in real_df.iterrows():
+                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
+                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
+        return real_df
+
+    def run(self, args):
         """Function to execute the commandline tool.
 
         Parameters
@@ -156,6 +206,10 @@ class EvaluateSeqs(object):
                 realizations_df = read_csv_to_dataframe(
                     filename=args.igor_realizations,
                     separator=get_separator())
+                model = IgorLoader(model_params=args.model[0],
+                                   model_marginals=args.model[1])
+                realizations_df = self._process_realizations(data=realizations_df,
+                                                             model=model)
                 gen_df = sequence_df.merge(
                     realizations_df.merge(pgen_df, on='seq_index'),
                     on='seq_index')
@@ -177,9 +231,9 @@ class EvaluateSeqs(object):
                 os.makedirs(os.path.join(get_working_dir(), 'output'))
 
             # Load the model, create the sequence evaluator and evaluate the sequences.
-            model = IgorLoader(
-                model_params=args.model[0], model_marginals=args.model[1],
-                v_anchors=args.anchors[0], j_anchors=args.anchors[1])
+            model = IgorLoader(model_params=args.model[0], model_marginals=args.model[1])
+            model.load_anchors(model_params=args.model[0], v_anchors=args.anchors[0],
+                               j_anchors=args.anchors[1])
             seq_evaluator = OlgaContainer(igor_model=model)
             sequence_df = read_csv_to_dataframe(filename=args.seqs,
                                                 separator=get_separator())
