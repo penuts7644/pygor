@@ -27,7 +27,7 @@ from immuno_probs.model.igor_loader import IgorLoader
 
 @pytest.mark.parametrize('option, expected', [
     ('generate', [['seq_index', int], ['nt_sequence', str], ['aa_sequence', str],
-                  ['gene_choice_v', int], ['gene_choice_j', int]]),
+                  ['gene_choice_v', str], ['gene_choice_j', str]]),
     ('evaluate', pandas.DataFrame(
         [[0, 'TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', 0],
          [1, 'TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', 6.022455403460228e-08],
@@ -55,8 +55,8 @@ def test_olga_container(option, expected):
     marginals = 'tests/test_data/TRA_homo_sapiens/model_marginals.txt'
     v_anchors = 'tests/test_data/TRA_homo_sapiens/V_gene_CDR3_anchors.csv'
     j_anchors = 'tests/test_data/TRA_homo_sapiens/J_gene_CDR3_anchors.csv'
-    model = IgorLoader(model_params=params, model_marginals=marginals,
-                       v_anchors=v_anchors, j_anchors=j_anchors)
+    model = IgorLoader(model_params=params, model_marginals=marginals)
+    model.load_anchors(model_params=params, v_anchors=v_anchors, j_anchors=j_anchors)
     olga_container = OlgaContainer(igor_model=model)
     if option == 'generate':
         result = olga_container.generate(num_seqs=1)

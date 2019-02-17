@@ -148,7 +148,7 @@ class AnchorLocator(object):
                         start_index = len(str(seq_record.seq[0:max_index])
                                           .replace('-', ''))
                         seq_motif_indices = seq_motif_indices.append({
-                            'gene': description_list[1],
+                            'gene': description_list[1].split('*')[0],
                             'anchor_index': start_index,
                             'function': description_list[3],
                             'motif': motif,
@@ -192,8 +192,9 @@ class AnchorLocator(object):
                                     func=self._find_conserved_motif_indices,
                                     num_workers=get_num_threads(),
                                     alignment=self.alignment)
-        result = pandas.concat(result, axis=0).reset_index(drop=True)
+        result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)
+        result.reset_index(inplace=True, drop=True)
         return result
 
 

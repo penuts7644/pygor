@@ -23,6 +23,7 @@ import olga.generation_probability as olga_pgen
 import pandas
 
 from immuno_probs.util.constant import get_num_threads
+from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.exception import OlgaException
 from immuno_probs.util.processing import multiprocess_array
 
@@ -80,6 +81,10 @@ class OlgaContainer(object):
         else:
             raise OlgaException("OLGA could not create a SequenceGeneration object")
 
+        # Collect the gene names from the genomic data model.
+        v_gene_names = [V[0].split('*')[0] for V in self.igor_model.get_genomic_data().genV]
+        j_gene_names = [J[0].split('*')[0] for J in self.igor_model.get_genomic_data().genJ]
+
         # Generate the sequences, add them to the dataframe and return.
         for i in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
@@ -87,8 +92,8 @@ class OlgaContainer(object):
                 'seq_index': i,
                 'nt_sequence': generated_seq[0],
                 'aa_sequence': generated_seq[1],
-                'gene_choice_v': generated_seq[2],
-                'gene_choice_j': generated_seq[3],
+                'gene_choice_v': v_gene_names[generated_seq[2]],
+                'gene_choice_j': j_gene_names[generated_seq[3]],
             }, ignore_index=True)
         return generated_seqs
 
@@ -101,8 +106,8 @@ class OlgaContainer(object):
         args : list
             The arguments from the multiprocess_array function. Consists of an
             pandas.DataFrame and additional kwargs like the
-            GenerationProbability object and the column name containing the
-            nucleotide sequences.
+            GenerationProbability object, the column name containing the
+            nucleotide sequences and a boolean for usingf V/J masks.
 
         Returns
         -------
@@ -119,10 +124,20 @@ class OlgaContainer(object):
 
         # Evaluate the sequences, add them to the dataframe and return.
         for _, row in ary.iterrows():
-            seq_nt_pgen = model.compute_nt_CDR3_pgen(row[nt_column])
+            if set(['gene_choice_v', 'gene_choice_j']).issubset(ary.columns):
+                seq_nt_pgen = model.compute_nt_CDR3_pgen(
+                    row[nt_column], row['gene_choice_v'], row['gene_choice_j'])
+                seq_aa_pgen = model.compute_aa_CDR3_pgen(
+                    nucleotides_to_aminoacids(row[nt_column]),
+                    row['gene_choice_v'], row['gene_choice_j'])
+            else:
+                seq_nt_pgen = model.compute_nt_CDR3_pgen(row[nt_column])
+                seq_aa_pgen = model.compute_aa_CDR3_pgen(
+                    nucleotides_to_aminoacids(row[nt_column]))
             pgen_seqs = pgen_seqs.append({
                 'seq_index': row['seq_index'],
                 'nt_pgen_estimate': seq_nt_pgen,
+                'aa_pgen_estimate': seq_aa_pgen,
             }, ignore_index=True)
         return pgen_seqs
 
@@ -140,6 +155,13 @@ class OlgaContainer(object):
         pandas.DataFrame
             Containing columns sequence index number - 'seq_index' and the
             generation probability of the sequence - 'nt_pgen_estimate'.
+
+        Notes
+        -----
+        This fucntion also checks if the given input sequence file contains the
+        'gene_choice_v' and 'gene_choice_j' columns. If so, then the V and J
+        gene masks in these columns are used to incease accuracy of the
+        generation probabality.
 
         """
         # Set the evaluation objects.
@@ -161,8 +183,9 @@ class OlgaContainer(object):
                                     num_workers=get_num_threads(),
                                     model=pgen_model,
                                     nt_column='nt_sequence')
-        result = pandas.concat(result, axis=0).reset_index(drop=True)
+        result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)
+        result.reset_index(inplace=True, drop=True)
         return result
 
 

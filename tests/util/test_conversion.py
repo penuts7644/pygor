@@ -22,6 +22,7 @@ import pytest
 
 from immuno_probs.util.conversion import nucleotides_to_integers
 from immuno_probs.util.conversion import integers_to_nucleotides
+from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.conversion import reverse_complement
 from immuno_probs.util.conversion import string_array_to_list
 
@@ -71,6 +72,30 @@ def test_integers_to_nucleotides(int_seq, expected):
 
     """
     out = integers_to_nucleotides(int_seq=int_seq)
+    assert out == expected
+
+
+@pytest.mark.parametrize('seq, expected', [
+    ('ACGTTAATCATCG', 'TLII'),
+    pytest.param('ACGTTAATCATCG', 'ACGT', marks=pytest.mark.xfail)
+])
+def test_nucleotides_to_aminoacids(seq, expected):
+    """Test if nucleotide sequence can be converted to aminoacid sequence.
+
+    Parameters
+    ----------
+    seq : string
+        A nucleotide sequence string.
+    expected : str
+        The expected output string.
+
+    Raises
+    -------
+    AssertionError
+        If the performed test failed.
+
+    """
+    out = nucleotides_to_aminoacids(seq=seq)
     assert out == expected
 
 

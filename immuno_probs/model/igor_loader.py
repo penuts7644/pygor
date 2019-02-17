@@ -32,13 +32,11 @@ class IgorLoader(object):
         A file path location for the IGoR parameters model file.
     model_marginals : string
         A file path location for the IGoR marginals model file.
-    v_anchors : string
-        File path to the file containing the CDR3 anchors for the V gene.
-    j_anchors : string
-        File path to the file containing the CDR3 anchors for the J gene.
 
     Methods
     -------
+    load_anchors(model_params, v_anchors, j_anchors)
+        Load in the CDR3 V and J gene anchor files.
     is_vj()
         Return a boolean spcifying if the model is VJ or not.
     is_vdj()
@@ -49,10 +47,10 @@ class IgorLoader(object):
         Return the GenerativeModel OLGA object.
 
     """
-    def __init__(self, model_params, model_marginals, v_anchors, j_anchors):
+    def __init__(self, model_params, model_marginals):
         super(IgorLoader, self).__init__()
         self.type = self._check_type(model_marginals)
-        self.data = self._load_data(model_params, v_anchors, j_anchors)
+        self.data = self._load_params(model_params)
         self.model = self._load_model(model_marginals)
 
     @staticmethod
@@ -84,17 +82,13 @@ class IgorLoader(object):
                     j_choice = True
         return (v_choice, d_gene, j_choice)
 
-    def _load_data(self, model_params, v_anchors, j_anchors):
-        """Private function for loading genomic data for the IGoR model.
+    def _load_params(self, model_params):
+        """Private function for loading genomic parameter data for the IGoR model.
 
         Parameters
         ----------
         model_params : string
             A file path location for the IGoR parameters model file.
-        v_anchors : string
-            File path to the file containing the CDR3 anchors for the V gene.
-        j_anchors : string
-            File path to the file containing the CDR3 anchors for the J gene.
 
         Returns
         -------
@@ -113,14 +107,15 @@ class IgorLoader(object):
             genomic_data = None
             if self.is_vdj():
                 genomic_data = olga_load_model.GenomicDataVDJ()
+                genomic_data.genD = olga_load_model.read_igor_D_gene_parameters(model_params)
             elif self.is_vj():
                 genomic_data = olga_load_model.GenomicDataVJ()
             else:
                 raise ModelLoaderException("Model is not VJ or VDJ compliant")
 
-            # Load the genomic data for the VDJ or VJ model and return.
-            genomic_data.load_igor_genomic_data(model_params, v_anchors,
-                                                j_anchors)
+            # Load the remainder of the data for the VJ model and return.
+            genomic_data.genV = olga_load_model.read_igor_V_gene_parameters(model_params)
+            genomic_data.genJ = olga_load_model.read_igor_J_gene_parameters(model_params)
             return genomic_data
 
         # If both VDJ, VJ loaders gave an exception, raise custom exception.
@@ -160,6 +155,49 @@ class IgorLoader(object):
             # Load the generative VDJ or VJ model marginals and return.
             generative_model.load_and_process_igor_model(model_marginals)
             return generative_model
+
+        # If both VDJ, VJ loaders gave an exception, raise custom exception.
+        except Exception as err:
+            raise ModelLoaderException(err)
+
+    def load_anchors(self, model_params, v_anchors, j_anchors):
+        """Function for loading the CDR3 acnhor data for the IGoR model.
+
+        Parameters
+        ----------
+        model_params : string
+            A file path location for the IGoR parameters model file.
+        v_anchors : string
+            File path to the file containing the CDR3 anchors for the V gene.
+        j_anchors : string
+            File path to the file containing the CDR3 anchors for the J gene.
+
+        Raises
+        ------
+        ModelLoaderException
+            When the model input data cannot be loaded in as either a VJ or
+            V(D)J model.
+
+        Notes
+        -----
+        This function uses the model that has already been loaded in and updates
+        the existing model object.
+
+        """
+        # Try to load the anchor files into the data model for VDJ.
+        try:
+            self.data.anchor_and_curate_genV_and_genJ(v_anchors, j_anchors)
+            if self.is_vdj():
+                self.data.read_VDJ_palindrome_parameters(model_params)
+                self.data.generate_cutD_genomic_CDR3_segs()
+            elif self.is_vj():
+                self.data.read_igor_VJ_palindrome_parameters(model_params)
+            else:
+                raise ModelLoaderException("Model is not VJ or VDJ compliant")
+
+            # Load the remainder of the data model
+            self.data.generate_cutV_genomic_CDR3_segs()
+            self.data.generate_cutJ_genomic_CDR3_segs()
 
         # If both VDJ, VJ loaders gave an exception, raise custom exception.
         except Exception as err:

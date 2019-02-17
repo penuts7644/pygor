@@ -34,15 +34,15 @@ def create_alignment():
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', 'TTT', pandas.DataFrame(
-        [['IGHJ1*02', 44, 'F', 'TTT']],
+        [['IGHJ1', 44, 'F', 'TTT']],
         columns=['gene', 'anchor_index', 'function', 'motif'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['IGHJ3*01', 14, 'F', 'TGG'],
-         ['IGHJ3*02', 14, 'P', 'TGG'],
-         ['IGHJ1*02', 19, 'F', 'TGG'],
-         ['IGHJ1*03', 19, 'F', 'TGG'],
-         ['IGHJ1*01', 19, 'F', 'TGG']],
+        [['IGHJ3', 14, 'F', 'TGG'],
+         ['IGHJ3', 14, 'P', 'TGG'],
+         ['IGHJ1', 19, 'F', 'TGG'],
+         ['IGHJ4', 20, 'F', 'TGG'],
+         ['IGHJ2', 12, 'F', 'TGG']],
         columns=['gene', 'anchor_index', 'function', 'motif'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])

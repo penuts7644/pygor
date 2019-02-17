@@ -146,9 +146,9 @@ class GenerateSeqs(object):
                 os.makedirs(os.path.join(get_working_dir(), 'generated'))
 
             # Load the model, create the sequence generator and generate the sequences.
-            model = IgorLoader(
-                model_params=args.model[0], model_marginals=args.model[1],
-                v_anchors=args.anchors[0], j_anchors=args.anchors[1])
+            model = IgorLoader(model_params=args.model[0], model_marginals=args.model[1])
+            model.load_anchors(model_params=args.model[0], v_anchors=args.anchors[0],
+                               j_anchors=args.anchors[1])
             seq_generator = OlgaContainer(igor_model=model)
             cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
 

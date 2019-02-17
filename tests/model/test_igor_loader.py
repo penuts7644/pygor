@@ -46,6 +46,6 @@ def test_igor_loader(infiles, expected):
         If the performed test failed.
 
     """
-    model = IgorLoader(model_params=infiles[0], model_marginals=infiles[1],
-                       v_anchors=infiles[2], j_anchors=infiles[3])
+    model = IgorLoader(model_params=infiles[0], model_marginals=infiles[1])
+    model.load_anchors(model_params=infiles[0], v_anchors=infiles[2], j_anchors=infiles[3])
     assert isinstance(model, expected)
