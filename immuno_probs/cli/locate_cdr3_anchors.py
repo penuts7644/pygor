@@ -57,10 +57,9 @@ class LocateCdr3Anchors(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates an alignment from the given " \
-            "reference genome FASTA file and seaches the given alignment for " \
-            "conserved motif regions. The located regions are written out to " \
-            "a CSV file. Note: the FASTA needs to conform to IGMT annotation."
+        description = "Create an alignment for the given reference genome " \
+            "FASTA file and seach the given alignment for conserved motif " \
+            "regions. The located regions with motifs are written to CSV."
         parser_options = {
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -69,9 +68,10 @@ class LocateCdr3Anchors(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V or J) followed by a reference genome ' \
-                        'FASTA file (IMGT).'
+                        'FASTA file. Note: the FASTA reference genome files ' \
+                        'needs to conform to IGMT annotation.'
             },
-            '--motifs': {
+            '-motifs': {
                 'type': 'str',
                 'nargs': '*',
                 'help': "The motifs to look for. If none specified, the " \

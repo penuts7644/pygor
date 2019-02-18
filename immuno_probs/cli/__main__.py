@@ -34,19 +34,19 @@ def main():
     description = 'ImmunoProbs Python package able to calculate the ' \
         'generation probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
-        '--separator': {
+        '-separator': {
             'type': 'str',
             'nargs': '?',
             'help': 'The separator character to be used when writing files ' \
                     '(default: semicolon character).'
         },
-        '--threads': {
+        '-threads': {
             'type': 'int',
             'nargs': '?',
             'help': 'The number of threads the program is allowed to use ' \
-                    '(default: max available threads).'
+                    '(default: max available threads in system).'
         },
-        '--set-wd': {
+        '-set-wd': {
             'type': 'str',
             'nargs': '?',
             'help': 'An optional location for writing files. (default: ' \

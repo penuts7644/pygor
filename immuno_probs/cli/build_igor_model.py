@@ -58,9 +58,8 @@ class BuildIgorModel(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates a V(D)J model by executing IGoR " \
-            "via a python subprocess. Note: the FASTA reference genome files " \
-            "needs to conform to IGMT annotation."
+        description = "Create a VJ or VDJ model by executing IGoR commandline " \
+            "tool via a python subprocess and an initial model parameters."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta>',
@@ -76,15 +75,16 @@ class BuildIgorModel(object):
                 'nargs': 2,
                 'required': 'True',
                 'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file (IMGT).'
+                        'FASTA file. Note: the FASTA reference genome files ' \
+                        'needs to conform to IGMT annotation.'
             },
-            '-model': {
+            '-init-model': {
                 'metavar': '<parameters>',
                 'required': 'True',
                 'type': 'str',
                 'help': "An initial IGoR model parameters txt file."
             },
-            '--n-iter': {
+            '-n-iter': {
                 'type': 'int',
                 'nargs': '?',
                 'default': 1,
