@@ -25,7 +25,7 @@ from immuno_probs.util.io import read_fasta_as_dataframe
 
 
 @pytest.mark.parametrize('infile, expected', [
-    ('tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta',
+    ('tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta',
      pandas.DataFrame(
          [['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
           ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],

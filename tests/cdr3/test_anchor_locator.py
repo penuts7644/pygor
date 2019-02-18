@@ -27,22 +27,22 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 
 def create_alignment():
     """Create an alignment to use for testing."""
-    filename = 'tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta'
+    filename = 'tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta'
     aligner = MuscleAligner(infile=filename)
     return aligner.get_muscle_alignment()
 
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', 'TTT', pandas.DataFrame(
-        [['IGHJ1', 44, 'F', 'TTT']],
+        [['IGHJ1*02', 44, 'F', 'TTT']],
         columns=['gene', 'anchor_index', 'function', 'motif'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['IGHJ3', 14, 'F', 'TGG'],
-         ['IGHJ3', 14, 'P', 'TGG'],
-         ['IGHJ1', 19, 'F', 'TGG'],
-         ['IGHJ4', 20, 'F', 'TGG'],
-         ['IGHJ2', 12, 'F', 'TGG']],
+        [['IGHJ3*01', 14, 'F', 'TGG'],
+         ['IGHJ3*02', 14, 'P', 'TGG'],
+         ['IGHJ1*02', 19, 'F', 'TGG'],
+         ['IGHJ1*03', 19, 'F', 'TGG'],
+         ['IGHJ1*01', 19, 'F', 'TGG']],
         columns=['gene', 'anchor_index', 'function', 'motif'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
@@ -69,4 +69,7 @@ def test_anchor_locator(gene, motif, expected):
         result = locator.get_indices_motifs(motif).head()
     else:
         result = locator.get_indices_motifs().head()
+    print(expected)
+    print("\n")
+    print(result)
     assert (result == expected).all().all()
