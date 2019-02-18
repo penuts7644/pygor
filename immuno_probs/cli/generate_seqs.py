@@ -22,11 +22,12 @@ import os
 import sys
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
+from immuno_probs.data.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
+from immuno_probs.util.io import write_dataframe_to_csv
 
 
 class GenerateSeqs(object):
@@ -58,17 +59,18 @@ class GenerateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool generates V(D)J sequences given an IGoR " \
-            "model by executing IGoR via a python subprocess and gnerates " \
-            "CDR3 sequences by using the OLGA python package."
+        description = "Generate VJ or VDJ sequences given a custom IGoR " \
+            "model (or build-in) by executing IGoR commandline tool via " \
+            "python subprocess. Or generate CDR3 sequences by using the OLGA."
         parser_options = {
             '-model': {
-                'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
-                'nargs': 2,
-                'required': 'True',
-                'help': 'A IGoR parameters txt file followed by an IGoR ' \
-                        'marginals txt file.'
+                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
+                            'mouse-t-beta'],
+                'required': '-custom-model' not in sys.argv,
+                'help': "Specify a pre-installed model for generation. " \
+                        "(required if --custom-model not specified) " \
+                        "(select one: %(choices)s)."
             },
             '-type': {
                 'type': 'str',
@@ -77,21 +79,29 @@ class GenerateSeqs(object):
                 'help': 'The type of sequences to generate. (select one: ' \
                         '%(choices)s)'
             },
-            '--generate': {
+            '-anchors': {
+                'metavar': ('<v_gene>', '<j_gene>'),
+                'type': 'str',
+                'nargs': 2,
+                'required': ('-type=CDR3' in sys.argv or
+                             ('-type' in sys.argv and 'CDR3' in sys.argv)
+                             and '-custom-model' in sys.argv),
+                'help': 'The V and J gene CDR3 anchor files. (required ' \
+                        'for -type=CDR3 and -custom_model)'
+            },
+            '-custom-model': {
+                'metavar': ('<parameters>', '<marginals>'),
+                'type': 'str',
+                'nargs': 2,
+                'help': 'A IGoR parameters txt file followed by an IGoR ' \
+                        'marginals txt file.'
+            },
+            '-generate': {
                 'type': 'int',
                 'nargs': '?',
                 'default': 1,
                 'help': 'The number of sequences to generate. (default: ' \
                         '%(default)s)'
-            },
-            '--anchors': {
-                'metavar': ('<v_gene>', '<j_gene>'),
-                'type': 'str',
-                'nargs': 2,
-                'required': '-type=CDR3' in sys.argv or
-                            ('-type' in sys.argv and 'CDR3' in sys.argv),
-                'help': 'The V and J gene CDR3 anchor files. (required ' \
-                        'for -type=CDR3)'
             },
         }
 
@@ -120,14 +130,17 @@ class GenerateSeqs(object):
             command_list.append(['set_wd', str(directory)])
             command_list.append(['threads', str(get_num_threads())])
 
-            # Add the model command.
+            # Add the model (build-in or custom) command.
             if args.model:
-                command_list.append(['set_custom_model', str(args.model[0]),
-                                     str(args.model[1])])
+                files = get_default_model_file_paths(model_name=args.model)
+                command_list.append(['set_custom_model', str(files['parameters']),
+                                     str(files['marginals'])])
+            elif args.custom_model:
+                command_list.append(['set_custom_model', str(args.custom_model[0]),
+                                     str(args.custom_model[1])])
 
             # Add generate command.
-            if args.generate:
-                command_list.append(['generate', str(args.generate), ['noerr']])
+            command_list.append(['generate', str(args.generate), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
@@ -146,9 +159,19 @@ class GenerateSeqs(object):
                 os.makedirs(os.path.join(get_working_dir(), 'generated'))
 
             # Load the model, create the sequence generator and generate the sequences.
-            model = IgorLoader(model_params=args.model[0], model_marginals=args.model[1])
-            model.load_anchors(model_params=args.model[0], v_anchors=args.anchors[0],
-                               j_anchors=args.anchors[1])
+            if args.model:
+                files = get_default_model_file_paths(model_name=args.model)
+                model = IgorLoader(model_params=files['parameters'],
+                                   model_marginals=files['marginals'])
+                model.load_anchors(model_params=files['parameters'],
+                                   v_anchors=files['v_anchors'],
+                                   j_anchors=files['j_anchors'])
+            elif args.custom_model:
+                model = IgorLoader(model_params=args.custom_model[0],
+                                   model_marginals=args.custom_model[1])
+                model.load_anchors(model_params=args.custom_model[0],
+                                   v_anchors=args.anchors[0],
+                                   j_anchors=args.anchors[1])
             seq_generator = OlgaContainer(igor_model=model)
             cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
 
