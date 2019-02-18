@@ -137,9 +137,9 @@ class EvaluateSeqs(object):
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
                                     ignore_index=True, axis=1, sort=False)
             real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j', 'gene_choice_d']
-            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
-            d_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genD]
+            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
+            d_gene_names = [J[0] for J in model.get_genomic_data().genD]
             for i, row in real_df.iterrows():
                 real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
                 real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
@@ -152,8 +152,8 @@ class EvaluateSeqs(object):
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
                                     ignore_index=True, axis=1, sort=False)
             real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j']
-            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
+            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
             for i, row in real_df.iterrows():
                 real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
                 real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]

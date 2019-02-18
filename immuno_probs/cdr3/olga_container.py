@@ -82,8 +82,8 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a SequenceGeneration object")
 
         # Collect the gene names from the genomic data model.
-        v_gene_names = [V[0].split('*')[0] for V in self.igor_model.get_genomic_data().genV]
-        j_gene_names = [J[0].split('*')[0] for J in self.igor_model.get_genomic_data().genJ]
+        v_gene_names = [V[0] for V in self.igor_model.get_genomic_data().genV]
+        j_gene_names = [J[0] for J in self.igor_model.get_genomic_data().genJ]
 
         # Generate the sequences, add them to the dataframe and return.
         for i in range(num_seqs):

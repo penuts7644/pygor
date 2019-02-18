@@ -148,7 +148,7 @@ class AnchorLocator(object):
                         start_index = len(str(seq_record.seq[0:max_index])
                                           .replace('-', ''))
                         seq_motif_indices = seq_motif_indices.append({
-                            'gene': description_list[1].split('*')[0],
+                            'gene': description_list[1],
                             'anchor_index': start_index,
                             'function': description_list[3],
                             'motif': motif,
