@@ -42,24 +42,43 @@ def get_default_model_file_paths(model_name):
             'parameters': os.path.join(file_path, 'human_T_alpha', 'model_params.txt'),
             'v_anchors': os.path.join(file_path, 'human_T_alpha', 'V_gene_CDR3_anchors.csv'),
             'j_anchors': os.path.join(file_path, 'human_T_alpha', 'J_gene_CDR3_anchors.csv'),
+            'reference': {
+                'V': os.path.join(file_path, 'human_T_alpha', 'genomic_V.fasta'),
+                'J': os.path.join(file_path, 'human_T_alpha', 'genomic_J.fasta'),
+            },
         },
         'human-t-beta': {
             'marginals': os.path.join(file_path, 'human_T_beta', 'model_marginals.txt'),
             'parameters': os.path.join(file_path, 'human_T_beta', 'model_params.txt'),
             'v_anchors': os.path.join(file_path, 'human_T_beta', 'V_gene_CDR3_anchors.csv'),
             'j_anchors': os.path.join(file_path, 'human_T_beta', 'J_gene_CDR3_anchors.csv'),
+            'reference': {
+                'V': os.path.join(file_path, 'human_T_beta', 'genomic_V.fasta'),
+                'D': os.path.join(file_path, 'human_T_beta', 'genomic_D.fasta'),
+                'J': os.path.join(file_path, 'human_T_beta', 'genomic_J.fasta'),
+            },
         },
         'human-b-heavy': {
             'marginals': os.path.join(file_path, 'human_B_heavy', 'model_marginals.txt'),
             'parameters': os.path.join(file_path, 'human_B_heavy', 'model_params.txt'),
             'v_anchors': os.path.join(file_path, 'human_B_heavy', 'V_gene_CDR3_anchors.csv'),
             'j_anchors': os.path.join(file_path, 'human_B_heavy', 'J_gene_CDR3_anchors.csv'),
+            'reference': {
+                'V': os.path.join(file_path, 'human_B_heavy', 'genomic_V.fasta'),
+                'D': os.path.join(file_path, 'human_B_heavy', 'genomic_D.fasta'),
+                'J': os.path.join(file_path, 'human_B_heavy', 'genomic_J.fasta'),
+            },
         },
         'mouse-t-beta': {
             'marginals': os.path.join(file_path, 'mouse_T_beta', 'model_marginals.txt'),
             'parameters': os.path.join(file_path, 'mouse_T_beta', 'model_params.txt'),
             'v_anchors': os.path.join(file_path, 'mouse_T_beta', 'V_gene_CDR3_anchors.csv'),
             'j_anchors': os.path.join(file_path, 'mouse_T_beta', 'J_gene_CDR3_anchors.csv'),
+            'reference': {
+                'V': os.path.join(file_path, 'mouse_T_beta', 'genomic_V.fasta'),
+                'D': os.path.join(file_path, 'mouse_T_beta', 'genomic_D.fasta'),
+                'J': os.path.join(file_path, 'mouse_T_beta', 'genomic_J.fasta'),
+            },
         },
     }
 
