@@ -21,83 +21,50 @@
 import os
 
 
-def is_valid_model(species, chain):
-    """Checks if a given species and chain combination exists.
+def get_default_model_file_paths(model_name):
+    """Returns a directory with file paths for a given model name.
 
-    species : str
-        A string value representing a species name.
-    chain : str
-        A string value representing a chain name.
-
-    Returns
-    -------
-    bool
-        Specifying if the species and chain combination are supported.
-
-    """
-    species_chain_combination = {
-        'human': ['alpha', 'beta', 'heavy'],
-        'mouse': ['beta'],
-    }
-    for key, value in species_chain_combination.items():
-        if key == species:
-            if chain in value:
-                return True
-    return False
-
-
-def get_default_model_file_paths(species, chain):
-    """Returns a directory with file paths for a given species and chain.
-
-    species : str
-        A string value representing a species name.
-    chain : str
-        A string value representing a chain name.
+    model_name : str
+        A string value representing a model name in the dictionary.
 
     Returns
     -------
     dict
         Containing model marginals, model parameters, v_anchors and j_anchors
-        file paths. If species and/or chain does not exist, return None.
+        file paths. If model name does not exist in the dictionary, return None.
 
     """
     # Set the file paths for the models
     file_path = os.path.dirname(__file__)
     default_models = {
-        'human': {
-            'alpha': {
-                'marginals': os.path.join(file_path, 'human_T_alpha', 'model_marginals.txt'),
-                'parameters': os.path.join(file_path, 'human_T_alpha', 'model_params.txt'),
-                'v_anchors': os.path.join(file_path, 'human_T_alpha', 'V_gene_CDR3_anchors.csv'),
-                'j_anchors': os.path.join(file_path, 'human_T_alpha', 'J_gene_CDR3_anchors.csv'),
-            },
-            'beta': {
-                'marginals': os.path.join(file_path, 'human_T_beta', 'model_marginals.txt'),
-                'parameters': os.path.join(file_path, 'human_T_beta', 'model_params.txt'),
-                'v_anchors': os.path.join(file_path, 'human_T_beta', 'V_gene_CDR3_anchors.csv'),
-                'j_anchors': os.path.join(file_path, 'human_T_beta', 'J_gene_CDR3_anchors.csv'),
-            },
-            'heavy': {
-                'marginals': os.path.join(file_path, 'human_B_heavy', 'model_marginals.txt'),
-                'parameters': os.path.join(file_path, 'human_B_heavy', 'model_params.txt'),
-                'v_anchors': os.path.join(file_path, 'human_B_heavy', 'V_gene_CDR3_anchors.csv'),
-                'j_anchors': os.path.join(file_path, 'human_B_heavy', 'J_gene_CDR3_anchors.csv'),
-            },
+        'human-t-alpha': {
+            'marginals': os.path.join(file_path, 'human_T_alpha', 'model_marginals.txt'),
+            'parameters': os.path.join(file_path, 'human_T_alpha', 'model_params.txt'),
+            'v_anchors': os.path.join(file_path, 'human_T_alpha', 'V_gene_CDR3_anchors.csv'),
+            'j_anchors': os.path.join(file_path, 'human_T_alpha', 'J_gene_CDR3_anchors.csv'),
         },
-        'mouse': {
-            'beta': {
-                'marginals': os.path.join(file_path, 'mouse_T_beta', 'model_marginals.txt'),
-                'parameters': os.path.join(file_path, 'mouse_T_beta', 'model_params.txt'),
-                'v_anchors': os.path.join(file_path, 'mouse_T_beta', 'V_gene_CDR3_anchors.csv'),
-                'j_anchors': os.path.join(file_path, 'mouse_T_beta', 'J_gene_CDR3_anchors.csv'),
-            },
+        'human-t-beta': {
+            'marginals': os.path.join(file_path, 'human_T_beta', 'model_marginals.txt'),
+            'parameters': os.path.join(file_path, 'human_T_beta', 'model_params.txt'),
+            'v_anchors': os.path.join(file_path, 'human_T_beta', 'V_gene_CDR3_anchors.csv'),
+            'j_anchors': os.path.join(file_path, 'human_T_beta', 'J_gene_CDR3_anchors.csv'),
+        },
+        'human-b-heavy': {
+            'marginals': os.path.join(file_path, 'human_B_heavy', 'model_marginals.txt'),
+            'parameters': os.path.join(file_path, 'human_B_heavy', 'model_params.txt'),
+            'v_anchors': os.path.join(file_path, 'human_B_heavy', 'V_gene_CDR3_anchors.csv'),
+            'j_anchors': os.path.join(file_path, 'human_B_heavy', 'J_gene_CDR3_anchors.csv'),
+        },
+        'mouse-t-beta': {
+            'marginals': os.path.join(file_path, 'mouse_T_beta', 'model_marginals.txt'),
+            'parameters': os.path.join(file_path, 'mouse_T_beta', 'model_params.txt'),
+            'v_anchors': os.path.join(file_path, 'mouse_T_beta', 'V_gene_CDR3_anchors.csv'),
+            'j_anchors': os.path.join(file_path, 'mouse_T_beta', 'J_gene_CDR3_anchors.csv'),
         },
     }
 
     # For the species and chain return dict with file paths
-    for key1, value1 in default_models.items():
-        if key1 == species:
-            for key2, value2 in value1.items():
-                if key2 == chain:
-                    return value2
+    for name, file_paths in default_models.items():
+        if name == model_name:
+            return file_paths
     return None
