@@ -149,8 +149,8 @@ class BuildIgorModel(object):
                 filename = self._format_imgt_reference_fasta(i[1])
                 ref_list.append([str(i[0]), str(filename)])
             command_list.append(ref_list)
-        if args.model:
-            command_list.append(['set_custom_model', str(args.model)])
+        if args.init_model:
+            command_list.append(['set_custom_model', str(args.init_model)])
         if args.seqs:
             command_list.append(['read_seqs', str(args.seqs)])
 
