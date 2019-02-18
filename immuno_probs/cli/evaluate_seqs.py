@@ -24,6 +24,7 @@ import sys
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
+from immuno_probs.data.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
@@ -60,24 +61,25 @@ class EvaluateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool evaluates V(D)J sequences through IGoR " \
-            "commandline python subprocess and CDR3 sequences through OLGA " \
-            "python package."
+        description = "Evaluate VJ or VDJ sequences given a custom IGoR " \
+            "model (or build-in) through IGoR commandline tool via python " \
+            "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {
                 'metavar': '<csv>',
                 'required': 'True',
                 'type': 'str',
                 'help': 'An input CSV file with sequences for evaluation. ' \
-                        'Note: uses IGoR file formatting.'
+                        'Note: uses IGoR generated file formatting.'
             },
             '-model': {
-                'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
-                'nargs': 2,
-                'required': 'True',
-                'help': 'A IGoR parameters txt file followed by an IGoR ' \
-                        'marginals txt file.'
+                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
+                            'mouse-t-beta'],
+                'required': '-custom-model' not in sys.argv,
+                'help': "Specify a pre-installed model for evaluation. " \
+                        "(required if --custom-model not specified) " \
+                        "(select one: %(choices)s)."
             },
             '-type': {
                 'type': 'str',
@@ -86,16 +88,24 @@ class EvaluateSeqs(object):
                 'help': 'The type of sequences to generate. (select one: ' \
                         '%(choices)s)'
             },
-            '--anchors': {
+            '-custom-model': {
+                'metavar': ('<parameters>', '<marginals>'),
+                'type': 'str',
+                'nargs': 2,
+                'help': 'A IGoR parameters txt file followed by an IGoR ' \
+                        'marginals txt file.'
+            },
+            '-anchors': {
                 'metavar': ('<v_gene>', '<j_gene>'),
                 'type': 'str',
                 'nargs': 2,
-                'required': '-type=CDR3' in sys.argv or
-                            ('-type' in sys.argv and 'CDR3' in sys.argv),
+                'required': ('-type=CDR3' in sys.argv or
+                             ('-type' in sys.argv and 'CDR3' in sys.argv)
+                             and '-custom-model' in sys.argv),
                 'help': 'The V and J gene CDR3 anchor files. (required ' \
-                        'for -type=CDR3)'
+                        'for -type=CDR3 and -custom_model)'
             },
-            '--igor-realizations': {
+            '-igor-realizations': {
                 'metavar': '<csv>',
                 'type': 'str',
                 'help': 'An optional IGoR realizations file that ' \
@@ -177,12 +187,15 @@ class EvaluateSeqs(object):
             command_list.append(['set_wd', str(directory)])
             command_list.append(['threads', str(get_num_threads())])
 
-            # Add the model and sequence commands.
+            # Add the model (build-in or custom) and sequence commands.
             if args.model:
-                command_list.append(['set_custom_model', str(args.model[0]),
-                                     str(args.model[1])])
-            if args.seqs:
-                command_list.append(['read_seqs', str(args.seqs)])
+                files = get_default_model_file_paths(model_name=args.model)
+                command_list.append(['set_custom_model', str(files['parameters']),
+                                     str(files['marginals'])])
+            elif args.custom_model:
+                command_list.append(['set_custom_model', str(args.custom_model[0]),
+                                     str(args.custom_model[1])])
+            command_list.append(['read_seqs', str(args.seqs)])
 
             # Add evaluation commands.
             command_list.append(['evaluate'])
@@ -206,8 +219,8 @@ class EvaluateSeqs(object):
                 realizations_df = read_csv_to_dataframe(
                     filename=args.igor_realizations,
                     separator=get_separator())
-                model = IgorLoader(model_params=args.model[0],
-                                   model_marginals=args.model[1])
+                model = IgorLoader(model_params=args.custom_model[0],
+                                   model_marginals=args.custom_model[1])
                 realizations_df = self._process_realizations(data=realizations_df,
                                                              model=model)
                 gen_df = sequence_df.merge(
@@ -231,9 +244,19 @@ class EvaluateSeqs(object):
                 os.makedirs(os.path.join(get_working_dir(), 'output'))
 
             # Load the model, create the sequence evaluator and evaluate the sequences.
-            model = IgorLoader(model_params=args.model[0], model_marginals=args.model[1])
-            model.load_anchors(model_params=args.model[0], v_anchors=args.anchors[0],
-                               j_anchors=args.anchors[1])
+            if args.model:
+                files = get_default_model_file_paths(model_name=args.model)
+                model = IgorLoader(model_params=files['parameters'],
+                                   model_marginals=files['marginals'])
+                model.load_anchors(model_params=files['parameters'],
+                                   v_anchors=files['v_anchors'],
+                                   j_anchors=files['j_anchors'])
+            elif args.custom_model:
+                model = IgorLoader(model_params=args.custom_model[0],
+                                   model_marginals=args.custom_model[1])
+                model.load_anchors(model_params=args.custom_model[0],
+                                   v_anchors=args.anchors[0],
+                                   j_anchors=args.anchors[1])
             seq_evaluator = OlgaContainer(igor_model=model)
             sequence_df = read_csv_to_dataframe(filename=args.seqs,
                                                 separator=get_separator())
