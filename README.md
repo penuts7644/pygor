@@ -7,7 +7,7 @@
 
 ImmunoProbs Python package able to calculate the generation probability of V(D)J and CDR3 sequences.
 
-### How to install
+### How to install and use
 
 ImmunoProbs is installable via PyPI using the following terminal command:
 
@@ -46,6 +46,17 @@ docker run --rm --volume "$PWD":/tmp penuts7644/immuno-probs:0.1.4 <TOOL NAME>
 ```
 
 Note that the container is removed after execution and that you'll need to link to the `/tmp` directory of the container since that is the location where output files are created.
+
+##### Default models
+
+A few default models are currently supported and come pre-installed with ImmunoProbs. These models can be selected by providing the appropriate `-model` attribute in defined combinations. To use a custom model use the `-custom-model`.
+
+Currently the following build-in models can be selected:
+
+- Human TCR alpha model (`human-t-alpha`)
+- Human TCR beta model (`human-t-beta`)
+- Human IG heavy model (`human-b-heavy`)
+- Mouse TCR beta model (`mouse-t-beta`)
 
 ### Requirements
 
@@ -92,6 +103,29 @@ immuno_probs
 │   ├── evaluate_seqs.py
 │   ├── generate_seqs.py
 │   └── locate_cdr3_anchors.py
+├── data
+│   ├── __init__.py
+│   ├── default_models.py
+│   ├── human_B_heavy
+│   │   ├── J_gene_CDR3_anchors.csv
+│   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── model_marginals.txt
+│   │   └── model_params.txt
+│   ├── human_T_alpha
+│   │   ├── J_gene_CDR3_anchors.csv
+│   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── model_marginals.txt
+│   │   └── model_params.txt
+│   ├── human_T_beta
+│   │   ├── J_gene_CDR3_anchors.csv
+│   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── model_marginals.txt
+│   │   └── model_params.txt
+│   └── mouse_T_beta
+│       ├── J_gene_CDR3_anchors.csv
+│       ├── V_gene_CDR3_anchors.csv
+│       ├── model_marginals.txt
+│       └── model_params.txt
 ├── model
 │   ├── __init__.py
 │   ├── igor_interface.py
