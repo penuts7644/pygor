@@ -126,7 +126,7 @@ class BuildIgorModel(object):
             rec.id = rec.description.split('|')[1]
             rec.description = ""
         updated_path = os.path.join(directory, os.path.basename(str(fasta)))
-        SeqIO.write(records, str(updated_path), "fasta")
+        SeqIO.write(records, updated_path, "fasta")
         return updated_path
 
     def run(self, args, output_dir):
@@ -143,15 +143,15 @@ class BuildIgorModel(object):
         # Add general igor commands.
         command_list = []
         working_dir = get_working_dir()
-        command_list.append(['set_wd', str(working_dir)])
+        command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_num_threads())])
 
         # Add sequence and file paths commands.
         ref_list = ['set_genomic']
         for i in args.ref:
             filename = self._format_imgt_reference_fasta(
-                os.path.join(str(working_dir), 'genomic_templates'), i[1])
-            ref_list.append([str(i[0]), str(filename)])
+                os.path.join(working_dir, 'genomic_templates'), i[1])
+            ref_list.append([i[0], filename])
         command_list.append(ref_list)
         command_list.append(['set_custom_model', str(args.init_model)])
         command_list.append(['read_seqs', str(args.seqs)])

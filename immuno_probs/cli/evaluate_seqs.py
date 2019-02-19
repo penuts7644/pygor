@@ -155,8 +155,43 @@ class EvaluateSeqs(object):
             rec.id = rec.description.split('|')[1]
             rec.description = ""
         updated_path = os.path.join(directory, os.path.basename(str(fasta)))
-        SeqIO.write(records, str(updated_path), "fasta")
+        SeqIO.write(records, updated_path, "fasta")
         return updated_path
+
+    @staticmethod
+    def _preprocess_input_seqs(directory, csv):
+        """Function for formatting the input sequence file for IGoR.
+
+        Parameters
+        ----------
+        directory : str
+            A directory path to write the files to.
+        csv : str
+            A CSV formatted file path to precess for IGoR.
+
+        Returns
+        -------
+        str
+            A string file path to the sequence input file.
+
+        """
+        # Create the output directory.
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+
+        # Open the sequence input file and update the columns.
+        sequence_df = read_csv_to_dataframe(
+            filename=csv,
+            separator=get_separator())
+        sequence_df = sequence_df.iloc[:, 0:1]
+
+        # Write the new pandas dataframe to a CSV file.
+        directory, filename = write_dataframe_to_csv(
+            dataframe=sequence_df,
+            filename=os.path.basename(str(csv)),
+            directory=directory,
+            separator=';')
+        return os.path.join(directory, filename)
 
     def run(self, args, output_dir):
         """Function to execute the commandline tool.
@@ -175,17 +210,17 @@ class EvaluateSeqs(object):
             # Add general igor commands.
             command_list = []
             working_dir = get_working_dir()
-            command_list.append(['set_wd', str(working_dir)])
+            command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
 
-            # Add the model (build-in or custom) and sequence commands.
+            # Add the model (build-in or custom) command depending on given.
             if args.model:
                 files = get_default_model_file_paths(model_name=args.model)
-                command_list.append(['set_custom_model', str(files['parameters']),
-                                     str(files['marginals'])])
+                command_list.append(['set_custom_model', files['parameters'],
+                                     files['marginals']])
                 ref_list = ['set_genomic']
                 for gene, filename in files['reference'].items():
-                    ref_list.append([str(gene), str(filename)])
+                    ref_list.append([gene, filename])
                 command_list.append(ref_list)
             elif args.custom_model:
                 command_list.append(['set_custom_model', str(args.custom_model[0]),
@@ -193,10 +228,14 @@ class EvaluateSeqs(object):
                 ref_list = ['set_genomic']
                 for i in args.ref:
                     filename = self._format_imgt_reference_fasta(
-                        os.path.join(str(working_dir), 'genomic_templates'), i[1])
-                    ref_list.append([str(i[0]), str(filename)])
+                        os.path.join(working_dir, 'genomic_templates'), i[1])
+                    ref_list.append([i[0], filename])
                 command_list.append(ref_list)
-            command_list.append(['read_seqs', str(args.seqs)])
+
+            # Add the sequence command after pre-processing of the input file.
+            input_seqs = self._preprocess_input_seqs(
+                os.path.join(working_dir, 'input'), str(args.seqs))
+            command_list.append(['read_seqs', input_seqs])
 
             # Add alignment commands.
             command_list.append(['align', ['all']])

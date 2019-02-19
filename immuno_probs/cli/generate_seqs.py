@@ -180,14 +180,14 @@ class GenerateSeqs(object):
             # Add general igor commands.
             command_list = []
             working_dir = get_working_dir()
-            command_list.append(['set_wd', str(working_dir)])
+            command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
 
             # Add the model (build-in or custom) command.
             if args.model:
                 files = get_default_model_file_paths(model_name=args.model)
-                command_list.append(['set_custom_model', str(files['parameters']),
-                                     str(files['marginals'])])
+                command_list.append(['set_custom_model', files['parameters'],
+                                     files['marginals']])
             elif args.custom_model:
                 command_list.append(['set_custom_model', str(args.custom_model[0]),
                                      str(args.custom_model[1])])
