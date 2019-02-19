@@ -19,6 +19,8 @@
 
 
 import os
+import sys
+from shutil import copy2
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
@@ -57,10 +59,9 @@ class LocateCdr3Anchors(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates an alignment from the given " \
-            "reference genome FASTA file and seaches the given alignment for " \
-            "conserved motif regions. The located regions are written out to " \
-            "a CSV file. Note: the FASTA needs to conform to IGMT annotation."
+        description = "Create an alignment for the given reference genome " \
+            "FASTA file and seach the given alignment for conserved motif " \
+            "regions. The located regions with motifs are written to CSV."
         parser_options = {
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -68,10 +69,12 @@ class LocateCdr3Anchors(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': 'A gene (V or J) followed by a reference genome ' \
-                        'FASTA file (IMGT).'
+                'help': "A gene (V or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character)."
             },
-            '--motifs': {
+            '-motifs': {
                 'type': 'str',
                 'nargs': '*',
                 'help': "The motifs to look for. If none specified, the " \
@@ -86,20 +89,21 @@ class LocateCdr3Anchors(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-
     @staticmethod
-    def run(args):
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # Create the directory for the output files.
-        directory = os.path.join(get_working_dir(), 'cdr3_anchors')
-        if not os.path.isdir(directory):
+        working_dir = os.path.join(get_working_dir(), 'cdr3_anchors')
+        if not os.path.isdir(working_dir):
             os.makedirs(os.path.join(get_working_dir(), 'cdr3_anchors'))
 
         # Create the alignment and locate the motifs.
@@ -113,15 +117,31 @@ class LocateCdr3Anchors(object):
             else:
                 anchors_df = locator.get_indices_motifs()
 
+            # Modify the dataframe to make it OLGA compliant.
+            anchors_df.insert(2, 'function', anchors_df['name'])
+            anchors_df.rename(columns={'name': 'gene'}, inplace=True)
+            try:
+                for i, row in anchors_df.iterrows():
+                    description_list = row['gene'].split('|')
+                    anchors_df.ix[i, 'gene'] = description_list[1]
+                    anchors_df.ix[i, 'function'] = description_list[3]
+            except IndexError:
+                print("FASTA header needs to be separated by '|', needs to " \
+                    "have gene name on index position 1 and function on " \
+                    "index position 3: '{}'".format(anchors_df['gene']))
+                sys.exit()
+
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
                 filename='{}_gene_CDR3_anchors'.format(gene[0]),
-                directory=directory,
+                directory=working_dir,
                 separator=get_separator())
 
-            print("Written '{}' file to '{}' directory."
-                  .format(filename, directory))
+            # Write output file to output directory.
+            copy2(os.path.join(directory, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
 
 
 def main():

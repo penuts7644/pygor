@@ -20,15 +20,17 @@
 
 import os
 import sys
+from shutil import copy2
 
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
+from immuno_probs.data.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
 
 class EvaluateSeqs(object):
@@ -60,24 +62,41 @@ class EvaluateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool evaluates V(D)J sequences through IGoR " \
-            "commandline python subprocess and CDR3 sequences through OLGA " \
-            "python package."
+        description = "Evaluate VJ or VDJ sequences given a custom IGoR " \
+            "model (or build-in) through IGoR commandline tool via python " \
+            "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {
-                'metavar': '<csv>',
+                'metavar': '<fasta/csv>',
                 'required': 'True',
                 'type': 'str',
-                'help': 'An input CSV file with sequences for evaluation. ' \
-                        'Note: uses IGoR file formatting.'
+                'help': "An input FASTA or CSV file with sequences for " \
+                        "training the model. Note: file needs to end on " \
+                        "'.fasta' or '.csv'. CSV files need to conform to " \
+                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
             },
             '-model': {
-                'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
+                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
+                            'mouse-t-beta'],
+                'required': '-custom-model' not in sys.argv,
+                'help': "Specify a pre-installed model for evaluation. " \
+                        "(required if --custom-model not specified) " \
+                        "(select one: %(choices)s)."
+            },
+            '-ref': {
+                'metavar': ('<gene>', '<fasta>'),
+                'type': 'str',
+                'action': 'append',
                 'nargs': 2,
-                'required': 'True',
-                'help': 'A IGoR parameters txt file followed by an IGoR ' \
-                        'marginals txt file.'
+                'required': ('-type=VDJ' in sys.argv or
+                             ('-type' in sys.argv and 'VDJ' in sys.argv)
+                             and '-custom-model' in sys.argv),
+                'help': "A gene (V, D or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character). (required for -type=VDJ with " \
+                        "-custom_model)"
             },
             '-type': {
                 'type': 'str',
@@ -86,21 +105,24 @@ class EvaluateSeqs(object):
                 'help': 'The type of sequences to generate. (select one: ' \
                         '%(choices)s)'
             },
-            '--anchors': {
+            '-custom-model': {
+                'metavar': ('<parameters>', '<marginals>'),
+                'type': 'str',
+                'nargs': 2,
+                'help': 'A IGoR parameters txt file followed by an IGoR ' \
+                        'marginals txt file.'
+            },
+            '-anchors': {
                 'metavar': ('<v_gene>', '<j_gene>'),
                 'type': 'str',
                 'nargs': 2,
-                'required': '-type=CDR3' in sys.argv or
-                            ('-type' in sys.argv and 'CDR3' in sys.argv),
-                'help': 'The V and J gene CDR3 anchor files. (required ' \
-                        'for -type=CDR3)'
-            },
-            '--igor-realizations': {
-                'metavar': '<csv>',
-                'type': 'str',
-                'help': 'An optional IGoR realizations file that ' \
-                        'corresponds to the given input sequences. ' \
-                        '(used when -type=VDJ)'
+                'required': ('-type=CDR3' in sys.argv or
+                             ('-type' in sys.argv and 'CDR3' in sys.argv)
+                             and '-custom-model' in sys.argv),
+                'help': 'The V and J gene CDR3 anchor files. Note: need to ' \
+                        'contain gene in the firts column, anchor index in ' \
+                        'the second and gene function in the third (required ' \
+                        'for -type=CDR3 and -custom_model).'
             },
         }
 
@@ -111,78 +133,56 @@ class EvaluateSeqs(object):
                                           options=parser_options)
 
     @staticmethod
-    def _process_realizations(data, model):
-        """Function for processing an IGoR realization dataframe with indices.
-
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            A pandas dataframe object with the IGoR realization data.
-        model : IgorLoader
-            Object containing the IGoR model.
-
-        Returns
-        -------
-        pandas.DataFrame
-            A pandas dataframe object with 'seq_index', 'gene_choice_v',
-            'gene_choice_j' and optionally 'gene_choice_d' columns containing
-            the names of the selected genes.
-
-        """
-        # If the suplied model is VDJ, locate important columns and update index values.
-        if model.is_vdj():
-            real_df = pandas.concat([data[['seq_index']],
-                                     data.filter(regex=("GeneChoice_V_gene_.*")),
-                                     data.filter(regex=("GeneChoice_J_gene_.*")),
-                                     data.filter(regex=("GeneChoice_D_gene_.*"))],
-                                    ignore_index=True, axis=1, sort=False)
-            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j', 'gene_choice_d']
-            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
-            d_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genD]
-            for i, row in real_df.iterrows():
-                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
-                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
-                real_df.ix[i, 'gene_choice_d'] = d_gene_names[int(row['gene_choice_d'].strip('()'))]
-
-        # Or do the same if the model is VJ.
-        elif model.is_vj():
-            real_df = pandas.concat([data[['seq_index']],
-                                     data.filter(regex=("GeneChoice_V_gene_.*")),
-                                     data.filter(regex=("GeneChoice_J_gene_.*"))],
-                                    ignore_index=True, axis=1, sort=False)
-            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j']
-            v_gene_names = [V[0].split('*')[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0].split('*')[0] for J in model.get_genomic_data().genJ]
-            for i, row in real_df.iterrows():
-                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
-                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
-        return real_df
-
-    def run(self, args):
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # If the given type of sequences evaluation is VDJ, use IGoR.
         if args.type == 'VDJ':
 
-            # Add general igor commands.
+            # Add general IGoR commands.
             command_list = []
-            directory = get_working_dir()
-            command_list.append(['set_wd', str(directory)])
+            working_dir = get_working_dir()
+            command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
 
-            # Add the model and sequence commands.
+            # Add the model (build-in or custom) command depending on given.
             if args.model:
-                command_list.append(['set_custom_model', str(args.model[0]),
-                                     str(args.model[1])])
-            if args.seqs:
+                files = get_default_model_file_paths(model_name=args.model)
+                command_list.append(['set_custom_model', files['parameters'],
+                                     files['marginals']])
+                ref_list = ['set_genomic']
+                for gene, filename in files['reference'].items():
+                    ref_list.append([gene, filename])
+                command_list.append(ref_list)
+            elif args.custom_model:
+                command_list.append(['set_custom_model', str(args.custom_model[0]),
+                                     str(args.custom_model[1])])
+                ref_list = ['set_genomic']
+                for i in args.ref:
+                    filename = preprocess_reference_file(
+                        os.path.join(working_dir, 'genomic_templates'), i[1], 1)
+                    ref_list.append([i[0], filename])
+                command_list.append(ref_list)
+
+            # Add the sequence command after pre-processing of the input file.
+            if args.seqs.lower().endswith('.csv'):
+                input_seqs = preprocess_input_file(
+                    os.path.join(working_dir, 'input'), str(args.seqs),
+                    get_separator(), ';', [0, 1])
+                command_list.append(['read_seqs', input_seqs])
+            elif args.seqs.lower().endswith('.fasta'):
                 command_list.append(['read_seqs', str(args.seqs)])
+
+            # Add alignment commands.
+            command_list.append(['align', ['all']])
 
             # Add evaluation commands.
             command_list.append(['evaluate'])
@@ -195,62 +195,83 @@ class EvaluateSeqs(object):
                       "command (exit code {})".format(code))
                 sys.exit()
 
-            # Read in all data frame files, merge them and write out new file.
+            # Read in all data frame files.
             sequence_df = read_csv_to_dataframe(
-                filename=args.seqs,
+                file=args.seqs,
                 separator=get_separator())
-            pgen_df = read_csv_to_dataframe(
-                filename=os.path.join(directory, 'output/Pgen_counts.csv'),
+            vdj_pgen_df = read_csv_to_dataframe(
+                file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                 separator=';')
-            if args.igor_realizations:
-                realizations_df = read_csv_to_dataframe(
-                    filename=args.igor_realizations,
-                    separator=get_separator())
-                model = IgorLoader(model_params=args.model[0],
-                                   model_marginals=args.model[1])
-                realizations_df = self._process_realizations(data=realizations_df,
-                                                             model=model)
-                gen_df = sequence_df.merge(
-                    realizations_df.merge(pgen_df, on='seq_index'),
-                    on='seq_index')
-            else:
-                gen_df = sequence_df.merge(pgen_df, on='seq_index')
+
+            # Merge IGoR generated sequence output dataframes.
+            vdj_pgen_df = sequence_df.merge(vdj_pgen_df, on='seq_index')
+
+            # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=gen_df,
-                filename='output/VDJ_seqs_pgen_estimate',
-                directory=directory,
+                dataframe=vdj_pgen_df,
+                filename=os.path.join('output', 'VDJ_seqs_pgen_estimate'),
+                directory=working_dir,
                 separator=get_separator())
-            os.remove(os.path.join(directory, 'output/Pgen_counts.csv'))
+
+            # Write output file to output directory.
+            copy2(os.path.join(directory, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.type == 'CDR3':
 
             # Create the directory for the output files.
-            directory = os.path.join(get_working_dir(), 'output')
-            if not os.path.isdir(directory):
+            working_dir = os.path.join(get_working_dir(), 'output')
+            if not os.path.isdir(working_dir):
                 os.makedirs(os.path.join(get_working_dir(), 'output'))
 
-            # Load the model, create the sequence evaluator and evaluate the sequences.
-            model = IgorLoader(model_params=args.model[0], model_marginals=args.model[1])
-            model.load_anchors(model_params=args.model[0], v_anchors=args.anchors[0],
-                               j_anchors=args.anchors[1])
+            # Load the model and create the sequence evaluator.
+            if args.model:
+                files = get_default_model_file_paths(model_name=args.model)
+                model = IgorLoader(model_params=files['parameters'],
+                                   model_marginals=files['marginals'])
+                model.load_anchors(model_params=files['parameters'],
+                                   v_anchors=files['v_anchors'],
+                                   j_anchors=files['j_anchors'])
+            elif args.custom_model:
+                model = IgorLoader(model_params=args.custom_model[0],
+                                   model_marginals=args.custom_model[1])
+                v_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[0]),
+                    get_separator(), ',')
+                j_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[1]),
+                    get_separator(), ',')
+                model.load_anchors(model_params=args.custom_model[0],
+                                   v_anchors=v_anchors,
+                                   j_anchors=j_anchors)
             seq_evaluator = OlgaContainer(igor_model=model)
-            sequence_df = read_csv_to_dataframe(filename=args.seqs,
-                                                separator=get_separator())
+
+            # Based on input file type, load in file.
+            if args.seqs.lower().endswith('.csv'):
+                sequence_df = read_csv_to_dataframe(file=args.seqs,
+                                                    separator=get_separator())
+            elif args.seqs.lower().endswith('.fasta'):
+                sequence_df = read_fasta_as_dataframe(file=args.seqs)
+
+            # Evaluate the sequences.
             cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
 
-            # Merge IGoR generated sequence outputs and remove old file.
-            cdr3_pgen_df_merged = sequence_df.merge(cdr3_pgen_df, on='seq_index')
+            # Merge IGoR generated sequence output dataframes.
+            cdr3_pgen_df = sequence_df.merge(cdr3_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=cdr3_pgen_df_merged,
+                dataframe=cdr3_pgen_df,
                 filename='CDR3_seqs_pgen_estimate',
-                directory=directory,
+                directory=working_dir,
                 separator=get_separator())
 
-            print("Written '{}' file to '{}' directory."
-                  .format(filename, directory))
+            # Write output file to output directory.
+            copy2(os.path.join(directory, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
 
 
 def main():

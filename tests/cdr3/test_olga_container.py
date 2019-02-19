@@ -51,10 +51,10 @@ def test_olga_container(option, expected):
         If the performed test failed.
 
     """
-    params = 'tests/test_data/TRA_homo_sapiens/model_params.txt'
-    marginals = 'tests/test_data/TRA_homo_sapiens/model_marginals.txt'
-    v_anchors = 'tests/test_data/TRA_homo_sapiens/V_gene_CDR3_anchors.csv'
-    j_anchors = 'tests/test_data/TRA_homo_sapiens/J_gene_CDR3_anchors.csv'
+    params = 'tests/data/human_T_alpha/model_params.txt'
+    marginals = 'tests/data/human_T_alpha/model_marginals.txt'
+    v_anchors = 'tests/data/human_T_alpha/V_gene_CDR3_anchors.csv'
+    j_anchors = 'tests/data/human_T_alpha/J_gene_CDR3_anchors.csv'
     model = IgorLoader(model_params=params, model_marginals=marginals)
     model.load_anchors(model_params=params, v_anchors=v_anchors, j_anchors=j_anchors)
     olga_container = OlgaContainer(igor_model=model)

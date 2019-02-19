@@ -19,12 +19,12 @@
 
 import os
 import sys
-
-from Bio import SeqIO
+from shutil import copy2
 
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.io import preprocess_input_file, preprocess_reference_file
 
 
 class BuildIgorModel(object):
@@ -45,7 +45,6 @@ class BuildIgorModel(object):
     def __init__(self, subparsers):
         super(BuildIgorModel, self).__init__()
         self.subparsers = subparsers
-        self.ref_dir = None
         self._add_options()
 
     def _add_options(self):
@@ -58,16 +57,17 @@ class BuildIgorModel(object):
 
         """
         # Create the description and options for the parser.
-        description = "This tool creates a V(D)J model by executing IGoR " \
-            "via a python subprocess. Note: the FASTA reference genome files " \
-            "needs to conform to IGMT annotation."
+        description = "Create a VJ or VDJ model by executing IGoR commandline " \
+            "tool via a python subprocess and an initial model parameters."
         parser_options = {
             '-seqs': {
-                'metavar': '<fasta>',
+                'metavar': '<fasta/csv>',
                 'required': 'True',
                 'type': 'str',
-                'help': 'An input FASTA file with sequences for training ' \
-                        'the model.'
+                'help': "An input FASTA or CSV file with sequences for " \
+                        "training the model. Note: file needs to end on " \
+                        "'.fasta' or '.csv'. CSV files need to conform to " \
+                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -75,16 +75,18 @@ class BuildIgorModel(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file (IMGT).'
+                'help': "A gene (V, D or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character)."
             },
-            '-model': {
+            '-init-model': {
                 'metavar': '<parameters>',
                 'required': 'True',
                 'type': 'str',
                 'help': "An initial IGoR model parameters txt file."
             },
-            '--n-iter': {
+            '-n-iter': {
                 'type': 'int',
                 'nargs': '?',
                 'default': 1,
@@ -99,67 +101,47 @@ class BuildIgorModel(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    def _format_imgt_reference_fasta(self, fasta):
-        """Function for formatting the IMGT reference genome files for IGoR.
-
-        Parameters
-        ----------
-        fasta : str
-            A FASTA file path for a reference genomic template file.
-
-        Returns
-        -------
-        str
-            A string file path to the new reference genomic template file.
-
-        """
-        # Create the reference genomic template directory.
-        if not os.path.isdir(self.ref_dir):
-            os.makedirs(self.ref_dir)
-
-        # Open the fasta file, update the fasta header and write out.
-        records = list(SeqIO.parse(str(fasta), "fasta"))
-        for rec in records:
-            rec.id = rec.description.split('|')[1].split('*')[0]
-            rec.description = ""
-        updated_path = os.path.join(self.ref_dir, os.path.basename(str(fasta)))
-        SeqIO.write(records, str(updated_path), "fasta")
-        return updated_path
-
-    def run(self, args):
+    @staticmethod
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # Add general igor commands.
         command_list = []
-        directory = get_working_dir()
-        command_list.append(['set_wd', str(directory)])
+        working_dir = get_working_dir()
+        command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_num_threads())])
-        self.ref_dir = os.path.join(str(directory), 'genomic_templates')
 
         # Add sequence and file paths commands.
-        if args.ref:
-            ref_list = ['set_genomic']
-            for i in args.ref:
-                filename = self._format_imgt_reference_fasta(i[1])
-                ref_list.append([str(i[0]), str(filename)])
-            command_list.append(ref_list)
-        if args.model:
-            command_list.append(['set_custom_model', str(args.model)])
-        if args.seqs:
+        ref_list = ['set_genomic']
+        for i in args.ref:
+            filename = preprocess_reference_file(
+                os.path.join(working_dir, 'genomic_templates'), i[1], 1)
+            ref_list.append([i[0], filename])
+        command_list.append(ref_list)
+        command_list.append(['set_custom_model', str(args.init_model)])
+
+        # Add the sequence command after pre-processing of the input file.
+        if args.seqs.lower().endswith('.csv'):
+            input_seqs = preprocess_input_file(
+                os.path.join(working_dir, 'input'), str(args.seqs),
+                get_separator(), ';', [0, 1])
+            command_list.append(['read_seqs', input_seqs])
+        elif args.seqs.lower().endswith('.fasta'):
             command_list.append(['read_seqs', str(args.seqs)])
 
         # Add alignment commands.
         command_list.append(['align', ['all']])
 
         # Add inference commands.
-        if args.n_iter:
-            command_list.append(['infer', ['N_iter', str(args.n_iter)]])
+        command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         igor_cline = IgorInterface(args=command_list)
         code, _ = igor_cline.call()
@@ -168,6 +150,17 @@ class BuildIgorModel(object):
             print("An error occurred during execution of IGoR " \
                   "command (exit code {})".format(code))
             sys.exit()
+
+        # Write output files to output directory.
+        copy2(os.path.join(working_dir, 'inference', 'final_marginals.txt'),
+              output_dir)
+        print("Written '{}' file to '{}' directory.".format(
+            'final_marginals.txt', output_dir))
+
+        copy2(os.path.join(working_dir, 'inference', 'final_parms.txt'),
+              output_dir)
+        print("Written '{}' file to '{}' directory.".format(
+            'final_parms.txt', output_dir))
 
 
 def main():

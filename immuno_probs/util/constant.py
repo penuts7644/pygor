@@ -26,7 +26,7 @@ from immuno_probs.util.exception import SeparatorNotValidException, NumThreadsVa
 
 
 NUM_THREADS = ph.cpu_count()
-SEPARATOR = ';'
+SEPARATOR = ','
 WORKING_DIR = os.getcwd()
 
 

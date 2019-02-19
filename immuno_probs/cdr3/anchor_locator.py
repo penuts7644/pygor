@@ -22,7 +22,7 @@ import pandas
 import numpy
 
 from immuno_probs.util.constant import get_num_threads
-from immuno_probs.util.exception import GeneIdentifierException, IndexNotFoundException
+from immuno_probs.util.exception import GeneIdentifierException
 from immuno_probs.util.processing import multiprocess_array
 
 
@@ -102,19 +102,12 @@ class AnchorLocator(object):
             Containing start index values for each sequence identifier in the
             alignment. Each motif has its own row in the dataframe.
 
-        Raises
-        ------
-        IndexNotFoundException
-            When the sequence header is not splitable by '|', if the header
-            index 1 (gene name) or if the header index 3 (function) can be
-            found.
-
         """
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         alignment = kwargs["alignment"]
-        seq_motif_indices = pandas.DataFrame(columns=['gene', 'anchor_index',
-                                                      'function', 'motif'])
+        seq_motif_indices = pandas.DataFrame(columns=['name', 'anchor_index',
+                                                      'motif'])
 
         # For each of the motifs in the input array.
         for motif in ary:
@@ -143,21 +136,13 @@ class AnchorLocator(object):
                 # Only process sequences that contain the motif at the conserved
                 # index location.
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
-                    try:
-                        description_list = seq_record.description.split('|')
-                        start_index = len(str(seq_record.seq[0:max_index])
-                                          .replace('-', ''))
-                        seq_motif_indices = seq_motif_indices.append({
-                            'gene': description_list[1].split('*')[0],
-                            'anchor_index': start_index,
-                            'function': description_list[3],
-                            'motif': motif,
-                        }, ignore_index=True)
-                    except IndexError:
-                        raise IndexNotFoundException(
-                            "FASTA header needs to be separated by '|', " \
-                            "needs to have gene name on index 1 and function " \
-                            "on index 3", seq_record.description)
+                    start_index = len(str(seq_record.seq[0:max_index])
+                                      .replace('-', ''))
+                    seq_motif_indices = seq_motif_indices.append({
+                        'name': seq_record.description,
+                        'anchor_index': start_index,
+                        'motif': motif,
+                    }, ignore_index=True)
         return seq_motif_indices
 
     def get_indices_motifs(self, *motifs):
@@ -172,14 +157,13 @@ class AnchorLocator(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence identifiers - 'gene', start index
-            values for the anchors - 'anchor_index', sequence function -
-            'function' and motifs - 'motif'.
+            Containing columns with sequence identifier - 'name', start index
+            values for the anchors - 'anchor_index' and motifs - 'motif'.
 
         Notes
         -----
             This function uses the given MUSCLE alignment and gene identifier.
-            It locates the most common 'V' (Cystein - TGT and TGC) or 'J'
+            It locates the most common 'V' (Cysteine - TGT and TGC) or 'J'
             (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
             all sequences in the multi-alignment (Or custom motifs).
             This function uses the NUM_THREADS variable for multiprocessing.

@@ -19,13 +19,16 @@
 
 
 import argparse
+import os
+from shutil import rmtree
 
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_seqs import GenerateSeqs
 from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir
+from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir, get_working_dir
+from immuno_probs.util.io import create_directory_path
 
 
 def main():
@@ -34,19 +37,19 @@ def main():
     description = 'ImmunoProbs Python package able to calculate the ' \
         'generation probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
-        '--separator': {
+        '-separator': {
             'type': 'str',
             'nargs': '?',
             'help': 'The separator character to be used when writing files ' \
-                    '(default: semicolon character).'
+                    '(default: comma character).'
         },
-        '--threads': {
+        '-threads': {
             'type': 'int',
             'nargs': '?',
             'help': 'The number of threads the program is allowed to use ' \
-                    '(default: max available threads).'
+                    '(default: max available threads in system).'
         },
-        '--set-wd': {
+        '-set-wd': {
             'type': 'str',
             'nargs': '?',
             'help': 'An optional location for writing files. (default: ' \
@@ -66,7 +69,7 @@ def main():
     ges = GenerateSeqs(subparsers=subparsers)
     evs = EvaluateSeqs(subparsers=subparsers)
 
-    # Parse the commandline arguments, set variables, execute correct function.
+    # Parse the commandline arguments and set variables.
     parsed_arguments = parser.parse_args()
     if parsed_arguments.separator is not None:
         set_separator(parsed_arguments.separator)
@@ -75,16 +78,25 @@ def main():
     if parsed_arguments.set_wd is not None:
         set_working_dir(parsed_arguments.set_wd)
 
+    # Create the directory paths for temporary files.
+    working_dir = get_working_dir()
+    temp_dir = create_directory_path(os.path.join(working_dir, 'immuno_probs_tmp'))
+    set_working_dir(temp_dir)
+
+    # Execute the correct tool based on given subparser name.
     if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
-        lca.run(args=parsed_arguments)
+        lca.run(args=parsed_arguments, output_dir=working_dir)
     elif parsed_arguments.subparser_name == 'build-igor-model':
-        bim.run(args=parsed_arguments)
+        bim.run(args=parsed_arguments, output_dir=working_dir)
     elif parsed_arguments.subparser_name == 'generate-seqs':
-        ges.run(args=parsed_arguments)
+        ges.run(args=parsed_arguments, output_dir=working_dir)
     elif parsed_arguments.subparser_name == 'evaluate-seqs':
-        evs.run(args=parsed_arguments)
+        evs.run(args=parsed_arguments, output_dir=working_dir)
     else:
         print("No option selected, run 'immuno-probs -h' to show all options.")
+
+    # Finally, delete the temporary directory.
+    rmtree(temp_dir)
 
 
 if __name__ == '__main__':

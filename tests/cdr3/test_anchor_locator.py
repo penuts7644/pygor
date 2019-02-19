@@ -27,23 +27,23 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 
 def create_alignment():
     """Create an alignment to use for testing."""
-    filename = 'tests/test_data/IGH_mus_musculus/ref_genomes/genomicJs.fasta'
+    filename = 'tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta'
     aligner = MuscleAligner(infile=filename)
     return aligner.get_muscle_alignment()
 
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', 'TTT', pandas.DataFrame(
-        [['IGHJ1', 44, 'F', 'TTT']],
-        columns=['gene', 'anchor_index', 'function', 'motif'])
+        [['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 44, 'TTT']],
+        columns=['name', 'anchor_index', 'motif'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['IGHJ3', 14, 'F', 'TGG'],
-         ['IGHJ3', 14, 'P', 'TGG'],
-         ['IGHJ1', 19, 'F', 'TGG'],
-         ['IGHJ4', 20, 'F', 'TGG'],
-         ['IGHJ2', 12, 'F', 'TGG']],
-        columns=['gene', 'anchor_index', 'function', 'motif'])),
+        [['V00770|IGHJ3*01|Mus musculus|F|J-REGION|766..813|48 nt|3| | | | |48+0=48| | |', 14, 'TGG'],
+         ['S73821|IGHJ3*02|Mus musculus|P|J-REGION|650..697|48 nt|3| | | | |48+0=48| | |', 14, 'TGG'],
+         ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 19, 'TGG'],
+         ['X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 19, 'TGG'],
+         ['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 19, 'TGG']],
+        columns=['name', 'anchor_index', 'motif'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
 def test_anchor_locator(gene, motif, expected):
