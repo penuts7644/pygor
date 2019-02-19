@@ -24,17 +24,17 @@ import pytest
 from immuno_probs.util.io import read_fasta_as_dataframe
 
 
-@pytest.mark.parametrize('infile, expected', [
+@pytest.mark.parametrize('file, expected', [
     ('tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta',
      pandas.DataFrame(
-         [['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
-          ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
-          ['X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
-          ['V00770|IGHJ2*01|Mus musculus|F|J-REGION|383..430|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
-          ['S73821|IGHJ2*02|Mus musculus|F|J-REGION|267..314|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
-         columns=['header', 'sequence']))
+         [['0', 'V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['1', 'V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
+          ['2', 'X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['3', 'V00770|IGHJ2*01|Mus musculus|F|J-REGION|383..430|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
+          ['4', 'S73821|IGHJ2*02|Mus musculus|F|J-REGION|267..314|48 nt|3| | | | |48+0=48| | |', 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
+         columns=['seq_index', 'header', 'sequence']))
 ])
-def test_read_fasta_as_dataframe(infile, expected):
+def test_read_fasta_as_dataframe(file, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
 
     The dataframe contains header name and sequence columns containing the
@@ -53,5 +53,5 @@ def test_read_fasta_as_dataframe(infile, expected):
         If the performed test failed.
 
     """
-    result = read_fasta_as_dataframe(infile=infile)
+    result = read_fasta_as_dataframe(file=file)
     assert result.head().equals(expected)
