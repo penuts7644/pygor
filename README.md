@@ -34,7 +34,7 @@ Make sure to install the necessary requirements (see the requirements section).
 It is also possible to use a docker image of ImmunoProbs with all necessary requirement pre-installed in an ubuntu environment. Make sure to install [docker](https://www.docker.com) first and pull the most recent version of the image with the following command:
 
 ```
-docker pull penuts7644/immuno-probs:0.1.4
+docker pull penuts7644/immuno-probs:0.1.5
 ```
 
 Now you can use the ImmunoProbs image however you like.
@@ -42,7 +42,7 @@ Now you can use the ImmunoProbs image however you like.
 You can also execute the ImmunoProbs image while using your local machine's working directory:
 
 ```
-docker run --rm --volume "$PWD":/tmp penuts7644/immuno-probs:0.1.4 <TOOL NAME>
+docker run --rm --volume "$PWD":/tmp penuts7644/immuno-probs:0.1.5 <TOOL NAME>
 ```
 
 Note that the container is removed after execution and that you'll need to link to the `/tmp` directory of the container since that is the location where output files are created.
@@ -105,21 +105,32 @@ immuno_probs
 │   ├── human_B_heavy
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_D.fasta
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   ├── human_T_alpha
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   ├── human_T_beta
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_D.fasta
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   └── mouse_T_beta
 │       ├── J_gene_CDR3_anchors.csv
 │       ├── V_gene_CDR3_anchors.csv
+│       ├── genomic_D.fasta
+│       ├── genomic_J.fasta
+│       ├── genomic_V.fasta
 │       ├── model_marginals.txt
 │       └── model_params.txt
 ├── model
