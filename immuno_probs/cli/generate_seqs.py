@@ -30,7 +30,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file
 
 
 class GenerateSeqs(object):
@@ -89,8 +89,10 @@ class GenerateSeqs(object):
                 'required': ('-type=CDR3' in sys.argv or
                              ('-type' in sys.argv and 'CDR3' in sys.argv)
                              and '-custom-model' in sys.argv),
-                'help': 'The V and J gene CDR3 anchor files. (required ' \
-                        'for -type=CDR3 and -custom_model)'
+                'help': 'The V and J gene CDR3 anchor files. Note: need to ' \
+                        'contain gene in the firts column, anchor index in ' \
+                        'the second and gene function in the third (required ' \
+                        'for -type=CDR3 and -custom_model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
@@ -205,10 +207,10 @@ class GenerateSeqs(object):
 
             # Merge the generated output files together (translated).
             sequence_df = read_csv_to_dataframe(
-                filename=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
+                file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';')
             realizations_df = read_csv_to_dataframe(
-                filename=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
+                file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';')
             if args.model:
                 files = get_default_model_file_paths(model_name=args.model)
@@ -236,10 +238,8 @@ class GenerateSeqs(object):
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
 
-            # Create the directory for the output files.
-            working_dir = os.path.join(get_working_dir(), 'generated')
-            if not os.path.isdir(working_dir):
-                os.makedirs(os.path.join(get_working_dir(), 'generated'))
+            # Get the working directory.
+            working_dir = get_working_dir()
 
             # Load the model, create the sequence generator and generate the sequences.
             if args.model:
@@ -252,9 +252,15 @@ class GenerateSeqs(object):
             elif args.custom_model:
                 model = IgorLoader(model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
+                v_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[0]),
+                    get_separator(), ',')
+                j_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[1]),
+                    get_separator(), ',')
                 model.load_anchors(model_params=args.custom_model[0],
-                                   v_anchors=args.anchors[0],
-                                   j_anchors=args.anchors[1])
+                                   v_anchors=v_anchors,
+                                   j_anchors=j_anchors)
             seq_generator = OlgaContainer(igor_model=model)
             cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
 

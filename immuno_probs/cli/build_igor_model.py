@@ -21,11 +21,10 @@ import os
 import sys
 from shutil import copy2
 
-from Bio import SeqIO
-
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.io import preprocess_input_file, preprocess_reference_file
 
 
 class BuildIgorModel(object):
@@ -74,9 +73,10 @@ class BuildIgorModel(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file. Note: the FASTA reference genome files ' \
-                        'needs to conform to IGMT annotation.'
+                'help': "A gene (V, D or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character)."
             },
             '-init-model': {
                 'metavar': '<parameters>',
@@ -100,36 +100,7 @@ class BuildIgorModel(object):
                                           options=parser_options)
 
     @staticmethod
-    def _format_imgt_reference_fasta(directory, fasta):
-        """Function for formatting the IMGT reference genome files for IGoR.
-
-        Parameters
-        ----------
-        directory : str
-            A directory path to write the files to.
-        fasta : str
-            A FASTA file path for a reference genomic template file.
-
-        Returns
-        -------
-        str
-            A string file path to the new reference genomic template file.
-
-        """
-        # Create the output directory.
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-        # Open the fasta file, update the fasta header and write out.
-        records = list(SeqIO.parse(str(fasta), "fasta"))
-        for rec in records:
-            rec.id = rec.description.split('|')[1]
-            rec.description = ""
-        updated_path = os.path.join(directory, os.path.basename(str(fasta)))
-        SeqIO.write(records, updated_path, "fasta")
-        return updated_path
-
-    def run(self, args, output_dir):
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -149,19 +120,23 @@ class BuildIgorModel(object):
         # Add sequence and file paths commands.
         ref_list = ['set_genomic']
         for i in args.ref:
-            filename = self._format_imgt_reference_fasta(
-                os.path.join(working_dir, 'genomic_templates'), i[1])
+            filename = preprocess_reference_file(
+                os.path.join(working_dir, 'genomic_templates'), i[1], 1)
             ref_list.append([i[0], filename])
         command_list.append(ref_list)
         command_list.append(['set_custom_model', str(args.init_model)])
-        command_list.append(['read_seqs', str(args.seqs)])
+
+        # Add the sequence command after pre-processing of the input file.
+        input_seqs = preprocess_input_file(
+            os.path.join(working_dir, 'input'), str(args.seqs),
+            get_separator(), ';', [0, 1])
+        command_list.append(['read_seqs', input_seqs])
 
         # Add alignment commands.
         command_list.append(['align', ['all']])
 
         # Add inference commands.
-        if args.n_iter:
-            command_list.append(['infer', ['N_iter', str(args.n_iter)]])
+        command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         igor_cline = IgorInterface(args=command_list)
         code, _ = igor_cline.call()

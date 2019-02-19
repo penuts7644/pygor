@@ -19,6 +19,7 @@
 
 
 import os
+import sys
 from shutil import copy2
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
@@ -68,9 +69,10 @@ class LocateCdr3Anchors(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': 'A gene (V or J) followed by a reference genome ' \
-                        'FASTA file. Note: the FASTA reference genome files ' \
-                        'needs to conform to IGMT annotation.'
+                'help': "A gene (V or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character)."
             },
             '-motifs': {
                 'type': 'str',
@@ -87,7 +89,8 @@ class LocateCdr3Anchors(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    def run(self, args, output_dir):
+    @staticmethod
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -113,6 +116,20 @@ class LocateCdr3Anchors(object):
                 anchors_df = locator.get_indices_motifs(args.motifs)
             else:
                 anchors_df = locator.get_indices_motifs()
+
+            # Modify the dataframe to make it OLGA compliant.
+            anchors_df.insert(2, 'function', anchors_df['name'])
+            anchors_df.columns[0] = 'gene'
+            try:
+                for i, row in anchors_df.iterrows():
+                    description_list = row['gene'].split('|')
+                    anchors_df.ix[i, 'gene'] = description_list[1]
+                    anchors_df.ix[i, 'function'] = description_list[3]
+            except IndexError:
+                print("FASTA header needs to be separated by '|', needs to " \
+                    "have gene name on index position 1 and function on " \
+                    "index position 3: '{}'".format(anchors_df['gene']))
+                sys.exit()
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(

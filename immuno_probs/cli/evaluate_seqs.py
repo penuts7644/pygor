@@ -22,7 +22,6 @@ import os
 import sys
 from shutil import copy2
 
-from Bio import SeqIO
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
@@ -31,7 +30,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
 
 class EvaluateSeqs(object):
@@ -91,10 +90,11 @@ class EvaluateSeqs(object):
                 'required': ('-type=VDJ' in sys.argv or
                              ('-type' in sys.argv and 'VDJ' in sys.argv)
                              and '-custom-model' in sys.argv),
-                'help': 'A gene (V, D or J) followed by a reference genome ' \
-                        'FASTA file. Note: the FASTA reference genome files ' \
-                        'needs to conform to IGMT annotation. (required ' \
-                        'for -type=VDJ with -custom_model)'
+                'help': "A gene (V, D or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character). (required for -type=VDJ with " \
+                        "-custom_model)"
             },
             '-type': {
                 'type': 'str',
@@ -117,8 +117,10 @@ class EvaluateSeqs(object):
                 'required': ('-type=CDR3' in sys.argv or
                              ('-type' in sys.argv and 'CDR3' in sys.argv)
                              and '-custom-model' in sys.argv),
-                'help': 'The V and J gene CDR3 anchor files. (required ' \
-                        'for -type=CDR3 with -custom_model)'
+                'help': 'The V and J gene CDR3 anchor files. Note: need to ' \
+                        'contain gene in the firts column, anchor index in ' \
+                        'the second and gene function in the third (required ' \
+                        'for -type=CDR3 and -custom_model).'
             },
         }
 
@@ -129,71 +131,7 @@ class EvaluateSeqs(object):
                                           options=parser_options)
 
     @staticmethod
-    def _format_imgt_reference_fasta(directory, fasta):
-        """Function for formatting the IMGT reference genome files for IGoR.
-
-        Parameters
-        ----------
-        directory : str
-            A directory path to write the files to.
-        fasta : str
-            A FASTA file path for a reference genomic template file.
-
-        Returns
-        -------
-        str
-            A string file path to the new reference genomic template file.
-
-        """
-        # Create the output directory.
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-        # Open the fasta file, update the fasta header and write out.
-        records = list(SeqIO.parse(str(fasta), "fasta"))
-        for rec in records:
-            rec.id = rec.description.split('|')[1]
-            rec.description = ""
-        updated_path = os.path.join(directory, os.path.basename(str(fasta)))
-        SeqIO.write(records, updated_path, "fasta")
-        return updated_path
-
-    @staticmethod
-    def _preprocess_input_seqs(directory, csv):
-        """Function for formatting the input sequence file for IGoR.
-
-        Parameters
-        ----------
-        directory : str
-            A directory path to write the files to.
-        csv : str
-            A CSV formatted file path to precess for IGoR.
-
-        Returns
-        -------
-        str
-            A string file path to the sequence input file.
-
-        """
-        # Create the output directory.
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-
-        # Open the sequence input file and update the columns.
-        sequence_df = read_csv_to_dataframe(
-            filename=csv,
-            separator=get_separator())
-        sequence_df = sequence_df.iloc[:, 0:1]
-
-        # Write the new pandas dataframe to a CSV file.
-        directory, filename = write_dataframe_to_csv(
-            dataframe=sequence_df,
-            filename=os.path.basename(str(csv)),
-            directory=directory,
-            separator=';')
-        return os.path.join(directory, filename)
-
-    def run(self, args, output_dir):
+    def run(args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -207,7 +145,7 @@ class EvaluateSeqs(object):
         # If the given type of sequences evaluation is VDJ, use IGoR.
         if args.type == 'VDJ':
 
-            # Add general igor commands.
+            # Add general IGoR commands.
             command_list = []
             working_dir = get_working_dir()
             command_list.append(['set_wd', working_dir])
@@ -227,14 +165,15 @@ class EvaluateSeqs(object):
                                      str(args.custom_model[1])])
                 ref_list = ['set_genomic']
                 for i in args.ref:
-                    filename = self._format_imgt_reference_fasta(
-                        os.path.join(working_dir, 'genomic_templates'), i[1])
+                    filename = preprocess_reference_file(
+                        os.path.join(working_dir, 'genomic_templates'), i[1], 1)
                     ref_list.append([i[0], filename])
                 command_list.append(ref_list)
 
             # Add the sequence command after pre-processing of the input file.
-            input_seqs = self._preprocess_input_seqs(
-                os.path.join(working_dir, 'input'), str(args.seqs))
+            input_seqs = preprocess_input_file(
+                os.path.join(working_dir, 'input'), str(args.seqs),
+                get_separator(), ';', [0, 1])
             command_list.append(['read_seqs', input_seqs])
 
             # Add alignment commands.
@@ -253,10 +192,10 @@ class EvaluateSeqs(object):
 
             # Read in all data frame files.
             sequence_df = read_csv_to_dataframe(
-                filename=args.seqs,
+                file=args.seqs,
                 separator=get_separator())
             vdj_pgen_df = read_csv_to_dataframe(
-                filename=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
+                file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                 separator=';')
 
             # Merge IGoR generated sequence output dataframes.
@@ -293,11 +232,17 @@ class EvaluateSeqs(object):
             elif args.custom_model:
                 model = IgorLoader(model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
+                v_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[0]),
+                    get_separator(), ',')
+                j_anchors = preprocess_input_file(
+                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[1]),
+                    get_separator(), ',')
                 model.load_anchors(model_params=args.custom_model[0],
-                                   v_anchors=args.anchors[0],
-                                   j_anchors=args.anchors[1])
+                                   v_anchors=v_anchors,
+                                   j_anchors=j_anchors)
             seq_evaluator = OlgaContainer(igor_model=model)
-            sequence_df = read_csv_to_dataframe(filename=args.seqs,
+            sequence_df = read_csv_to_dataframe(file=args.seqs,
                                                 separator=get_separator())
             cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
 
