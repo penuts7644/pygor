@@ -55,7 +55,7 @@ def create_directory_path(directory):
     return updated_directory
 
 
-def read_fasta_as_dataframe(infile):
+def read_fasta_as_dataframe(file):
     """Creates a pandas.DataFrame from the FASTA file.
 
     The dataframe contains header name and sequence columns containing the
@@ -63,18 +63,21 @@ def read_fasta_as_dataframe(infile):
 
     Parameters
     ----------
-    infile : string
+    file : string
         Location of the FASTA file to be read in.
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=['header', 'sequence'])
-    with open(infile, 'r') as fasta_file:
+    fasta_df = pandas.DataFrame(columns=['seq_index', 'header', 'sequence'])
+    with open(file, 'r') as fasta_file:
+        fasta_count = 0
         for title, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
+                'seq_index': str(fasta_count),
                 'header': title,
                 'sequence': sequence.upper(),
             }, ignore_index=True)
+            fasta_count += 1
     return fasta_df
 
 

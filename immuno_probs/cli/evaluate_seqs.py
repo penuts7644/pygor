@@ -30,7 +30,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
+from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
 
 class EvaluateSeqs(object):
@@ -67,11 +67,13 @@ class EvaluateSeqs(object):
             "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {
-                'metavar': '<csv>',
+                'metavar': '<fasta/csv>',
                 'required': 'True',
                 'type': 'str',
-                'help': 'An input CSV file with sequences for evaluation. ' \
-                        'Note: uses IGoR generated file formatting.'
+                'help': "An input FASTA or CSV file with sequences for " \
+                        "training the model. Note: file needs to end on " \
+                        "'.fasta' or '.csv'. CSV files need to conform to " \
+                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
             },
             '-model': {
                 'type': 'str',
@@ -171,10 +173,13 @@ class EvaluateSeqs(object):
                 command_list.append(ref_list)
 
             # Add the sequence command after pre-processing of the input file.
-            input_seqs = preprocess_input_file(
-                os.path.join(working_dir, 'input'), str(args.seqs),
-                get_separator(), ';', [0, 1])
-            command_list.append(['read_seqs', input_seqs])
+            if args.seqs.lower().endswith('.csv'):
+                input_seqs = preprocess_input_file(
+                    os.path.join(working_dir, 'input'), str(args.seqs),
+                    get_separator(), ';', [0, 1])
+                command_list.append(['read_seqs', input_seqs])
+            elif args.seqs.lower().endswith('.fasta'):
+                command_list.append(['read_seqs', str(args.seqs)])
 
             # Add alignment commands.
             command_list.append(['align', ['all']])
@@ -221,7 +226,7 @@ class EvaluateSeqs(object):
             if not os.path.isdir(working_dir):
                 os.makedirs(os.path.join(get_working_dir(), 'output'))
 
-            # Load the model, create the sequence evaluator and evaluate the sequences.
+            # Load the model and create the sequence evaluator.
             if args.model:
                 files = get_default_model_file_paths(model_name=args.model)
                 model = IgorLoader(model_params=files['parameters'],
@@ -242,8 +247,15 @@ class EvaluateSeqs(object):
                                    v_anchors=v_anchors,
                                    j_anchors=j_anchors)
             seq_evaluator = OlgaContainer(igor_model=model)
-            sequence_df = read_csv_to_dataframe(file=args.seqs,
-                                                separator=get_separator())
+
+            # Based on input file type, load in file.
+            if args.seqs.lower().endswith('.csv'):
+                sequence_df = read_csv_to_dataframe(file=args.seqs,
+                                                    separator=get_separator())
+            elif args.seqs.lower().endswith('.fasta'):
+                sequence_df = read_fasta_as_dataframe(file=args.seqs)
+
+            # Evaluate the sequences.
             cdr3_pgen_df = seq_evaluator.evaluate(seqs=sequence_df)
 
             # Merge IGoR generated sequence output dataframes.

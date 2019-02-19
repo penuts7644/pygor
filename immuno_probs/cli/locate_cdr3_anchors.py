@@ -119,7 +119,7 @@ class LocateCdr3Anchors(object):
 
             # Modify the dataframe to make it OLGA compliant.
             anchors_df.insert(2, 'function', anchors_df['name'])
-            anchors_df.columns[0] = 'gene'
+            anchors_df.rename(columns={'name': 'gene'}, inplace=True)
             try:
                 for i, row in anchors_df.iterrows():
                     description_list = row['gene'].split('|')

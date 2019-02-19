@@ -61,11 +61,13 @@ class BuildIgorModel(object):
             "tool via a python subprocess and an initial model parameters."
         parser_options = {
             '-seqs': {
-                'metavar': '<fasta>',
+                'metavar': '<fasta/csv>',
                 'required': 'True',
                 'type': 'str',
-                'help': 'An input FASTA file with sequences for training ' \
-                        'the model.'
+                'help': "An input FASTA or CSV file with sequences for " \
+                        "training the model. Note: file needs to end on " \
+                        "'.fasta' or '.csv'. CSV files need to conform to " \
+                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -127,10 +129,13 @@ class BuildIgorModel(object):
         command_list.append(['set_custom_model', str(args.init_model)])
 
         # Add the sequence command after pre-processing of the input file.
-        input_seqs = preprocess_input_file(
-            os.path.join(working_dir, 'input'), str(args.seqs),
-            get_separator(), ';', [0, 1])
-        command_list.append(['read_seqs', input_seqs])
+        if args.seqs.lower().endswith('.csv'):
+            input_seqs = preprocess_input_file(
+                os.path.join(working_dir, 'input'), str(args.seqs),
+                get_separator(), ';', [0, 1])
+            command_list.append(['read_seqs', input_seqs])
+        elif args.seqs.lower().endswith('.fasta'):
+            command_list.append(['read_seqs', str(args.seqs)])
 
         # Add alignment commands.
         command_list.append(['align', ['all']])
