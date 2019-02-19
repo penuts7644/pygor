@@ -189,14 +189,14 @@ class BuildIgorModel(object):
         # Copy the output files to the output directory.
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-            filename='final_marginals',
+            filename='model_marginals',
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))
 
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
-            filename='final_params',
+            filename='model_params',
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))
