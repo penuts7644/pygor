@@ -105,21 +105,32 @@ immuno_probs
 │   ├── human_B_heavy
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_D.fasta
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   ├── human_T_alpha
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   ├── human_T_beta
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_D.fasta
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
 │   └── mouse_T_beta
 │       ├── J_gene_CDR3_anchors.csv
 │       ├── V_gene_CDR3_anchors.csv
+│       ├── genomic_D.fasta
+│       ├── genomic_J.fasta
+│       ├── genomic_V.fasta
 │       ├── model_marginals.txt
 │       └── model_params.txt
 ├── model
