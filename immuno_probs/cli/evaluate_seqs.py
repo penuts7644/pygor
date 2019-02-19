@@ -20,7 +20,6 @@
 
 import os
 import sys
-from shutil import copy2
 
 import pandas
 
@@ -209,14 +208,11 @@ class EvaluateSeqs(object):
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=vdj_pgen_df,
-                filename=os.path.join('output', 'VDJ_seqs_pgen_estimate'),
-                directory=working_dir,
+                filename='VDJ_seqs_pgen_estimate',
+                directory=output_dir,
                 separator=get_separator())
-
-            # Write output file to output directory.
-            copy2(os.path.join(directory, filename), output_dir)
             print("Written '{}' file to '{}' directory.".format(
-                filename, output_dir))
+                filename, directory))
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.type == 'CDR3':
@@ -265,13 +261,10 @@ class EvaluateSeqs(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_pgen_df,
                 filename='CDR3_seqs_pgen_estimate',
-                directory=working_dir,
+                directory=output_dir,
                 separator=get_separator())
-
-            # Write output file to output directory.
-            copy2(os.path.join(directory, filename), output_dir)
             print("Written '{}' file to '{}' directory.".format(
-                filename, output_dir))
+                filename, directory))
 
 
 def main():

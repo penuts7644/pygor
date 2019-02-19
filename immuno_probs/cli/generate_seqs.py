@@ -20,7 +20,6 @@
 
 import os
 import sys
-from shutil import copy2
 
 import pandas
 
@@ -227,13 +226,10 @@ class GenerateSeqs(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=vdj_seqs_df,
                 filename='generated_VDJ_seqs',
-                directory=os.path.join(working_dir, 'generated'),
+                directory=output_dir,
                 separator=get_separator())
-
-            # Write output file to output directory.
-            copy2(os.path.join(directory, filename), output_dir)
             print("Written '{}' file to '{}' directory.".format(
-                filename, output_dir))
+                filename, directory))
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
@@ -268,13 +264,10 @@ class GenerateSeqs(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_seqs_df,
                 filename='generated_CDR3_seqs',
-                directory=working_dir,
+                directory=output_dir,
                 separator=get_separator())
-
-            # Write output file to output directory.
-            copy2(os.path.join(working_dir, filename), output_dir)
             print("Written '{}' file to '{}' directory.".format(
-                filename, output_dir))
+                filename, directory))
 
 
 def main():

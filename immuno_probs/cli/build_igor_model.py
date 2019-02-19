@@ -102,7 +102,42 @@ class BuildIgorModel(object):
                                           options=parser_options)
 
     @staticmethod
-    def run(args, output_dir):
+    def _copy_file_to_output(file, filename, directory):
+        """Copies a txt file to the given directory.
+
+        If the file already exists, a number will be appended to the filename.
+        The given output directory is created recursively if it does not exist.
+
+        Parameters
+        ----------
+        file : str
+            A string path to the file to copy over to the directory
+        filename : string
+            Base filename for writting the file, excluding the extension.
+        directory : string
+            A directory path location to write the file to.
+
+        Returns
+        -------
+        tuple
+            Containing the output directory and the name of the file that has been
+            written to disk.
+
+        """
+        # Check if the filename is unique, modify name if necessary.
+        file_count = 1
+        updated_filename = filename
+
+        # Keep modifying the filename until it doesn't exist.
+        while os.path.isfile(os.path.join(directory, updated_filename + '.txt')):
+            updated_filename = str(filename) + '_' + str(file_count)
+            file_count += 1
+
+        # Copy input file to new location and return info.
+        copy2(file, os.path.join(directory, updated_filename + '.txt'))
+        return (directory, updated_filename + '.txt')
+
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -151,16 +186,20 @@ class BuildIgorModel(object):
                   "command (exit code {})".format(code))
             sys.exit()
 
-        # Write output files to output directory.
-        copy2(os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-              output_dir)
+        # Copy the output files to the output directory.
+        directory, filename = self._copy_file_to_output(
+            file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
+            filename='model_marginals',
+            directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
-            'final_marginals.txt', output_dir))
+            filename, directory))
 
-        copy2(os.path.join(working_dir, 'inference', 'final_parms.txt'),
-              output_dir)
+        directory, filename = self._copy_file_to_output(
+            file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
+            filename='model_params',
+            directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
-            'final_parms.txt', output_dir))
+            filename, directory))
 
 
 def main():

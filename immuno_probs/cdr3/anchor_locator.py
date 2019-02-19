@@ -54,7 +54,7 @@ class AnchorLocator(object):
         self.alignment = alignment
         self.gene = self._set_gene(gene)
         self.default_motifs = {"V": ["TGT", "TGC"],
-                               "J": ["TGG", "TTT", "TTC"]}
+                               "J": ["TGG", "TTC", "TTT"]}
 
     @staticmethod
     def _set_gene(gene):
@@ -164,7 +164,7 @@ class AnchorLocator(object):
         -----
             This function uses the given MUSCLE alignment and gene identifier.
             It locates the most common 'V' (Cysteine - TGT and TGC) or 'J'
-            (Tryptophan - TGG, Phenylalanine - TTT and TTC) index that covers
+            (Tryptophan - TGG, Phenylalanine - TTC and TTT) index that covers
             all sequences in the multi-alignment (Or custom motifs).
             This function uses the NUM_THREADS variable for multiprocessing.
 
