@@ -20,6 +20,9 @@
 
 import os
 import sys
+from shutil import copy2
+
+import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.data.default_models import get_default_model_file_paths
@@ -27,7 +30,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
-from immuno_probs.util.io import write_dataframe_to_csv
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv
 
 
 class GenerateSeqs(object):
@@ -112,13 +115,63 @@ class GenerateSeqs(object):
                                           options=parser_options)
 
     @staticmethod
-    def run(args):
+    def _process_realizations(data, model):
+        """Function for processing an IGoR realization dataframe with indices.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            A pandas dataframe object with the IGoR realization data.
+        model : IgorLoader
+            Object containing the IGoR model.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A pandas dataframe object with 'seq_index', 'gene_choice_v',
+            'gene_choice_j' and optionally 'gene_choice_d' columns containing
+            the names of the selected genes.
+
+        """
+        # If the suplied model is VDJ, locate important columns and update index values.
+        if model.is_vdj():
+            real_df = pandas.concat([data[['seq_index']],
+                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+                                     data.filter(regex=("GeneChoice_J_gene_.*")),
+                                     data.filter(regex=("GeneChoice_D_gene_.*"))],
+                                    ignore_index=True, axis=1, sort=False)
+            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j', 'gene_choice_d']
+            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
+            d_gene_names = [J[0] for J in model.get_genomic_data().genD]
+            for i, row in real_df.iterrows():
+                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
+                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
+                real_df.ix[i, 'gene_choice_d'] = d_gene_names[int(row['gene_choice_d'].strip('()'))]
+
+        # Or do the same if the model is VJ.
+        elif model.is_vj():
+            real_df = pandas.concat([data[['seq_index']],
+                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+                                     data.filter(regex=("GeneChoice_J_gene_.*"))],
+                                    ignore_index=True, axis=1, sort=False)
+            real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j']
+            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
+            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
+            for i, row in real_df.iterrows():
+                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
+                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
+        return real_df
+
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # If the given type of sequences generation is VDJ, use IGoR.
@@ -126,8 +179,8 @@ class GenerateSeqs(object):
 
             # Add general igor commands.
             command_list = []
-            directory = get_working_dir()
-            command_list.append(['set_wd', str(directory)])
+            working_dir = get_working_dir()
+            command_list.append(['set_wd', str(working_dir)])
             command_list.append(['threads', str(get_num_threads())])
 
             # Add the model (build-in or custom) command.
@@ -150,12 +203,42 @@ class GenerateSeqs(object):
                       "command (exit code {})".format(code))
                 sys.exit()
 
+            # Merge the generated output files together (translated).
+            sequence_df = read_csv_to_dataframe(
+                filename=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
+                separator=';')
+            realizations_df = read_csv_to_dataframe(
+                filename=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
+                separator=';')
+            if args.model:
+                files = get_default_model_file_paths(model_name=args.model)
+                model = IgorLoader(model_params=files['parameters'],
+                                   model_marginals=files['marginals'])
+            elif args.custom_model:
+                model = IgorLoader(model_params=args.custom_model[0],
+                                   model_marginals=args.custom_model[1])
+            realizations_df = self._process_realizations(data=realizations_df,
+                                                         model=model)
+            vdj_seqs_df = sequence_df.merge(realizations_df, on='seq_index')
+
+            # Write the pandas dataframe to a CSV file.
+            directory, filename = write_dataframe_to_csv(
+                dataframe=vdj_seqs_df,
+                filename='generated_VDJ_seqs',
+                directory=os.path.join(working_dir, 'generated'),
+                separator=get_separator())
+
+            # Write output file to output directory.
+            copy2(os.path.join(directory, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
+
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.type == 'CDR3':
 
             # Create the directory for the output files.
-            directory = os.path.join(get_working_dir(), 'generated')
-            if not os.path.isdir(directory):
+            working_dir = os.path.join(get_working_dir(), 'generated')
+            if not os.path.isdir(working_dir):
                 os.makedirs(os.path.join(get_working_dir(), 'generated'))
 
             # Load the model, create the sequence generator and generate the sequences.
@@ -179,11 +262,13 @@ class GenerateSeqs(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_seqs_df,
                 filename='generated_CDR3_seqs',
-                directory=directory,
+                directory=working_dir,
                 separator=get_separator())
 
-            print("Written '{}' file to '{}' directory."
-                  .format(filename, directory))
+            # Write output file to output directory.
+            copy2(os.path.join(working_dir, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
 
 
 def main():

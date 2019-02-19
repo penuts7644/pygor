@@ -19,6 +19,7 @@
 
 
 import os
+from shutil import copy2
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
@@ -86,20 +87,20 @@ class LocateCdr3Anchors(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-
-    @staticmethod
-    def run(args):
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # Create the directory for the output files.
-        directory = os.path.join(get_working_dir(), 'cdr3_anchors')
-        if not os.path.isdir(directory):
+        working_dir = os.path.join(get_working_dir(), 'cdr3_anchors')
+        if not os.path.isdir(working_dir):
             os.makedirs(os.path.join(get_working_dir(), 'cdr3_anchors'))
 
         # Create the alignment and locate the motifs.
@@ -117,11 +118,13 @@ class LocateCdr3Anchors(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
                 filename='{}_gene_CDR3_anchors'.format(gene[0]),
-                directory=directory,
+                directory=working_dir,
                 separator=get_separator())
 
-            print("Written '{}' file to '{}' directory."
-                  .format(filename, directory))
+            # Write output file to output directory.
+            copy2(os.path.join(directory, filename), output_dir)
+            print("Written '{}' file to '{}' directory.".format(
+                filename, output_dir))
 
 
 def main():

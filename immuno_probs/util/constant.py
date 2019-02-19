@@ -25,9 +25,9 @@ import pathos.helpers as ph
 from immuno_probs.util.exception import SeparatorNotValidException, NumThreadsValueException, DirectoryNonExistingException
 
 
-NUM_THREADS = ph.cpu_count()
-SEPARATOR = ';'
-WORKING_DIR = os.getcwd()
+NUM_THREADS = set_num_threads(ph.cpu_count())
+SEPARATOR = set_separator(';')
+WORKING_DIR = set_working_dir(os.getcwd())
 
 
 def set_num_threads(value):

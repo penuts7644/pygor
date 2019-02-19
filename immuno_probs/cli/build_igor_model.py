@@ -19,6 +19,7 @@
 
 import os
 import sys
+from shutil import copy2
 
 from Bio import SeqIO
 
@@ -45,7 +46,6 @@ class BuildIgorModel(object):
     def __init__(self, subparsers):
         super(BuildIgorModel, self).__init__()
         self.subparsers = subparsers
-        self.ref_dir = None
         self._add_options()
 
     def _add_options(self):
@@ -99,11 +99,14 @@ class BuildIgorModel(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    def _format_imgt_reference_fasta(self, fasta):
+    @staticmethod
+    def _format_imgt_reference_fasta(directory, fasta):
         """Function for formatting the IMGT reference genome files for IGoR.
 
         Parameters
         ----------
+        directory : str
+            A directory path to write the files to.
         fasta : str
             A FASTA file path for a reference genomic template file.
 
@@ -113,39 +116,41 @@ class BuildIgorModel(object):
             A string file path to the new reference genomic template file.
 
         """
-        # Create the reference genomic template directory.
-        if not os.path.isdir(self.ref_dir):
-            os.makedirs(self.ref_dir)
+        # Create the output directory.
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
 
         # Open the fasta file, update the fasta header and write out.
         records = list(SeqIO.parse(str(fasta), "fasta"))
         for rec in records:
             rec.id = rec.description.split('|')[1]
             rec.description = ""
-        updated_path = os.path.join(self.ref_dir, os.path.basename(str(fasta)))
+        updated_path = os.path.join(directory, os.path.basename(str(fasta)))
         SeqIO.write(records, str(updated_path), "fasta")
         return updated_path
 
-    def run(self, args):
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
         ----------
         args : Namespace
             Object containing our parsed commandline arguments.
+        output_dir : str
+            A directory path for writing output files to.
 
         """
         # Add general igor commands.
         command_list = []
-        directory = get_working_dir()
-        command_list.append(['set_wd', str(directory)])
+        working_dir = get_working_dir()
+        command_list.append(['set_wd', str(working_dir)])
         command_list.append(['threads', str(get_num_threads())])
-        self.ref_dir = os.path.join(str(directory), 'genomic_templates')
 
         # Add sequence and file paths commands.
         ref_list = ['set_genomic']
         for i in args.ref:
-            filename = self._format_imgt_reference_fasta(i[1])
+            filename = self._format_imgt_reference_fasta(
+                os.path.join(str(working_dir), 'genomic_templates'), i[1])
             ref_list.append([str(i[0]), str(filename)])
         command_list.append(ref_list)
         command_list.append(['set_custom_model', str(args.init_model)])
@@ -165,6 +170,17 @@ class BuildIgorModel(object):
             print("An error occurred during execution of IGoR " \
                   "command (exit code {})".format(code))
             sys.exit()
+
+        # Write output files to output directory.
+        copy2(os.path.join(working_dir, 'inference', 'final_marginals.txt'),
+              output_dir)
+        print("Written '{}' file to '{}' directory.".format(
+            'final_marginals.txt', output_dir))
+
+        copy2(os.path.join(working_dir, 'inference', 'final_parms.txt'),
+              output_dir)
+        print("Written '{}' file to '{}' directory.".format(
+            'final_parms.txt', output_dir))
 
 
 def main():
