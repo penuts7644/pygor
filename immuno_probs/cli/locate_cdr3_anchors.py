@@ -20,7 +20,6 @@
 
 import os
 import sys
-from shutil import copy2
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
@@ -139,13 +138,10 @@ class LocateCdr3Anchors(object):
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
                 filename='{}_gene_CDR3_anchors'.format(gene[0]),
-                directory=working_dir,
+                directory=output_dir,
                 separator=get_separator())
-
-            # Write output file to output directory.
-            copy2(os.path.join(directory, filename), output_dir)
             print("Written '{}' file to '{}' directory.".format(
-                filename, output_dir))
+                filename, directory))
 
 
 def main():
