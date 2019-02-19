@@ -131,6 +131,10 @@ class LocateCdr3Anchors(object):
                     "index position 3: '{}'".format(anchors_df['gene']))
                 sys.exit()
 
+            # Apply some filtering to the anchor dataframe.
+            anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
+            anchors_df.reset_index(inplace=True, drop=True)
+
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
