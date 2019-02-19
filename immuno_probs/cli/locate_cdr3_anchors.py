@@ -79,7 +79,7 @@ class LocateCdr3Anchors(object):
                 'nargs': '*',
                 'help': "The motifs to look for. If none specified, the " \
                         "default 'V' (Cystein - TGT and TGC) or 'J' " \
-                        "(Tryptophan - TGG, Phenylalanine - TTT and TTC)."
+                        "(Tryptophan - TGG, Phenylalanine - TTC and TTT)."
             }
         }
 
