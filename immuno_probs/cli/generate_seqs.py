@@ -24,7 +24,7 @@ import sys
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
-from immuno_probs.data.default_models import get_default_model_file_paths
+from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
