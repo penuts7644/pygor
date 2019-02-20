@@ -99,7 +99,7 @@ immuno_probs
 │   ├── evaluate_seqs.py
 │   ├── generate_seqs.py
 │   └── locate_cdr3_anchors.py
-├── data
+├── default_models
 │   ├── human_b_heavy
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
