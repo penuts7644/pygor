@@ -202,7 +202,7 @@ class GenerateSeqs(object):
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
-                sys.exit()
+                return
 
             # Merge the generated output files together (translated).
             sequence_df = read_csv_to_dataframe(

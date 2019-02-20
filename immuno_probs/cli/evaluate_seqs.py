@@ -192,7 +192,7 @@ class EvaluateSeqs(object):
             if code != 0:
                 print("An error occurred during execution of IGoR " \
                       "command (exit code {})".format(code))
-                sys.exit()
+                return
 
             # Read in all data frame files.
             sequence_df = read_csv_to_dataframe(

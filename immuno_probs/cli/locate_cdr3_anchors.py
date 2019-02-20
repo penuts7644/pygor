@@ -19,7 +19,6 @@
 
 
 import os
-import sys
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
@@ -128,7 +127,7 @@ class LocateCdr3Anchors(object):
                 print("FASTA header needs to be separated by '|', needs to " \
                     "have gene name on index position 1 and function on " \
                     "index position 3: '{}'".format(anchors_df['gene']))
-                sys.exit()
+                return
 
             # Apply some filtering to the anchor dataframe.
             anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
