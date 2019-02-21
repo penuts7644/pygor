@@ -20,6 +20,7 @@
 import os
 from shutil import copy2
 
+from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
@@ -57,7 +58,7 @@ class BuildIgorModel(object):
         """
         # Create the description and options for the parser.
         description = "Create a VJ or VDJ model by executing IGoR commandline " \
-            "tool via a python subprocess and an initial model parameters."
+            "tool via a python subprocess and initial model parameters."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/csv>',
@@ -77,13 +78,8 @@ class BuildIgorModel(object):
                 'help': "A gene (V, D or J) followed by a reference genome " \
                         "FASTA file. Note: the FASTA reference genome files " \
                         "needs to conform to IGMT annotation (separated by " \
-                        "'|' character)."
-            },
-            '-init-model': {
-                'metavar': '<parameters>',
-                'required': 'True',
-                'type': 'str',
-                'help': "An initial IGoR model parameters txt file."
+                        "'|' character). Note that if a D reference genomic " \
+                        "file is given the output model will be VDJ, if not VJ."
             },
             '-n-iter': {
                 'type': 'int',
@@ -155,12 +151,18 @@ class BuildIgorModel(object):
 
         # Add sequence and file paths commands.
         ref_list = ['set_genomic']
+        initial_model = 'human-t-alpha'
         for i in args.ref:
             filename = preprocess_reference_file(
                 os.path.join(working_dir, 'genomic_templates'), i[1], 1)
             ref_list.append([i[0], filename])
+            if i[0] == 'D':
+                initial_model = 'human-t-beta'
         command_list.append(ref_list)
-        command_list.append(['set_custom_model', str(args.init_model)])
+
+        # Set the initial model parameters using a build-in model.
+        command_list.append(['set_custom_model', get_default_model_file_paths(
+            model_name=initial_model)['parameters']])
 
         # Add the sequence command after pre-processing of the input file.
         if args.seqs.lower().endswith('.csv'):
