@@ -18,7 +18,6 @@
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
 import os
-import sys
 from shutil import copy2
 
 from immuno_probs.model.igor_interface import IgorInterface
@@ -184,7 +183,7 @@ class BuildIgorModel(object):
         if code != 0:
             print("An error occurred during execution of IGoR " \
                   "command (exit code {})".format(code))
-            sys.exit()
+            return
 
         # Copy the output files to the output directory.
         directory, filename = self._copy_file_to_output(
