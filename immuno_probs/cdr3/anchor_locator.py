@@ -67,7 +67,7 @@ class AnchorLocator(object):
 
         Returns
         -------
-        str
+        string
             The gene character if passing the validation tests.
 
         Raises
@@ -79,7 +79,7 @@ class AnchorLocator(object):
         gene = gene.upper()
         if gene not in ["V", "J"]:
             raise GeneIdentifierException(
-                "Gene identifier needs can be either 'V' or 'J'", gene)
+                "Gene identifier can be either 'V' or 'J'", gene)
         return gene
 
     @staticmethod
