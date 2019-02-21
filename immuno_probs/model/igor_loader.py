@@ -20,7 +20,7 @@
 
 import olga.load_model as olga_load_model
 
-from immuno_probs.util.exception import ModelLoaderException
+from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException
 
 
 class IgorLoader(object):
@@ -35,8 +35,10 @@ class IgorLoader(object):
 
     Methods
     -------
-    load_anchors(model_params, v_anchors, j_anchors)
-        Load in the CDR3 V and J gene anchor files.
+    set_anchor(gene, file)
+        Set the model's CDR3 V or J gene anchor file.
+    initialize_model()
+        Initializes the model including the anchor files.
     is_vj()
         Return a boolean spcifying if the model is VJ or not.
     is_vdj()
@@ -52,6 +54,9 @@ class IgorLoader(object):
         self.type = self._check_type(model_marginals)
         self.data = self._load_params(model_params)
         self.model = self._load_model(model_marginals)
+        self.params = model_params
+        self.v_anchors = None
+        self.j_anchors = None
 
     @staticmethod
     def _check_type(model_marginals):
@@ -160,17 +165,38 @@ class IgorLoader(object):
         except Exception as err:
             raise ModelLoaderException(err)
 
-    def load_anchors(self, model_params, v_anchors, j_anchors):
-        """Function for loading the CDR3 acnhor data for the IGoR model.
+    def set_anchor(self, gene, file):
+        """Function to set the anchor file for a given gene.
 
         Parameters
         ----------
-        model_params : string
-            A file path location for the IGoR parameters model file.
-        v_anchors : string
-            File path to the file containing the CDR3 anchors for the V gene.
-        j_anchors : string
-            File path to the file containing the CDR3 anchors for the J gene.
+        gene : string
+            A gene identifier, either V or J, specifying the alignement's origin.
+        file : string
+            File path loaction for the CDR3 anchor positions for the given gene.
+
+        Returns
+        -------
+        string
+            The gene character if passing the validation tests.
+
+        Raises
+        ------
+        GeneIdentifierException
+            When gene character is not 'V' or 'J'.
+
+        """
+        gene = gene.upper()
+        if gene == "V":
+            self.v_anchors = file
+        elif gene == "J":
+            self.j_anchors = file
+        else:
+            raise GeneIdentifierException(
+                "Gene identifier can be either 'V' or 'J'", gene)
+
+    def initialize_model(self):
+        """Function for initializing the model data with anchor positions.
 
         Raises
         ------
@@ -181,19 +207,21 @@ class IgorLoader(object):
         Notes
         -----
         This function uses the model that has already been loaded in and updates
-        the existing model object.
+        the existing model object with the defined anchor files.
 
         """
+
         # Try to load the anchor files into the data model for VDJ.
         try:
-            self.data.anchor_and_curate_genV_and_genJ(v_anchors, j_anchors)
+            self.data.anchor_and_curate_genV_and_genJ(self.v_anchors, self.j_anchors)
             if self.is_vdj():
-                self.data.read_VDJ_palindrome_parameters(model_params)
+                self.data.read_VDJ_palindrome_parameters(self.params)
                 self.data.generate_cutD_genomic_CDR3_segs()
             elif self.is_vj():
-                self.data.read_igor_VJ_palindrome_parameters(model_params)
+                self.data.read_igor_VJ_palindrome_parameters(self.params)
             else:
-                raise ModelLoaderException("Model is not VJ or VDJ compliant")
+                raise ModelLoaderException("Model is not VJ or VDJ compliant, " \
+                    "make sure to set both 'V' and 'J' gene anchors")
 
             # Load the remainder of the data model
             self.data.generate_cutV_genomic_CDR3_segs()
