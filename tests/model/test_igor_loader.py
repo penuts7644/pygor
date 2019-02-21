@@ -47,5 +47,7 @@ def test_igor_loader(infiles, expected):
 
     """
     model = IgorLoader(model_params=infiles[0], model_marginals=infiles[1])
-    model.load_anchors(model_params=infiles[0], v_anchors=infiles[2], j_anchors=infiles[3])
+    model.set_anchor(gene='V', file=infiles[2])
+    model.set_anchor(gene='J', file=infiles[3])
+    model.initialize_model()
     assert isinstance(model, expected)
