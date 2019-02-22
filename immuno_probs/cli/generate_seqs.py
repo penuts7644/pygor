@@ -108,7 +108,7 @@ class GenerateSeqs(object):
             },
             '-cdr3': {
                 'action': 'store_true',
-                'help': 'If specified, CDR3 sequences are generate, else ' \
+                'help': 'If specified, CDR3 sequences are generated, else ' \
                         'V(D)J sequences.'
             },
         }
