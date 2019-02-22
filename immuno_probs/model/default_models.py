@@ -22,10 +22,10 @@ import os
 from pkg_resources import resource_filename
 
 
-def get_default_model_file_paths(model_name):
+def get_default_model_file_paths(name):
     """Returns a directory with file paths for a given model name.
 
-    model_name : str
+    name : str
         A string value representing a model name in the dictionary.
 
     Returns
@@ -39,6 +39,7 @@ def get_default_model_file_paths(model_name):
     pkg_name = __name__.split('.')[0]
     default_models = {
         'human-t-alpha': {
+            'type': 'VJ',
             'marginals': resource_filename(pkg_name, os.path.join('default_models', 'human_t_alpha', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('default_models', 'human_t_alpha', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('default_models', 'human_t_alpha', 'V_gene_CDR3_anchors.csv')),
@@ -49,6 +50,7 @@ def get_default_model_file_paths(model_name):
             },
         },
         'human-t-beta': {
+            'type': 'VDJ',
             'marginals': resource_filename(pkg_name, os.path.join('default_models', 'human_t_beta', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('default_models', 'human_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('default_models', 'human_t_beta', 'V_gene_CDR3_anchors.csv')),
@@ -60,6 +62,7 @@ def get_default_model_file_paths(model_name):
             },
         },
         'human-b-heavy': {
+            'type': 'VDJ',
             'marginals': resource_filename(pkg_name, os.path.join('default_models', 'human_b_heavy', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('default_models', 'human_b_heavy', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('default_models', 'human_b_heavy', 'V_gene_CDR3_anchors.csv')),
@@ -71,6 +74,7 @@ def get_default_model_file_paths(model_name):
             },
         },
         'mouse-t-beta': {
+            'type': 'VDJ',
             'marginals': resource_filename(pkg_name, os.path.join('default_models', 'mouse_t_beta', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('default_models', 'mouse_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('default_models', 'mouse_t_beta', 'V_gene_CDR3_anchors.csv')),
@@ -83,7 +87,7 @@ def get_default_model_file_paths(model_name):
         },
     }
     # For the species and chain return dict with file paths
-    for name, file_paths in default_models.items():
-        if name == model_name:
+    for model, file_paths in default_models.items():
+        if model == name:
             return file_paths
     return None

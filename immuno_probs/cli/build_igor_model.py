@@ -78,8 +78,14 @@ class BuildIgorModel(object):
                 'help': "A gene (V, D or J) followed by a reference genome " \
                         "FASTA file. Note: the FASTA reference genome files " \
                         "needs to conform to IGMT annotation (separated by " \
-                        "'|' character). Note that if a D reference genomic " \
-                        "file is given the output model will be VDJ, if not VJ."
+                        "'|' character)."
+            },
+            '-type': {
+                'type': 'str',
+                'choices': ['VDJ', 'VJ'],
+                'required': 'True',
+                'help': 'The type of model to create. (select one: ' \
+                        '%(choices)s).'
             },
             '-n-iter': {
                 'type': 'int',
@@ -151,18 +157,19 @@ class BuildIgorModel(object):
 
         # Add sequence and file paths commands.
         ref_list = ['set_genomic']
-        initial_model = 'human-t-alpha'
         for i in args.ref:
             filename = preprocess_reference_file(
                 os.path.join(working_dir, 'genomic_templates'), i[1], 1)
             ref_list.append([i[0], filename])
-            if i[0] == 'D':
-                initial_model = 'human-t-beta'
         command_list.append(ref_list)
 
         # Set the initial model parameters using a build-in model.
-        command_list.append(['set_custom_model', get_default_model_file_paths(
-            model_name=initial_model)['parameters']])
+        if args.type == 'VDJ':
+            command_list.append(['set_custom_model', get_default_model_file_paths(
+                name='human-t-beta')['parameters']])
+        elif args.type == 'VJ':
+            command_list.append(['set_custom_model', get_default_model_file_paths(
+                name='human-t-alpha')['parameters']])
 
         # Add the sequence command after pre-processing of the input file.
         if args.seqs.lower().endswith('.csv'):

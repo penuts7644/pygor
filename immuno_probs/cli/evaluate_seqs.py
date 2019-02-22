@@ -88,21 +88,19 @@ class EvaluateSeqs(object):
                 'type': 'str',
                 'action': 'append',
                 'nargs': 2,
-                'required': ('-type=VDJ' in sys.argv or
-                             ('-type' in sys.argv and 'VDJ' in sys.argv)
-                             and '-custom-model' in sys.argv),
+                'required': ('-cdr3' not in sys.argv and '-custom-model' in sys.argv),
                 'help': "A gene (V, D or J) followed by a reference genome " \
                         "FASTA file. Note: the FASTA reference genome files " \
                         "needs to conform to IGMT annotation (separated by " \
-                        "'|' character). (required for -type=VDJ with " \
-                        "-custom_model)"
+                        "'|' character). (required for -custom_model without " \
+                        "-cdr3)"
             },
             '-type': {
                 'type': 'str',
-                'choices': ['CDR3', 'VDJ'],
-                'required': 'True',
-                'help': 'The type of sequences to generate. (select one: ' \
-                        '%(choices)s)'
+                'choices': ['VDJ', 'VJ'],
+                'required': ('-custom-model' in sys.argv),
+                'help': 'The type of model to create. (select one: ' \
+                        '%(choices)s) (required for -custom_model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
@@ -116,13 +114,16 @@ class EvaluateSeqs(object):
                 'type': 'str',
                 'action': 'append',
                 'nargs': 2,
-                'required': ('-type=CDR3' in sys.argv or
-                             ('-type' in sys.argv and 'CDR3' in sys.argv)
-                             and '-custom-model' in sys.argv),
+                'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
                 'help': 'A gene (V or J) followed by a CDR3 anchor CSV file. ' \
                         'Note: need to contain gene in the firts column, ' \
                         'anchor index in the second and gene function in the ' \
-                        'third (required for -type=CDR3 and -custom_model).'
+                        'third (required for -cdr3 and -custom_model).'
+            },
+            '-cdr3': {
+                'action': 'store_true',
+                'help': 'If specified, CDR3 sequences should be evaluated, ' \
+                        'else expecting V(D)J input sequences.'
             },
         }
 
@@ -145,7 +146,7 @@ class EvaluateSeqs(object):
 
         """
         # If the given type of sequences evaluation is VDJ, use IGoR.
-        if args.type == 'VDJ':
+        if not args.cdr3:
 
             # Add general IGoR commands.
             command_list = []
@@ -155,7 +156,7 @@ class EvaluateSeqs(object):
 
             # Add the model (build-in or custom) command depending on given.
             if args.model:
-                files = get_default_model_file_paths(model_name=args.model)
+                files = get_default_model_file_paths(name=args.model)
                 command_list.append(['set_custom_model', files['parameters'],
                                      files['marginals']])
                 ref_list = ['set_genomic']
@@ -216,7 +217,7 @@ class EvaluateSeqs(object):
                 filename, directory))
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
-        elif args.type == 'CDR3':
+        elif args.cdr3:
 
             # Create the directory for the output files.
             working_dir = os.path.join(get_working_dir(), 'output')
@@ -225,13 +226,15 @@ class EvaluateSeqs(object):
 
             # Load the model and create the sequence evaluator.
             if args.model:
-                files = get_default_model_file_paths(model_name=args.model)
-                model = IgorLoader(model_params=files['parameters'],
+                files = get_default_model_file_paths(name=args.model)
+                model = IgorLoader(model_type=files['type'],
+                                   model_params=files['parameters'],
                                    model_marginals=files['marginals'])
                 model.set_anchor(gene='V', file=files['v_anchors'])
                 model.set_anchor(gene='J', file=files['j_anchors'])
             elif args.custom_model:
-                model = IgorLoader(model_params=args.custom_model[0],
+                model = IgorLoader(model_type=args.type,
+                                   model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
                 for gene in args.anchor:
                     anchor_file = preprocess_input_file(
