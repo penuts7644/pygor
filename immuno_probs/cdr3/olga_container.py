@@ -70,11 +70,11 @@ class OlgaContainer(object):
             columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v',
                      'gene_choice_j'])
         seq_gen_model = None
-        if self.igor_model.is_vdj():
+        if self.igor_model.get_type() == "VDJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
-        elif self.igor_model.is_vj():
+        elif self.igor_model.get_type() == "VJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVJ(
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
@@ -166,11 +166,11 @@ class OlgaContainer(object):
         """
         # Set the evaluation objects.
         pgen_model = None
-        if self.igor_model.is_vdj():
+        if self.igor_model.get_type() == "VDJ":
             pgen_model = olga_pgen.GenerationProbabilityVDJ(
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
-        elif self.igor_model.is_vj():
+        elif self.igor_model.get_type() == "VJ":
             pgen_model = olga_pgen.GenerationProbabilityVJ(
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())

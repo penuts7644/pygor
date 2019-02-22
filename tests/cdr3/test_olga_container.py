@@ -55,8 +55,10 @@ def test_olga_container(option, expected):
     marginals = 'tests/data/human_T_alpha/model_marginals.txt'
     v_anchors = 'tests/data/human_T_alpha/V_gene_CDR3_anchors.csv'
     j_anchors = 'tests/data/human_T_alpha/J_gene_CDR3_anchors.csv'
-    model = IgorLoader(model_params=params, model_marginals=marginals)
-    model.load_anchors(model_params=params, v_anchors=v_anchors, j_anchors=j_anchors)
+    model = IgorLoader(model_type='VJ', model_params=params, model_marginals=marginals)
+    model.set_anchor(gene='V', file=v_anchors)
+    model.set_anchor(gene='J', file=j_anchors)
+    model.initialize_model()
     olga_container = OlgaContainer(igor_model=model)
     if option == 'generate':
         result = olga_container.generate(num_seqs=1)

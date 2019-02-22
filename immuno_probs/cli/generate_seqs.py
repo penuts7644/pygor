@@ -76,22 +76,21 @@ class GenerateSeqs(object):
             },
             '-type': {
                 'type': 'str',
-                'choices': ['CDR3', 'VDJ'],
-                'required': 'True',
-                'help': 'The type of sequences to generate. (select one: ' \
-                        '%(choices)s)'
+                'choices': ['VDJ', 'VJ'],
+                'required': ('-custom-model' in sys.argv),
+                'help': 'The type of model to create. (select one: ' \
+                        '%(choices)s) (required for -custom_model).'
             },
-            '-anchors': {
-                'metavar': ('<v_gene>', '<j_gene>'),
+            '-anchor': {
+                'metavar': ('<gene>', '<csv>'),
                 'type': 'str',
+                'action': 'append',
                 'nargs': 2,
-                'required': ('-type=CDR3' in sys.argv or
-                             ('-type' in sys.argv and 'CDR3' in sys.argv)
-                             and '-custom-model' in sys.argv),
-                'help': 'The V and J gene CDR3 anchor files. Note: need to ' \
-                        'contain gene in the firts column, anchor index in ' \
-                        'the second and gene function in the third (required ' \
-                        'for -type=CDR3 and -custom_model).'
+                'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
+                'help': 'A gene (V or J) followed by a CDR3 anchor CSV file. ' \
+                        'Note: need to contain gene in the firts column, ' \
+                        'anchor index in the second and gene function in the ' \
+                        'third (required for -cdr3 and -custom_model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
@@ -106,6 +105,11 @@ class GenerateSeqs(object):
                 'default': 1,
                 'help': 'The number of sequences to generate. (default: ' \
                         '%(default)s)'
+            },
+            '-cdr3': {
+                'action': 'store_true',
+                'help': 'If specified, CDR3 sequences are generated, else ' \
+                        'V(D)J sequences.'
             },
         }
 
@@ -135,7 +139,7 @@ class GenerateSeqs(object):
 
         """
         # If the suplied model is VDJ, locate important columns and update index values.
-        if model.is_vdj():
+        if model.get_type() == "VDJ":
             real_df = pandas.concat([data[['seq_index']],
                                      data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*")),
@@ -151,7 +155,7 @@ class GenerateSeqs(object):
                 real_df.ix[i, 'gene_choice_d'] = d_gene_names[int(row['gene_choice_d'].strip('()'))]
 
         # Or do the same if the model is VJ.
-        elif model.is_vj():
+        elif model.get_type() == "VJ":
             real_df = pandas.concat([data[['seq_index']],
                                      data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
@@ -175,8 +179,8 @@ class GenerateSeqs(object):
             A directory path for writing output files to.
 
         """
-        # If the given type of sequences generation is VDJ, use IGoR.
-        if args.type == 'VDJ':
+        # If the given type of sequences generation is not CDR3, use IGoR.
+        if not args.cdr3:
 
             # Add general igor commands.
             command_list = []
@@ -186,7 +190,7 @@ class GenerateSeqs(object):
 
             # Add the model (build-in or custom) command.
             if args.model:
-                files = get_default_model_file_paths(model_name=args.model)
+                files = get_default_model_file_paths(name=args.model)
                 command_list.append(['set_custom_model', files['parameters'],
                                      files['marginals']])
             elif args.custom_model:
@@ -212,11 +216,13 @@ class GenerateSeqs(object):
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';')
             if args.model:
-                files = get_default_model_file_paths(model_name=args.model)
-                model = IgorLoader(model_params=files['parameters'],
+                files = get_default_model_file_paths(name=args.model)
+                model = IgorLoader(model_type=files['type'],
+                                   model_params=files['parameters'],
                                    model_marginals=files['marginals'])
             elif args.custom_model:
-                model = IgorLoader(model_params=args.custom_model[0],
+                model = IgorLoader(model_type=args.type,
+                                   model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
@@ -232,31 +238,29 @@ class GenerateSeqs(object):
                 filename, directory))
 
         # If the given type of sequences generation is CDR3, use OLGA.
-        elif args.type == 'CDR3':
+        elif args.cdr3:
 
             # Get the working directory.
             working_dir = get_working_dir()
 
             # Load the model, create the sequence generator and generate the sequences.
             if args.model:
-                files = get_default_model_file_paths(model_name=args.model)
-                model = IgorLoader(model_params=files['parameters'],
+                files = get_default_model_file_paths(name=args.model)
+                model = IgorLoader(model_type=files['type'],
+                                   model_params=files['parameters'],
                                    model_marginals=files['marginals'])
-                model.load_anchors(model_params=files['parameters'],
-                                   v_anchors=files['v_anchors'],
-                                   j_anchors=files['j_anchors'])
+                model.set_anchor(gene='V', file=files['v_anchors'])
+                model.set_anchor(gene='J', file=files['j_anchors'])
             elif args.custom_model:
-                model = IgorLoader(model_params=args.custom_model[0],
+                model = IgorLoader(model_type=args.type,
+                                   model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
-                v_anchors = preprocess_input_file(
-                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[0]),
-                    get_separator(), ',')
-                j_anchors = preprocess_input_file(
-                    os.path.join(working_dir, 'cdr3_anchors'), str(args.anchors[1]),
-                    get_separator(), ',')
-                model.load_anchors(model_params=args.custom_model[0],
-                                   v_anchors=v_anchors,
-                                   j_anchors=j_anchors)
+                for gene in args.anchor:
+                    anchor_file = preprocess_input_file(
+                        os.path.join(working_dir, 'cdr3_anchors'), str(gene[1]),
+                        get_separator(), ',')
+                    model.set_anchor(gene=gene[0], file=anchor_file)
+            model.initialize_model()
             seq_generator = OlgaContainer(igor_model=model)
             cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
 
