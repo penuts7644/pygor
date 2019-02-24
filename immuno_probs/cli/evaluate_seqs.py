@@ -27,6 +27,7 @@ from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
+from immuno_probs.tutorial.tutorial_data import get_tutorial_file_params
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
 from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
@@ -76,8 +77,8 @@ class EvaluateSeqs(object):
             },
             '-model': {
                 'type': 'str',
-                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
-                            'mouse-t-beta'],
+                'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
+                            'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for evaluation. " \
                         "(required if --custom-model not specified) " \
