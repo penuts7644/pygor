@@ -27,7 +27,6 @@ from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
-from immuno_probs.tutorial.tutorial_data import get_tutorial_file_params
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
 from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
@@ -164,6 +163,8 @@ class EvaluateSeqs(object):
                 for gene, filename in files['reference'].items():
                     ref_list.append([gene, filename])
                 command_list.append(ref_list)
+                if args.model == 'tutorial-model':
+                    args.seqs = files['seqs']
             elif args.custom_model:
                 command_list.append(['set_custom_model', str(args.custom_model[0]),
                                      str(args.custom_model[1])])
@@ -233,6 +234,8 @@ class EvaluateSeqs(object):
                                    model_marginals=files['marginals'])
                 model.set_anchor(gene='V', file=files['v_anchors'])
                 model.set_anchor(gene='J', file=files['j_anchors'])
+                if args.model == 'tutorial-model':
+                    args.seqs = files['cdr3']
             elif args.custom_model:
                 model = IgorLoader(model_type=args.type,
                                    model_params=args.custom_model[0],
