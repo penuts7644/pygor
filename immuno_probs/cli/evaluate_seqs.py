@@ -76,8 +76,8 @@ class EvaluateSeqs(object):
             },
             '-model': {
                 'type': 'str',
-                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
-                            'mouse-t-beta'],
+                'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
+                            'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for evaluation. " \
                         "(required if --custom-model not specified) " \
@@ -163,6 +163,8 @@ class EvaluateSeqs(object):
                 for gene, filename in files['reference'].items():
                     ref_list.append([gene, filename])
                 command_list.append(ref_list)
+                if args.model == 'tutorial-model':
+                    args.seqs = files['seqs']
             elif args.custom_model:
                 command_list.append(['set_custom_model', str(args.custom_model[0]),
                                      str(args.custom_model[1])])
@@ -232,6 +234,8 @@ class EvaluateSeqs(object):
                                    model_marginals=files['marginals'])
                 model.set_anchor(gene='V', file=files['v_anchors'])
                 model.set_anchor(gene='J', file=files['j_anchors'])
+                if args.model == 'tutorial-model':
+                    args.seqs = files['cdr3']
             elif args.custom_model:
                 model = IgorLoader(model_type=args.type,
                                    model_params=args.custom_model[0],

@@ -67,8 +67,8 @@ class GenerateSeqs(object):
         parser_options = {
             '-model': {
                 'type': 'str',
-                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
-                            'mouse-t-beta'],
+                'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
+                            'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for generation. " \
                         "(required if --custom-model not specified) " \
