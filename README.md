@@ -5,8 +5,7 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 [![PyPI license](https://img.shields.io/pypi/l/immuno-probs.svg?longCache=true&style=for-the-badge)](https://pypi.python.org/pypi/immuno-probs/)
 
-ImmunoProbs Python package able to calculate the generation probability of V(D)J and CDR3 sequences.
-
+Create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences.
 
 For **installation**, **use cases** and a **tutorial**, please have a look at the [ImmunoProbs wiki page](https://github.com/penuts7644/ImmunoProbs/wiki).
 
