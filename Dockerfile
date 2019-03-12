@@ -28,5 +28,6 @@ RUN ./configure CC=gcc-7 CXX=g++-7 \
 
 # Specify default setting  to be the ImmunoProbs docker image execution.
 WORKDIR /tmp/
-ENTRYPOINT ["immuno-probs"]
-CMD ["-h"]
+COPY ./docker_entrypoint.sh /
+ENTRYPOINT ["/docker_entrypoint.sh"]
+CMD ["immuno-probs"]

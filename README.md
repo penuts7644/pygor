@@ -41,7 +41,7 @@ immuno_probs
 │   ├── evaluate_seqs.py
 │   ├── generate_seqs.py
 │   └── locate_cdr3_anchors.py
-├── default_models
+├── data
 │   ├── human_b_heavy
 │   │   ├── J_gene_CDR3_anchors.csv
 │   │   ├── V_gene_CDR3_anchors.csv
@@ -65,14 +65,17 @@ immuno_probs
 │   │   ├── genomic_V.fasta
 │   │   ├── model_marginals.txt
 │   │   └── model_params.txt
-│   └── mouse_t_beta
-│       ├── J_gene_CDR3_anchors.csv
-│       ├── V_gene_CDR3_anchors.csv
-│       ├── genomic_D.fasta
-│       ├── genomic_J.fasta
-│       ├── genomic_V.fasta
-│       ├── model_marginals.txt
-│       └── model_params.txt
+│   ├── mouse_t_beta
+│   │   ├── J_gene_CDR3_anchors.csv
+│   │   ├── V_gene_CDR3_anchors.csv
+│   │   ├── genomic_D.fasta
+│   │   ├── genomic_J.fasta
+│   │   ├── genomic_V.fasta
+│   │   ├── model_marginals.txt
+│   │   └── model_params.txt
+│   └── tutorial_model
+│       ├── CDR3_sequences.csv
+│       └── VDJ_sequences.csv
 ├── model
 │   ├── __init__.py
 │   ├── default_models.py

@@ -231,7 +231,7 @@ class GenerateSeqs(object):
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=vdj_seqs_df,
-                filename='generated_VDJ_seqs',
+                filename='generated_{}_seqs'.format(args.type),
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
