@@ -61,8 +61,8 @@ class EvaluateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "Evaluate VJ or VDJ sequences given a custom IGoR " \
-            "model (or build-in) through IGoR commandline tool via python " \
+        description = "Evaluate VDJ or VJ sequences given a custom IGoR " \
+            "model (or build-in) through IGoR's commandline tool via python " \
             "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {

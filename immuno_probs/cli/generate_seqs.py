@@ -61,8 +61,8 @@ class GenerateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "Generate VJ or VDJ sequences given a custom IGoR " \
-            "model (or build-in) by executing IGoR commandline tool via " \
+        description = "Generate VDJ or VJ sequences given a custom IGoR " \
+            "model (or build-in) by executing IGoR's commandline tool via " \
             "python subprocess. Or generate CDR3 sequences by using the OLGA."
         parser_options = {
             '-model': {

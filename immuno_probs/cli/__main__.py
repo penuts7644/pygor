@@ -34,8 +34,8 @@ from immuno_probs.util.io import create_directory_path
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
     # Create the parser with general commands and set the subparser.
-    description = 'ImmunoProbs Python package able to calculate the ' \
-        'generation probability of V(D)J and CDR3 sequences.'
+    description = 'Create IGoR models and calculate the generation ' \
+        'probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '-separator': {
             'type': 'str',

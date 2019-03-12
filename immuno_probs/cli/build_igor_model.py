@@ -57,8 +57,9 @@ class BuildIgorModel(object):
 
         """
         # Create the description and options for the parser.
-        description = "Create a VJ or VDJ model by executing IGoR commandline " \
-            "tool via a python subprocess and initial model parameters."
+        description = "Create a VDJ or VJ model by executing IGoR's " \
+            "commandline tool via a python subprocess and initial model " \
+            "parameters."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/csv>',
