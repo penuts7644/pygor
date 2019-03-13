@@ -46,7 +46,7 @@ def test_igor_loader(infiles, expected):
         If the performed test failed.
 
     """
-    model = IgorLoader(model_type='VJ', model_params=infiles[0], model_marginals=infiles[1])
+    model = IgorLoader(model_type='alpha', model_params=infiles[0], model_marginals=infiles[1])
     model.set_anchor(gene='V', file=infiles[2])
     model.set_anchor(gene='J', file=infiles[3])
     model.initialize_model()
