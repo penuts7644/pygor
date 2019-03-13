@@ -76,7 +76,7 @@ class GenerateSeqs(object):
             },
             '-type': {
                 'type': 'str',
-                'choices': ['VDJ', 'VJ'],
+                'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \
                         '%(choices)s) (required for -custom_model).'
@@ -109,7 +109,7 @@ class GenerateSeqs(object):
             '-cdr3': {
                 'action': 'store_true',
                 'help': 'If specified, CDR3 sequences are generated, else ' \
-                        'V(D)J sequences.'
+                        'V(D)J full length sequences.'
             },
         }
 
@@ -217,21 +217,23 @@ class GenerateSeqs(object):
                 separator=';')
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
-                model = IgorLoader(model_type=files['type'],
+                model_type = files['type']
+                model = IgorLoader(model_type=model_type,
                                    model_params=files['parameters'],
                                    model_marginals=files['marginals'])
             elif args.custom_model:
-                model = IgorLoader(model_type=args.type,
+                model_type = args.type
+                model = IgorLoader(model_type=model_type,
                                    model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
-            vdj_seqs_df = sequence_df.merge(realizations_df, on='seq_index')
+            full_seqs_df = sequence_df.merge(realizations_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
-                dataframe=vdj_seqs_df,
-                filename='generated_{}_seqs'.format(args.type),
+                dataframe=full_seqs_df,
+                filename='generated_seqs_{}'.format(model_type),
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
@@ -246,13 +248,15 @@ class GenerateSeqs(object):
             # Load the model, create the sequence generator and generate the sequences.
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
-                model = IgorLoader(model_type=files['type'],
+                model_type = files['type']
+                model = IgorLoader(model_type=model_type,
                                    model_params=files['parameters'],
                                    model_marginals=files['marginals'])
                 model.set_anchor(gene='V', file=files['v_anchors'])
                 model.set_anchor(gene='J', file=files['j_anchors'])
             elif args.custom_model:
-                model = IgorLoader(model_type=args.type,
+                model_type = args.type
+                model = IgorLoader(model_type=model_type,
                                    model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
                 for gene in args.anchor:
@@ -267,7 +271,7 @@ class GenerateSeqs(object):
             # Write the pandas dataframe to a CSV file.
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_seqs_df,
-                filename='generated_CDR3_seqs',
+                filename='generated_seqs_{}_CDR3'.format(model_type),
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(

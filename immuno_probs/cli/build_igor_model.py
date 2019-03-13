@@ -83,7 +83,7 @@ class BuildIgorModel(object):
             },
             '-type': {
                 'type': 'str',
-                'choices': ['VDJ', 'VJ'],
+                'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': 'True',
                 'help': 'The type of model to create. (select one: ' \
                         '%(choices)s).'
@@ -165,10 +165,10 @@ class BuildIgorModel(object):
         command_list.append(ref_list)
 
         # Set the initial model parameters using a build-in model.
-        if args.type == 'VDJ':
+        if args.type in ['beta', 'heavy']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-beta')['parameters']])
-        elif args.type == 'VJ':
+        elif args.type in ['alpha', 'light']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-alpha')['parameters']])
 
