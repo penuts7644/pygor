@@ -28,6 +28,7 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
 from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file
 
@@ -212,6 +213,8 @@ class GenerateSeqs(object):
             sequence_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';')
+            for i, row in sequence_df.iterrows():
+                sequence_df.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(row['nt_sequence'])
             realizations_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';')
