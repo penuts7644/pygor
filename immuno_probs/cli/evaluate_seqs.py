@@ -200,10 +200,12 @@ class EvaluateSeqs(object):
                       "command (exit code {})".format(code))
                 return
 
-            # Read in all data frame files.
-            sequence_df = read_csv_to_dataframe(
-                file=args.seqs,
-                separator=get_separator())
+            # Read in all data frame files, based on input file type.
+            if args.seqs.lower().endswith('.csv'):
+                sequence_df = read_csv_to_dataframe(file=args.seqs,
+                                                    separator=get_separator())
+            elif args.seqs.lower().endswith('.fasta'):
+                sequence_df = read_fasta_as_dataframe(file=args.seqs)
             full_pgen_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                 separator=';')
