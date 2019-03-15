@@ -27,7 +27,7 @@ from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_seqs import GenerateSeqs
 from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir, get_working_dir
+from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir, get_working_dir, set_output_name
 from immuno_probs.util.io import create_directory_path
 
 
@@ -55,6 +55,13 @@ def main():
             'help': 'An optional location for writing files. (default: ' \
                     'the current working directory).'
         },
+        '-out-name': {
+            'type': 'str',
+            'nargs': '?',
+            'help': 'An optional output file name. If multiple files are ' \
+                    'created, the value is used as a prefix for the file. ' \
+                    '(default: none).'
+        },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
                                      description=description)
@@ -77,6 +84,8 @@ def main():
         set_num_threads(parsed_arguments.threads)
     if parsed_arguments.set_wd is not None:
         set_working_dir(parsed_arguments.set_wd)
+    if parsed_arguments.out_name is not None:
+        set_output_name(parsed_arguments.out_name)
 
     # Create the directory paths for temporary files.
     working_dir = get_working_dir()

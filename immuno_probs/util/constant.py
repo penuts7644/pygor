@@ -28,6 +28,7 @@ from immuno_probs.util.exception import SeparatorNotValidException, NumThreadsVa
 NUM_THREADS = ph.cpu_count()
 SEPARATOR = ','
 WORKING_DIR = os.getcwd()
+OUTPUT_NAME = ''
 
 
 def set_num_threads(value):
@@ -129,3 +130,27 @@ def get_working_dir():
 
     """
     return WORKING_DIR
+
+def set_output_name(value):
+    """Updates the global OUTPUT_NAME variable.
+
+    Parameters
+    ----------
+    value : str
+        The output file name string to use when writing output files or when
+        prefixing output files. (default: none).
+
+    """
+    updated_str = ''.join(char for char in value if char.isalnum())
+    globals().update(OUTPUT_NAME=updated_str)
+
+def get_output_name():
+    """Returns the global OUTPUT_NAME variable.
+
+    Returns
+    -------
+    str
+        The globally set output file name value.
+
+    """
+    return OUTPUT_NAME
