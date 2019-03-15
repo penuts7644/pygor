@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

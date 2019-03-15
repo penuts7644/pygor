@@ -26,7 +26,15 @@ RUN ./configure CC=gcc-7 CXX=g++-7 \
     && make \
     && make install
 
+# Copy and unpack the tutorial data files.
+WORKDIR /
+COPY tutorial_data.zip /
+RUN mkdir -p /tutorial_data \
+    && unzip tutorial_data.zip -d /tutorial_data \
+    && rm tutorial_data.zip
+
 # Specify default setting  to be the ImmunoProbs docker image execution.
 WORKDIR /tmp/
-ENTRYPOINT ["immuno-probs"]
-CMD ["-h"]
+COPY docker_entrypoint.sh /usr/src
+ENTRYPOINT ["/usr/src/docker_entrypoint.sh"]
+CMD ["immuno-probs"]

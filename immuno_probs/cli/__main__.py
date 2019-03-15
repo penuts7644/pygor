@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,15 +27,15 @@ from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_seqs import GenerateSeqs
 from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir, get_working_dir
+from immuno_probs.util.constant import set_num_threads, set_separator, set_working_dir, get_working_dir, set_output_name
 from immuno_probs.util.io import create_directory_path
 
 
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
     # Create the parser with general commands and set the subparser.
-    description = 'ImmunoProbs Python package able to calculate the ' \
-        'generation probability of V(D)J and CDR3 sequences.'
+    description = 'Create IGoR models and calculate the generation ' \
+        'probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '-separator': {
             'type': 'str',
@@ -54,6 +54,13 @@ def main():
             'nargs': '?',
             'help': 'An optional location for writing files. (default: ' \
                     'the current working directory).'
+        },
+        '-out-name': {
+            'type': 'str',
+            'nargs': '?',
+            'help': 'An optional output file name. If multiple files are ' \
+                    'created, the value is used as a prefix for the file. ' \
+                    '(default: none).'
         },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
@@ -77,6 +84,8 @@ def main():
         set_num_threads(parsed_arguments.threads)
     if parsed_arguments.set_wd is not None:
         set_working_dir(parsed_arguments.set_wd)
+    if parsed_arguments.out_name is not None:
+        set_output_name(parsed_arguments.out_name)
 
     # Create the directory paths for temporary files.
     working_dir = get_working_dir()

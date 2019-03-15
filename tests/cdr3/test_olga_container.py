@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ def test_olga_container(option, expected):
     marginals = 'tests/data/human_T_alpha/model_marginals.txt'
     v_anchors = 'tests/data/human_T_alpha/V_gene_CDR3_anchors.csv'
     j_anchors = 'tests/data/human_T_alpha/J_gene_CDR3_anchors.csv'
-    model = IgorLoader(model_type='VJ', model_params=params, model_marginals=marginals)
+    model = IgorLoader(model_type='alpha', model_params=params, model_marginals=marginals)
     model.set_anchor(gene='V', file=v_anchors)
     model.set_anchor(gene='J', file=j_anchors)
     model.initialize_model()

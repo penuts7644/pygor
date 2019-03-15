@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -112,33 +112,34 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number - 'seq_index' and the
-            generation probability of the sequence - 'nt_pgen_estimate'.
+            Containing columns sequence index number - 'seq_index', the
+            generation probability of nucleotide sequence if
+            given - 'nt_pgen_estimate' and the generation probability of
+            aminoacid sequence if given - 'aa_pgen_estimate'.
 
         """
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        nt_column = kwargs["nt_column"]
-        pgen_seqs = pandas.DataFrame(columns=['seq_index', 'nt_pgen_estimate'])
+        pgen_seqs = pandas.DataFrame(ary['seq_index'], columns=['seq_index'])
 
         # Evaluate the sequences, add them to the dataframe and return.
-        for _, row in ary.iterrows():
-            if set(['gene_choice_v', 'gene_choice_j']).issubset(ary.columns):
-                seq_nt_pgen = model.compute_nt_CDR3_pgen(
-                    row[nt_column], row['gene_choice_v'], row['gene_choice_j'])
-                seq_aa_pgen = model.compute_aa_CDR3_pgen(
-                    nucleotides_to_aminoacids(row[nt_column]),
-                    row['gene_choice_v'], row['gene_choice_j'])
-            else:
-                seq_nt_pgen = model.compute_nt_CDR3_pgen(row[nt_column])
-                seq_aa_pgen = model.compute_aa_CDR3_pgen(
-                    nucleotides_to_aminoacids(row[nt_column]))
-            pgen_seqs = pgen_seqs.append({
-                'seq_index': row['seq_index'],
-                'nt_pgen_estimate': seq_nt_pgen,
-                'aa_pgen_estimate': seq_aa_pgen,
-            }, ignore_index=True)
+        if set(['gene_choice_v', 'gene_choice_j']).issubset(ary.columns):
+            for i, row in ary.iterrows():
+                if 'nt_sequence' in ary.columns:
+                    pgen_seqs.loc[i, 'nt_pgen_estimate'] = model.compute_nt_CDR3_pgen(
+                        row['nt_sequence'], row['gene_choice_v'], row['gene_choice_j'])
+                if 'aa_sequence' in ary.columns:
+                    pgen_seqs.loc[i, 'aa_pgen_estimate'] = model.compute_aa_CDR3_pgen(
+                        row['aa_sequence'], row['gene_choice_v'], row['gene_choice_j'])
+        else:
+            for i, row in ary.iterrows():
+                if 'nt_sequence' in ary.columns:
+                    pgen_seqs.loc[i, 'nt_pgen_estimate'] = model.compute_nt_CDR3_pgen(
+                        row['nt_sequence'])
+                if 'aa_sequence' in ary.columns:
+                    pgen_seqs.loc[i, 'aa_pgen_estimate'] = model.compute_aa_CDR3_pgen(
+                        row['aa_sequence'])
         return pgen_seqs
 
     def evaluate(self, seqs):
@@ -148,13 +149,15 @@ class OlgaContainer(object):
         ----------
         seqs : pandas.DataFrame
             A pandas dataframe object containing column with nucleotide CDR3
-            sequences - 'nt_sequence'.
+            sequences - 'nt_sequence' and/or amino acid sequences - 'aa_sequence'.
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number - 'seq_index' and the
-            generation probability of the sequence - 'nt_pgen_estimate'.
+            Containing columns sequence index number - 'seq_index', the
+            generation probability of nucleotide sequence if
+            given - 'nt_pgen_estimate' and the generation probability of
+            aminoacid sequence if given - 'aa_pgen_estimate'.
 
         Notes
         -----
@@ -177,12 +180,20 @@ class OlgaContainer(object):
         else:
             raise OlgaException("OLGA could not create a GenerationProbability object")
 
+        # Insert amino acid sequence column if not existent.
+        if 'nt_sequence' in seqs.columns and not 'aa_sequence' in seqs.columns:
+            seqs.insert(
+                seqs.columns.get_loc('nt_sequence') + 1,
+                'aa_sequence', '')
+            for i, row in seqs.iterrows():
+                seqs.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(
+                    row['nt_sequence'])
+
         # Use multiprocessing to evaluate the sequences in chunks and return.
         result = multiprocess_array(ary=seqs,
                                     func=self._evaluate,
                                     num_workers=get_num_threads(),
-                                    model=pgen_model,
-                                    nt_column='nt_sequence')
+                                    model=pgen_model)
         result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)
         result.reset_index(inplace=True, drop=True)

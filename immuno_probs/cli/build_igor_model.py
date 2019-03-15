@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from shutil import copy2
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import preprocess_input_file, preprocess_reference_file
 
 
@@ -57,8 +57,9 @@ class BuildIgorModel(object):
 
         """
         # Create the description and options for the parser.
-        description = "Create a VJ or VDJ model by executing IGoR commandline " \
-            "tool via a python subprocess and initial model parameters."
+        description = "Create a VDJ or VJ model by executing IGoR's " \
+            "commandline tool via a python subprocess and initial model " \
+            "parameters."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/csv>',
@@ -82,7 +83,7 @@ class BuildIgorModel(object):
             },
             '-type': {
                 'type': 'str',
-                'choices': ['VDJ', 'VJ'],
+                'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': 'True',
                 'help': 'The type of model to create. (select one: ' \
                         '%(choices)s).'
@@ -164,10 +165,10 @@ class BuildIgorModel(object):
         command_list.append(ref_list)
 
         # Set the initial model parameters using a build-in model.
-        if args.type == 'VDJ':
+        if args.type in ['beta', 'heavy']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-beta')['parameters']])
-        elif args.type == 'VJ':
+        elif args.type in ['alpha', 'light']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-alpha')['parameters']])
 
@@ -194,17 +195,19 @@ class BuildIgorModel(object):
                   "command (exit code {})".format(code))
             return
 
-        # Copy the output files to the output directory.
+        # Copy the output files to the output directory with prefix.
+        output_prefix = get_output_name()
+        if not output_prefix:
+            output_prefix = 'model'
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-            filename='model_marginals',
+            filename='{}_marginals'.format(output_prefix),
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))
-
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
-            filename='model_params',
+            filename='{}_params'.format(output_prefix),
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))

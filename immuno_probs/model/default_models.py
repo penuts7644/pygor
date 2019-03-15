@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ def get_default_model_file_paths(name):
     pkg_name = __name__.split('.')[0]
     default_models = {
         'tutorial-model': {
-            'type': 'VDJ',
+            'type': 'beta',
             'marginals': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.csv')),
@@ -53,7 +53,7 @@ def get_default_model_file_paths(name):
             'cdr3': resource_filename(pkg_name, os.path.join('data', 'tutorial_model', 'CDR3_sequences.csv')),
         },
         'human-t-alpha': {
-            'type': 'VJ',
+            'type': 'alpha',
             'marginals': resource_filename(pkg_name, os.path.join('data', 'human_t_alpha', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('data', 'human_t_alpha', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('data', 'human_t_alpha', 'V_gene_CDR3_anchors.csv')),
@@ -64,7 +64,7 @@ def get_default_model_file_paths(name):
             },
         },
         'human-t-beta': {
-            'type': 'VDJ',
+            'type': 'beta',
             'marginals': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.csv')),
@@ -76,7 +76,7 @@ def get_default_model_file_paths(name):
             },
         },
         'human-b-heavy': {
-            'type': 'VDJ',
+            'type': 'heavy',
             'marginals': resource_filename(pkg_name, os.path.join('data', 'human_b_heavy', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('data', 'human_b_heavy', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('data', 'human_b_heavy', 'V_gene_CDR3_anchors.csv')),
@@ -88,7 +88,7 @@ def get_default_model_file_paths(name):
             },
         },
         'mouse-t-beta': {
-            'type': 'VDJ',
+            'type': 'beta',
             'marginals': resource_filename(pkg_name, os.path.join('data', 'mouse_t_beta', 'model_marginals.txt')),
             'parameters': resource_filename(pkg_name, os.path.join('data', 'mouse_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(pkg_name, os.path.join('data', 'mouse_t_beta', 'V_gene_CDR3_anchors.csv')),

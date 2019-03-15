@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,14 +65,14 @@ class IgorLoader(object):
         Parameters
         ----------
         model_type : string
-            The type of the input model, VJ or VDJ.
+            The type of the input model: alpha, beta, light or heavy.
         model_marginals : string
             A file path location for the IGoR marginals model file.
 
         Returns
         -------
         string
-            Specifying if the model is 'VDJ' or 'VJ' compliant.
+            Specifying if the model type is 'VJ' or 'VDJ' compliant.
 
         """
         # Parse the marginals file and search for VDJ classifiers.
@@ -87,11 +87,11 @@ class IgorLoader(object):
                     d_gene = True
                 elif line == '@j_choice\n':
                     j_choice = True
-        if (v_choice and d_gene and j_choice) and model_type == 'VDJ':
-            return model_type
-        if (v_choice and j_choice and not d_gene) and model_type == 'VJ':
-            return model_type
-        raise ModelLoaderException("Model type is not compliant to the given " \
+        if (v_choice and d_gene and j_choice) and (model_type in ['beta', 'heavy']):
+            return 'VDJ'
+        if (v_choice and j_choice and not d_gene) and (model_type in ['alpha', 'light']):
+            return 'VJ'
+        raise ModelLoaderException("Model is not compliant to the given " \
             "type: '{}''".format(model_type))
 
     def _load_params(self, model_params):

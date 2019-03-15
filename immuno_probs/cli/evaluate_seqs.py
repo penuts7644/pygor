@@ -1,5 +1,5 @@
-# ImmunoProbs Python package able to calculate the generation probability of
-# V(D)J and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
+# Create IGoR models and calculate the generation probability of V(D)J and
+# CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.conversion import nucleotides_to_aminoacids
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
 
@@ -61,8 +62,8 @@ class EvaluateSeqs(object):
 
         """
         # Create the description and options for the parser.
-        description = "Evaluate VJ or VDJ sequences given a custom IGoR " \
-            "model (or build-in) through IGoR commandline tool via python " \
+        description = "Evaluate VDJ or VJ sequences given a custom IGoR " \
+            "model (or build-in) through IGoR's commandline tool via python " \
             "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {
@@ -97,7 +98,7 @@ class EvaluateSeqs(object):
             },
             '-type': {
                 'type': 'str',
-                'choices': ['VDJ', 'VJ'],
+                'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \
                         '%(choices)s) (required for -custom_model).'
@@ -157,6 +158,7 @@ class EvaluateSeqs(object):
             # Add the model (build-in or custom) command depending on given.
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
+                model_type = files['type']
                 command_list.append(['set_custom_model', files['parameters'],
                                      files['marginals']])
                 ref_list = ['set_genomic']
@@ -166,6 +168,7 @@ class EvaluateSeqs(object):
                 if args.model == 'tutorial-model':
                     args.seqs = files['seqs']
             elif args.custom_model:
+                model_type = args.type
                 command_list.append(['set_custom_model', str(args.custom_model[0]),
                                      str(args.custom_model[1])])
                 ref_list = ['set_genomic']
@@ -198,21 +201,34 @@ class EvaluateSeqs(object):
                       "command (exit code {})".format(code))
                 return
 
-            # Read in all data frame files.
-            sequence_df = read_csv_to_dataframe(
-                file=args.seqs,
-                separator=get_separator())
-            vdj_pgen_df = read_csv_to_dataframe(
+            # Read in all data frame files, based on input file type.
+            if args.seqs.lower().endswith('.csv'):
+                sequence_df = read_csv_to_dataframe(file=args.seqs,
+                                                    separator=get_separator())
+            elif args.seqs.lower().endswith('.fasta'):
+                sequence_df = read_fasta_as_dataframe(file=args.seqs)
+            full_pgen_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                 separator=';')
 
+            # Insert amino acid sequence column if not existent.
+            if 'nt_sequence' in sequence_df.columns and not 'aa_sequence' in sequence_df.columns:
+                sequence_df.insert(sequence_df.columns.get_loc('nt_sequence') + 1,
+                                   'aa_sequence', '')
+                for i, row in sequence_df.iterrows():
+                    sequence_df.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(
+                        row['nt_sequence'])
+
             # Merge IGoR generated sequence output dataframes.
-            vdj_pgen_df = sequence_df.merge(vdj_pgen_df, on='seq_index')
+            full_pgen_df = sequence_df.merge(full_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'pgen_estimate_{}'.format(model_type)
             directory, filename = write_dataframe_to_csv(
-                dataframe=vdj_pgen_df,
-                filename='VDJ_seqs_pgen_estimate',
+                dataframe=full_pgen_df,
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
@@ -229,7 +245,8 @@ class EvaluateSeqs(object):
             # Load the model and create the sequence evaluator.
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
-                model = IgorLoader(model_type=files['type'],
+                model_type = files['type']
+                model = IgorLoader(model_type=model_type,
                                    model_params=files['parameters'],
                                    model_marginals=files['marginals'])
                 model.set_anchor(gene='V', file=files['v_anchors'])
@@ -237,7 +254,8 @@ class EvaluateSeqs(object):
                 if args.model == 'tutorial-model':
                     args.seqs = files['cdr3']
             elif args.custom_model:
-                model = IgorLoader(model_type=args.type,
+                model_type = args.type
+                model = IgorLoader(model_type=model_type,
                                    model_params=args.custom_model[0],
                                    model_marginals=args.custom_model[1])
                 for gene in args.anchor:
@@ -262,9 +280,12 @@ class EvaluateSeqs(object):
             cdr3_pgen_df = sequence_df.merge(cdr3_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_pgen_df,
-                filename='CDR3_seqs_pgen_estimate',
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
