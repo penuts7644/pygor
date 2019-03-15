@@ -27,6 +27,7 @@ RUN ./configure CC=gcc-7 CXX=g++-7 \
     && make install
 
 # Copy and unpack the tutorial data files.
+WORKDIR /
 COPY tutorial_data.zip /
 RUN mkdir -p /tutorial_data \
     && unzip tutorial_data.zip -d /tutorial_data \

@@ -28,6 +28,7 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
@@ -209,6 +210,14 @@ class EvaluateSeqs(object):
             full_pgen_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                 separator=';')
+
+            # Insert amino acid sequence column if not existent.
+            if 'nt_sequence' in sequence_df.columns and not 'aa_sequence' in sequence_df.columns:
+                sequence_df.insert(sequence_df.columns.get_loc('nt_sequence') + 1,
+                                   'aa_sequence', '')
+                for i, row in sequence_df.iterrows():
+                    sequence_df.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(
+                        row['nt_sequence'])
 
             # Merge IGoR generated sequence output dataframes.
             full_pgen_df = sequence_df.merge(full_pgen_df, on='seq_index')
