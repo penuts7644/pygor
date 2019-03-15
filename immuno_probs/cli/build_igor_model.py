@@ -23,7 +23,7 @@ from shutil import copy2
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import preprocess_input_file, preprocess_reference_file
 
 
@@ -195,17 +195,19 @@ class BuildIgorModel(object):
                   "command (exit code {})".format(code))
             return
 
-        # Copy the output files to the output directory.
+        # Copy the output files to the output directory with prefix.
+        output_prefix = get_output_name()
+        if not output_prefix:
+            output_prefix = 'model'
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-            filename='model_marginals',
+            filename='{}_marginals'.format(output_prefix),
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))
-
         directory, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
-            filename='model_params',
+            filename='{}_params'.format(output_prefix),
             directory=output_dir)
         print("Written '{}' file to '{}' directory.".format(
             filename, directory))

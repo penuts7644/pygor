@@ -29,7 +29,7 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file
 
 
@@ -234,9 +234,12 @@ class GenerateSeqs(object):
             full_seqs_df = sequence_df.merge(realizations_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'generated_seqs_{}'.format(model_type)
             directory, filename = write_dataframe_to_csv(
                 dataframe=full_seqs_df,
-                filename='generated_seqs_{}'.format(model_type),
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
@@ -271,10 +274,13 @@ class GenerateSeqs(object):
             seq_generator = OlgaContainer(igor_model=model)
             cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a CSV file with.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_seqs_df,
-                filename='generated_seqs_{}_CDR3'.format(model_type),
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(

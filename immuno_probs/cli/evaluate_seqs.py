@@ -28,7 +28,7 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator
+from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_input_file, preprocess_reference_file
 
 
@@ -214,9 +214,12 @@ class EvaluateSeqs(object):
             full_pgen_df = sequence_df.merge(full_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'pgen_estimate_{}'.format(model_type)
             directory, filename = write_dataframe_to_csv(
                 dataframe=full_pgen_df,
-                filename='pgen_estimate_{}'.format(model_type),
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
@@ -268,9 +271,12 @@ class EvaluateSeqs(object):
             cdr3_pgen_df = sequence_df.merge(cdr3_pgen_df, on='seq_index')
 
             # Write the pandas dataframe to a CSV file.
+            output_filename = get_output_name()
+            if not output_filename:
+                output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
             directory, filename = write_dataframe_to_csv(
                 dataframe=cdr3_pgen_df,
-                filename='pgen_estimate_{}_CDR3'.format(model_type),
+                filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(

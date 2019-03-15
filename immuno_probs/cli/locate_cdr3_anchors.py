@@ -23,7 +23,7 @@ import os
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_working_dir, get_separator
+from immuno_probs.util.constant import get_working_dir, get_separator, get_output_name
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
@@ -133,10 +133,13 @@ class LocateCdr3Anchors(object):
             anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
             anchors_df.reset_index(inplace=True, drop=True)
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a CSV file with prefix.
+            output_prefix = get_output_name()
+            if not output_prefix:
+                output_prefix = 'gene_CDR3_anchors'
             directory, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
-                filename='{}_gene_CDR3_anchors'.format(gene[0]),
+                filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,
                 separator=get_separator())
             print("Written '{}' file to '{}' directory.".format(
