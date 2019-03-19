@@ -195,10 +195,10 @@ class EvaluateSeqs(object):
             command_list.append(['output', ['Pgen']])
 
             igor_cline = IgorInterface(args=command_list)
-            code, _ = igor_cline.call()
-            if code != 0:
+            exit_code, _, _, _ = igor_cline.call()
+            if exit_code != 0:
                 print("An error occurred during execution of IGoR " \
-                      "command (exit code {})".format(code))
+                      "command (exit code {})".format(exit_code))
                 return
 
             # Read in all data frame files, based on input file type.
