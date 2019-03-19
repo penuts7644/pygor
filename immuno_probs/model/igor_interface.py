@@ -84,8 +84,8 @@ class IgorInterface(object):
         Returns
         -------
         tuple
-            A tuple containing the exit code and executed command in the
-            given order.
+            A tuple containing the exit code, standard out, standard error and
+            the executed command.
 
         Raises
         ------
@@ -100,8 +100,9 @@ class IgorInterface(object):
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
         try:
-            returncode = subprocess.call(shlex.split(updated_command))
-            return (returncode, updated_command)
+            process = subprocess.Popen(shlex.split(updated_command))
+            (stdout, stderr) = process.communicate()
+            return (process.returncode, stdout, stderr, updated_command)
         except OSError as err:
             raise SubprocessException(err)
 
