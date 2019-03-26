@@ -80,7 +80,7 @@ def is_csv(file, separator):
 
     """
     dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0, nrows=100)
-    return dataframe.empty
+    return not dataframe.empty
 
 
 def read_fasta_as_dataframe(file):
