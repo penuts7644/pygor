@@ -78,8 +78,7 @@ class AnchorLocator(object):
         """
         gene = gene.upper()
         if gene not in ["V", "J"]:
-            raise GeneIdentifierException(
-                "Gene identifier can be either 'V' or 'J'", gene)
+            raise GeneIdentifierException("Gene identifier can be either 'V' or 'J'", gene)
         return gene
 
     @staticmethod
@@ -106,8 +105,7 @@ class AnchorLocator(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         alignment = kwargs["alignment"]
-        seq_motif_indices = pandas.DataFrame(columns=['name', 'anchor_index',
-                                                      'motif'])
+        seq_motif_indices = pandas.DataFrame(columns=['name', 'anchor_index', 'motif'])
 
         # For each of the motifs in the input array.
         for motif in ary:
@@ -118,26 +116,20 @@ class AnchorLocator(object):
                 motif_counts = numpy.zeros(len(alignment))
                 alignment_codon = alignment[:, i:i + len(motif)]
 
-                # For the motif alignment, count motif occurences and add to
-                # the counts.
-                for seq_record, j in zip(alignment_codon,
-                                         range(0, len(alignment_codon))):
+                # For the motif alignment, count motif occurences and add to the counts.
+                for seq_record, j in zip(alignment_codon, range(0, len(alignment_codon))):
                     motif_counts[j] = (seq_record.seq == motif)
 
-                # Calculate average of occurences (between 0 and 1) and add to
-                # start index.
-                motif_index_occurances.append(
-                    float(sum(motif_counts)) / len(alignment_codon))
+                # Calculate average of occurences (between 0 and 1) and add to start index.
+                motif_index_occurances.append(float(sum(motif_counts)) / len(alignment_codon))
 
             # Collect index with highest value attached.
             max_index = numpy.argmax(motif_index_occurances)
             for seq_record in alignment:
 
-                # Only process sequences that contain the motif at the conserved
-                # index location.
+                # Only process sequences that contain the motif at the conserved index location.
                 if seq_record.seq[max_index:max_index + len(motif)] == motif:
-                    start_index = len(str(seq_record.seq[0:max_index])
-                                      .replace('-', ''))
+                    start_index = len(str(seq_record.seq[0:max_index]).replace('-', ''))
                     seq_motif_indices = seq_motif_indices.append({
                         'name': seq_record.description,
                         'anchor_index': start_index,
