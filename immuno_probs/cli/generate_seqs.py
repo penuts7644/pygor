@@ -189,7 +189,7 @@ class GenerateSeqs(object):
             working_dir = get_working_dir()
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
-            spinner = Halo(text='Setting up IGoR command', spinner='dots')
+            spinner = Halo(text='Building IGoR command', spinner='dots')
 
             # Add the model (build-in or custom) command.
             spinner.start()
@@ -203,10 +203,10 @@ class GenerateSeqs(object):
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
-            spinner.succeed()
 
             # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
+            spinner.succeed()
             exit_code, _, _, _ = igor_cline.call()
             if exit_code != 0:
                 print("An error occurred during execution of IGoR " \
@@ -239,7 +239,7 @@ class GenerateSeqs(object):
             spinner.succeed()
 
             # Write the pandas dataframe to a CSV file.
-            spinner.start('Writting sequences to file')
+            spinner.start('Writting file')
             output_filename = get_output_name()
             if not output_filename:
                 output_filename = 'generated_seqs_{}'.format(model_type)
@@ -279,23 +279,23 @@ class GenerateSeqs(object):
                             get_separator(), ',')
                         model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
+                spinner.succeed()
             except (ModelLoaderException, GeneIdentifierException) as err:
                 spinner.fail(str(err))
                 return
-            spinner.succeed()
 
             # Setup the sequence generator and generate sequences.
-            spinner.start('Generating CDR3 sequences')
+            spinner.start('Generating sequences')
             try:
                 seq_generator = OlgaContainer(igor_model=model)
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
+                spinner.succeed()
             except OlgaException as err:
                 spinner.fail(str(err))
                 return
-            spinner.succeed()
 
             # Write the pandas dataframe to a CSV file with.
-            spinner.start('Writting sequences to file')
+            spinner.start('Writting file')
             output_filename = get_output_name()
             if not output_filename:
                 output_filename = 'generated_seqs_{}_CDR3'.format(model_type)

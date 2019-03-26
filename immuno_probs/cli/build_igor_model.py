@@ -184,7 +184,7 @@ class BuildIgorModel(object):
         spinner.succeed()
 
         # Add the sequence command after pre-processing of the input file.
-        spinner.start('Pre-process input sequence file')
+        spinner.start('Pre-processing input sequence file')
         try:
             if is_fasta(args.seqs):
                 spinner.info('FASTA input file extension detected')
@@ -195,6 +195,9 @@ class BuildIgorModel(object):
                     os.path.join(working_dir, 'input'), str(args.seqs),
                     get_separator(), ';', [0, 1])
                 command_list.append(['read_seqs', input_seqs])
+            else:
+                spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
+                return
             spinner.succeed()
         except IOError as err:
             spinner.fail(str(err))
@@ -214,7 +217,7 @@ class BuildIgorModel(object):
             return
 
         # Copy the output files to the output directory with prefix.
-        spinner.start('Writting model parameters and marginals files')
+        spinner.start('Writting files')
         output_prefix = get_output_name()
         if not output_prefix:
             output_prefix = 'model'
