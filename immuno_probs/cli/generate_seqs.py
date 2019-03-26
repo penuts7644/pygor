@@ -21,6 +21,7 @@
 import os
 import sys
 
+from halo import Halo
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
@@ -30,7 +31,8 @@ from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_input_file
+from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_csv_file
 
 
 class GenerateSeqs(object):
@@ -182,13 +184,15 @@ class GenerateSeqs(object):
         # If the given type of sequences generation is not CDR3, use IGoR.
         if not args.cdr3:
 
-            # Add general igor commands.
+            # Add general igor commands and setup spinner.
             command_list = []
             working_dir = get_working_dir()
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
+            spinner = Halo(text='Setting up IGoR command', spinner='dots')
 
             # Add the model (build-in or custom) command.
+            spinner.start()
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
                 command_list.append(['set_custom_model', files['parameters'],
@@ -199,6 +203,7 @@ class GenerateSeqs(object):
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
+            spinner.succeed()
 
             # Execute IGoR through command line and catch error code.
             igor_cline = IgorInterface(args=command_list)
@@ -209,11 +214,11 @@ class GenerateSeqs(object):
                 return
 
             # Merge the generated output files together (translated).
+            spinner.start('Processing sequence realizations')
             sequence_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';')
-            for i, row in sequence_df.iterrows():
-                sequence_df.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(row['nt_sequence'])
+            sequence_df['aa_sequence'] = sequence_df['nt_sequence'].apply(nucleotides_to_aminoacids)
             realizations_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';')
@@ -231,59 +236,75 @@ class GenerateSeqs(object):
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
             full_seqs_df = sequence_df.merge(realizations_df, on='seq_index')
+            spinner.succeed()
 
             # Write the pandas dataframe to a CSV file.
+            spinner.start('Writting sequences to file')
             output_filename = get_output_name()
             if not output_filename:
                 output_filename = 'generated_seqs_{}'.format(model_type)
-            directory, filename = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_csv(
                 dataframe=full_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
-            print("Written '{}' file to '{}' directory.".format(
-                filename, directory))
+            spinner.succeed()
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.cdr3:
 
-            # Get the working directory.
+            # Get the working directory and setup teh spinner.
             working_dir = get_working_dir()
+            spinner = Halo(text='Loading model', spinner='dots')
 
             # Load the model, create the sequence generator and generate the sequences.
-            if args.model:
-                files = get_default_model_file_paths(name=args.model)
-                model_type = files['type']
-                model = IgorLoader(model_type=model_type,
-                                   model_params=files['parameters'],
-                                   model_marginals=files['marginals'])
-                model.set_anchor(gene='V', file=files['v_anchors'])
-                model.set_anchor(gene='J', file=files['j_anchors'])
-            elif args.custom_model:
-                model_type = args.type
-                model = IgorLoader(model_type=model_type,
-                                   model_params=args.custom_model[0],
-                                   model_marginals=args.custom_model[1])
-                for gene in args.anchor:
-                    anchor_file = preprocess_input_file(
-                        os.path.join(working_dir, 'cdr3_anchors'), str(gene[1]),
-                        get_separator(), ',')
-                    model.set_anchor(gene=gene[0], file=anchor_file)
-            model.initialize_model()
-            seq_generator = OlgaContainer(igor_model=model)
-            cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
+            spinner.start()
+            try:
+                if args.model:
+                    files = get_default_model_file_paths(name=args.model)
+                    model_type = files['type']
+                    model = IgorLoader(model_type=model_type,
+                                       model_params=files['parameters'],
+                                       model_marginals=files['marginals'])
+                    model.set_anchor(gene='V', file=files['v_anchors'])
+                    model.set_anchor(gene='J', file=files['j_anchors'])
+                elif args.custom_model:
+                    model_type = args.type
+                    model = IgorLoader(model_type=model_type,
+                                       model_params=args.custom_model[0],
+                                       model_marginals=args.custom_model[1])
+                    for gene in args.anchor:
+                        anchor_file = preprocess_csv_file(
+                            os.path.join(working_dir, 'cdr3_anchors'), str(gene[1]),
+                            get_separator(), ',')
+                        model.set_anchor(gene=gene[0], file=anchor_file)
+                model.initialize_model()
+            except (ModelLoaderException, GeneIdentifierException) as err:
+                spinner.fail(str(err))
+                return
+            spinner.succeed()
+
+            # Setup the sequence generator and generate sequences.
+            spinner.start('Generating CDR3 sequences')
+            try:
+                seq_generator = OlgaContainer(igor_model=model)
+                cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
+            except OlgaException as err:
+                spinner.fail(str(err))
+                return
+            spinner.succeed()
 
             # Write the pandas dataframe to a CSV file with.
+            spinner.start('Writting sequences to file')
             output_filename = get_output_name()
             if not output_filename:
                 output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
-            directory, filename = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_csv(
                 dataframe=cdr3_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_separator())
-            print("Written '{}' file to '{}' directory.".format(
-                filename, directory))
+            spinner.succeed()
 
 
 def main():

@@ -27,7 +27,7 @@ from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_working_dir, get_separator, get_output_name
-from immuno_probs.util.exception import AlignerException
+from immuno_probs.util.exception import AlignerException, GeneIdentifierException
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
@@ -118,7 +118,7 @@ class LocateCdr3Anchors(object):
                 aligner = MuscleAligner(infile=gene[1])
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
-            except AlignerException as err:
+            except (AlignerException, GeneIdentifierException) as err:
                 spinner.fail(str(err))
                 return
 
