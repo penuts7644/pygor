@@ -40,8 +40,8 @@ def main():
         '-separator': {
             'type': 'str',
             'nargs': '?',
-            'help': 'The separator character to be used when writing files ' \
-                    '(default: comma character).'
+            'help': 'The separator character used for input files and for ' \
+                    'writing new files (default: comma character).'
         },
         '-threads': {
             'type': 'int',
