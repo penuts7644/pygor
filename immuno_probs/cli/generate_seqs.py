@@ -147,13 +147,12 @@ class GenerateSeqs(object):
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
                                     ignore_index=True, axis=1, sort=False)
             real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j', 'gene_choice_d']
-            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
-            d_gene_names = [J[0] for J in model.get_genomic_data().genD]
-            for i, row in real_df.iterrows():
-                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
-                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
-                real_df.ix[i, 'gene_choice_d'] = d_gene_names[int(row['gene_choice_d'].strip('()'))]
+            real_df['gene_choice_v'], real_df['gene_choice_j'], real_df['gene_choice_d'] = zip(
+                *real_df.apply(lambda row: (
+                    model.get_genomic_data().genV[int(row['gene_choice_v'].strip('()'))][0],
+                    model.get_genomic_data().genJ[int(row['gene_choice_j'].strip('()'))][0],
+                    model.get_genomic_data().genD[int(row['gene_choice_d'].strip('()'))][0]
+                ), axis=1))
 
         # Or do the same if the model is VJ.
         elif model.get_type() == "VJ":
@@ -162,11 +161,11 @@ class GenerateSeqs(object):
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
                                     ignore_index=True, axis=1, sort=False)
             real_df.columns = ['seq_index', 'gene_choice_v', 'gene_choice_j']
-            v_gene_names = [V[0] for V in model.get_genomic_data().genV]
-            j_gene_names = [J[0] for J in model.get_genomic_data().genJ]
-            for i, row in real_df.iterrows():
-                real_df.ix[i, 'gene_choice_v'] = v_gene_names[int(row['gene_choice_v'].strip('()'))]
-                real_df.ix[i, 'gene_choice_j'] = j_gene_names[int(row['gene_choice_j'].strip('()'))]
+            real_df['gene_choice_v'], real_df['gene_choice_j'] = zip(
+                *real_df.apply(lambda row: (
+                    model.get_genomic_data().genV[int(row['gene_choice_v'].strip('()'))][0],
+                    model.get_genomic_data().genJ[int(row['gene_choice_j'].strip('()'))][0]
+                ), axis=1))
         return real_df
 
     def run(self, args, output_dir):
