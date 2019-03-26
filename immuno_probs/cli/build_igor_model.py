@@ -20,11 +20,13 @@
 import os
 from shutil import copy2
 
+from halo import Halo
+
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
-from immuno_probs.util.io import preprocess_input_file, preprocess_reference_file
+from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv
 
 
 class BuildIgorModel(object):
@@ -93,7 +95,7 @@ class BuildIgorModel(object):
                 'nargs': '?',
                 'default': 1,
                 'help': 'The number of inference iterations to perform when ' \
-                    'creating the model. (default: %(default)s)'
+                        'creating the model. (default: %(default)s)'
             }
         }
 
@@ -150,36 +152,53 @@ class BuildIgorModel(object):
             A directory path for writing output files to.
 
         """
-        # Add general igor commands.
+        # Add general igor commands and setup spinner.
         command_list = []
         working_dir = get_working_dir()
         command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_num_threads())])
+        spinner = Halo(text='Processing genomic reference templates', spinner='dots')
 
         # Add sequence and file paths commands.
-        ref_list = ['set_genomic']
-        for i in args.ref:
-            filename = preprocess_reference_file(
-                os.path.join(working_dir, 'genomic_templates'), i[1], 1)
-            ref_list.append([i[0], filename])
-        command_list.append(ref_list)
+        spinner.start()
+        try:
+            ref_list = ['set_genomic']
+            for i in args.ref:
+                filename = preprocess_reference_file(
+                    os.path.join(working_dir, 'genomic_templates'), i[1], 1)
+                ref_list.append([i[0], filename])
+            command_list.append(ref_list)
+            spinner.succeed()
+        except IOError as err:
+            spinner.fail(str(err))
+            return
 
         # Set the initial model parameters using a build-in model.
+        spinner.start('Setting initial model parameters')
         if args.type in ['beta', 'heavy']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-beta')['parameters']])
         elif args.type in ['alpha', 'light']:
             command_list.append(['set_custom_model', get_default_model_file_paths(
                 name='human-t-alpha')['parameters']])
+        spinner.succeed()
 
         # Add the sequence command after pre-processing of the input file.
-        if args.seqs.lower().endswith('.csv'):
-            input_seqs = preprocess_input_file(
-                os.path.join(working_dir, 'input'), str(args.seqs),
-                get_separator(), ';', [0, 1])
-            command_list.append(['read_seqs', input_seqs])
-        elif args.seqs.lower().endswith('.fasta'):
-            command_list.append(['read_seqs', str(args.seqs)])
+        spinner.start('Pre-process input sequence file')
+        try:
+            if is_fasta(args.seqs):
+                spinner.info('FASTA input file extension detected')
+                command_list.append(['read_seqs', str(args.seqs)])
+            elif is_csv(args.seqs, get_separator()):
+                spinner.info('CSV input file extension detected')
+                input_seqs = preprocess_csv_file(
+                    os.path.join(working_dir, 'input'), str(args.seqs),
+                    get_separator(), ';', [0, 1])
+                command_list.append(['read_seqs', input_seqs])
+            spinner.succeed()
+        except IOError as err:
+            spinner.fail(str(err))
+            return
 
         # Add alignment commands.
         command_list.append(['align', ['all']])
@@ -195,21 +214,19 @@ class BuildIgorModel(object):
             return
 
         # Copy the output files to the output directory with prefix.
+        spinner.start('Writting model parameters and marginals files')
         output_prefix = get_output_name()
         if not output_prefix:
             output_prefix = 'model'
-        directory, filename = self._copy_file_to_output(
+        _, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
             filename='{}_marginals'.format(output_prefix),
             directory=output_dir)
-        print("Written '{}' file to '{}' directory.".format(
-            filename, directory))
-        directory, filename = self._copy_file_to_output(
+        _, filename = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
             filename='{}_params'.format(output_prefix),
             directory=output_dir)
-        print("Written '{}' file to '{}' directory.".format(
-            filename, directory))
+        spinner.succeed()
 
 
 def main():
