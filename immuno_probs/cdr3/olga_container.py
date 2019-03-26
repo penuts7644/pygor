@@ -21,6 +21,7 @@
 import olga.sequence_generation as olga_seq_gen
 import olga.generation_probability as olga_pgen
 import pandas
+import numpy
 
 from immuno_probs.util.constant import get_num_threads
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
@@ -67,8 +68,7 @@ class OlgaContainer(object):
         """
         # Create the dataframe and set the generation objects.
         generated_seqs = pandas.DataFrame(
-            columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v',
-                     'gene_choice_j'])
+            columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v', 'gene_choice_j'])
         seq_gen_model = None
         if self.igor_model.get_type() == "VDJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -125,21 +125,21 @@ class OlgaContainer(object):
 
         # Evaluate the sequences, add them to the dataframe and return.
         if set(['gene_choice_v', 'gene_choice_j']).issubset(ary.columns):
-            for i, row in ary.iterrows():
-                if 'nt_sequence' in ary.columns:
-                    pgen_seqs.loc[i, 'nt_pgen_estimate'] = model.compute_nt_CDR3_pgen(
-                        row['nt_sequence'], row['gene_choice_v'], row['gene_choice_j'])
-                if 'aa_sequence' in ary.columns:
-                    pgen_seqs.loc[i, 'aa_pgen_estimate'] = model.compute_aa_CDR3_pgen(
-                        row['aa_sequence'], row['gene_choice_v'], row['gene_choice_j'])
+            if 'nt_sequence' in ary.columns:
+                pgen_seqs['nt_pgen_estimate'] = ary.apply(
+                    lambda row: model.compute_nt_CDR3_pgen(
+                        row['nt_sequence'], row['gene_choice_v'], row['gene_choice_j']
+                    ), axis=1)
+            if 'aa_sequence' in ary.columns:
+                pgen_seqs['aa_pgen_estimate'] = ary.apply(
+                    lambda row: model.compute_aa_CDR3_pgen(
+                        row['aa_sequence'], row['gene_choice_v'], row['gene_choice_j']
+                    ), axis=1)
         else:
-            for i, row in ary.iterrows():
-                if 'nt_sequence' in ary.columns:
-                    pgen_seqs.loc[i, 'nt_pgen_estimate'] = model.compute_nt_CDR3_pgen(
-                        row['nt_sequence'])
-                if 'aa_sequence' in ary.columns:
-                    pgen_seqs.loc[i, 'aa_pgen_estimate'] = model.compute_aa_CDR3_pgen(
-                        row['aa_sequence'])
+            if 'nt_sequence' in ary.columns:
+                pgen_seqs['nt_pgen_estimate'] = ary['nt_sequence'].apply(model.compute_nt_CDR3_pgen)
+            if 'aa_sequence' in ary.columns:
+                pgen_seqs['aa_pgen_estimate'] = ary['aa_sequence'].apply(model.compute_aa_CDR3_pgen)
         return pgen_seqs
 
     def evaluate(self, seqs):
@@ -182,12 +182,8 @@ class OlgaContainer(object):
 
         # Insert amino acid sequence column if not existent.
         if 'nt_sequence' in seqs.columns and not 'aa_sequence' in seqs.columns:
-            seqs.insert(
-                seqs.columns.get_loc('nt_sequence') + 1,
-                'aa_sequence', '')
-            for i, row in seqs.iterrows():
-                seqs.loc[i, 'aa_sequence'] = nucleotides_to_aminoacids(
-                    row['nt_sequence'])
+            seqs.insert(seqs.columns.get_loc('nt_sequence') + 1, 'aa_sequence', numpy.nan)
+            seqs['aa_sequence'] = seqs['nt_sequence'].apply(nucleotides_to_aminoacids)
 
         # Use multiprocessing to evaluate the sequences in chunks and return.
         result = multiprocess_array(ary=seqs,
