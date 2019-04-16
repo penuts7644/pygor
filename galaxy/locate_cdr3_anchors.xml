@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<tool id="immuno_probs_locate_cdr3_anchors" name="Locate CDR3 anchors" version="0.1.9">
+    <requirements>
+        <container type="docker">penuts7644/immuno-probs</container>
+    </requirements>
+    <description>for generating and/or evaluating CDR3 sequences.</description>
+    <command>
+        immuno-probs
+
+            ## general immuno-probs parameters
+            -separator '$optional.separator'
+
+            ## tool command
+            locate-cdr3-anchors
+
+                ## reference genomic templates
+                -ref '$input.reference.gene' '$input.reference.file'
+    </command>
+    <inputs>
+        <section name="optional" title="Optional parameters">
+            <param name="separator" type="select" label="In/out file separator character" help="The separator character to be used when writing files.">
+                <option value="," selected="true">Comma</option>
+                <option value=";">Semi-colon</option>
+                <option value="\t">Tab</option>
+            </param>
+        </section>
+        <section name="input" title="Input parameters" expanded="True">
+            <conditional name="reference">
+                <param name="gene" type="select" label="For which gene should anchors be located?">
+                    <option value="V" selected="true">V gene</option>
+                    <option value="J">J gene</option>
+                </param>
+                <when value="V">
+                    <param name="file" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
+                </when>
+                <when value="J">
+                    <param name="file" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                </when>
+            </conditional>
+        </section>
+    </inputs>
+    <outputs>
+        <data name="cdr3_anchors" format="csv" label="${tool.name} on ${on_string}: ${input.reference.gene} gene">
+            <discover_datasets assign_primary_output="true" pattern="[VJ]_gene_CDR3_anchors\.csv" />
+        </data>
+    </outputs>
+    <help>
+
+        **ImmunoProbs**
+
+        Create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences.
+
+        For documentation have a look at the ImmunoProbs wiki "https://github.com/penuts7644/ImmunoProbs/wiki".
+
+    </help>
+</tool>
