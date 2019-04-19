@@ -3,7 +3,9 @@
     <requirements>
         <container type="docker">penuts7644/immuno-probs</container>
     </requirements>
+
     <description>using IGoR commandline interface that is VDJ or VJ compliant.</description>
+
     <command>
         immuno-probs
 
@@ -17,18 +19,19 @@
                 -seqs '$input.sequences'
 
                 ## model type
-                -type '$input.model.type'
+                -type '$input.cond_type.type'
 
                 ## reference genomic templates
-                -ref 'V' '$input.model.ref_v'
-                -ref 'J' '$input.model.ref_j'
-                #if $input.model.type == "beta" or $input.model.type == "heavy":
-                    -ref 'D' '$input.model.ref_d'
+                -ref 'V' '$input.cond_type.ref_v'
+                -ref 'J' '$input.cond_type.ref_j'
+                #if $input.cond_type.type == "beta" or $input.cond_type.type == "heavy":
+                    -ref 'D' '$input.cond_type.ref_d'
                 #end if
 
                 ## number of training iterations
                 -n-iter $input.iterations
     </command>
+
     <inputs>
         <section name="optional" title="Optional parameters">
             <param name="separator" type="select" label="In/out file separator character" help="The separator character to be used when writing files.">
@@ -37,41 +40,50 @@
                 <option value="\t">Tab</option>
             </param>
         </section>
+
         <section name="input" title="Input parameters" expanded="True">
-            <conditional name="model">
-                <param name="type" type="select" label="Which type of model should be constructed?">
+            <conditional name="cond_type">
+                <param name="type" type="select" label="Type of IGoR model">
                     <option value="alpha" selected="true">Alpha</option>
                     <option value="beta">Beta</option>
                     <option value="light">Light</option>
                     <option value="heavy">Heavy</option>
                 </param>
+
                 <when value="alpha">
                     <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
                 </when>
+
                 <when value="beta">
                     <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_d" type="data" format="fasta" label="Reference genomic template - D gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
                 </when>
+
                 <when value="light">
                     <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
                 </when>
+
                 <when value="heavy">
                     <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_d" type="data" format="fasta" label="Reference genomic template - D gene" help="Needs to conform to IGMT annotation." />
                     <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
                 </when>
             </conditional>
-            <param name="sequences" type="data" format="fasta,csv" optional="false" label="DNA sequences for training the model" help="CSV files need to conform to IGoR standards, 'seq_index' and 'nt_sequence' column." />
+
+            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Training data DNA sequences" help="CSV files need to conform to IGoR standards, 'seq_index' and 'nt_sequence' column." />
+
             <param name="iterations" type="integer" value="1" min="1" max="50" label="Number of training rounds" help="The number of inference iterations to perform when creating the model." />
         </section>
     </inputs>
+
     <outputs>
         <data format="txt" name="model_params" from_work_dir="model_params.txt" label="${tool.name} on ${on_string}: model parameters" />
         <data format="txt" name="model_marginals" from_work_dir="model_marginals.txt" label="${tool.name} on ${on_string}: model marginals" />
     </outputs>
+
     <help>
 
         **ImmunoProbs**

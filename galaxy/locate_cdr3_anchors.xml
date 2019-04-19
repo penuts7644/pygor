@@ -3,7 +3,9 @@
     <requirements>
         <container type="docker">penuts7644/immuno-probs</container>
     </requirements>
+
     <description>for generating and/or evaluating CDR3 sequences.</description>
+
     <command>
         immuno-probs
 
@@ -14,8 +16,17 @@
             locate-cdr3-anchors
 
                 ## reference genomic templates
-                -ref '$input.reference.gene' '$input.reference.file'
+                -ref '$input.cond_gene.gene' '$input.cond_gene.file'
+
+                ## specify the mofifs
+
+                #for $i in $input.repeat_motif
+
+                    -motif '$i.motif'
+
+                #end for
     </command>
+
     <inputs>
         <section name="optional" title="Optional parameters">
             <param name="separator" type="select" label="In/out file separator character" help="The separator character to be used when writing files.">
@@ -24,26 +35,35 @@
                 <option value="\t">Tab</option>
             </param>
         </section>
+
         <section name="input" title="Input parameters" expanded="True">
-            <conditional name="reference">
+            <conditional name="cond_gene">
                 <param name="gene" type="select" label="For which gene should anchors be located?">
                     <option value="V" selected="true">V gene</option>
                     <option value="J">J gene</option>
                 </param>
+
                 <when value="V">
                     <param name="file" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
                 </when>
+
                 <when value="J">
                     <param name="file" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
                 </when>
             </conditional>
+
+            <repeat name="repeat_motif" min="0" max="10" title="motif">
+                <param name="motif" type="text" label="Search motif string" />
+            </repeat>
         </section>
     </inputs>
+
     <outputs>
-        <data name="cdr3_anchors" format="csv" label="${tool.name} on ${on_string}: ${input.reference.gene} gene">
+        <data name="cdr3_anchors" format="csv" label="${tool.name} on ${on_string}: ${input.cond_gene.gene} gene">
             <discover_datasets assign_primary_output="true" pattern="[VJ]_gene_CDR3_anchors\.csv" />
         </data>
     </outputs>
+
     <help>
 
         **ImmunoProbs**
