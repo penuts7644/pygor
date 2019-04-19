@@ -142,9 +142,9 @@ class AnchorLocator(object):
 
         Parameters
         ----------
-        *motif : strings
-            One or multiple motif strings to process. If none given, default V/J
-            gene motifs are located.
+        *motifs : str
+            Various motif strings (combined into a list) to process. If none
+            given, default V/J gene motifs are located.
 
         Returns
         -------

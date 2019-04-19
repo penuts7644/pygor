@@ -79,7 +79,7 @@ class EvaluateSeqs(object):
                         "IGoR standards, 'seq_index' and 'nt_sequence' column."
             },
             '-model': {
-                'type': 'str',
+                'type': 'str.lower',
                 'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
                             'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
@@ -100,7 +100,7 @@ class EvaluateSeqs(object):
                         "-cdr3)"
             },
             '-type': {
-                'type': 'str',
+                'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \

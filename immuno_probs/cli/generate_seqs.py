@@ -69,7 +69,7 @@ class GenerateSeqs(object):
             "python subprocess. Or generate CDR3 sequences by using the OLGA."
         parser_options = {
             '-model': {
-                'type': 'str',
+                'type': 'str.lower',
                 'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
                             'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
@@ -78,7 +78,7 @@ class GenerateSeqs(object):
                         "(select one: %(choices)s)."
             },
             '-type': {
-                'type': 'str',
+                'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \

@@ -84,7 +84,7 @@ class BuildIgorModel(object):
                         "'|' character)."
             },
             '-type': {
-                'type': 'str',
+                'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': 'True',
                 'help': 'The type of model to create. (select one: ' \

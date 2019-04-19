@@ -76,9 +76,9 @@ class LocateCdr3Anchors(object):
                         "needs to conform to IGMT annotation (separated by " \
                         "'|' character)."
             },
-            '-motifs': {
-                'type': 'str',
-                'nargs': '*',
+            '-motif': {
+                'type': 'str.upper',
+                'action': 'append',
                 'help': "The motifs to look for. If none specified, the " \
                         "default 'V' (Cystein - TGT and TGC) or 'J' " \
                         "(Tryptophan - TGG, Phenylalanine - TTC and TTT)."
@@ -122,8 +122,8 @@ class LocateCdr3Anchors(object):
                 spinner.fail(str(err))
                 return
 
-            if args.motifs is not None:
-                anchors_df = locator.get_indices_motifs(args.motifs)
+            if args.motif is not None:
+                anchors_df = locator.get_indices_motifs(*args.motif)
             else:
                 anchors_df = locator.get_indices_motifs()
 
@@ -133,7 +133,7 @@ class LocateCdr3Anchors(object):
             try:
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
-            except IndexError:
+            except (IndexError, ValueError):
                 spinner.fail("FASTA header needs to be separated by '|', " \
                     "needs to have gene name on index position 1 and " \
                     "function on index position 3: '{}'".format(anchors_df['gene']))
