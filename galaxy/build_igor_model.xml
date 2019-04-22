@@ -73,7 +73,7 @@
                 </when>
             </conditional>
 
-            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Training data DNA sequences" help="CSV files need to conform to IGoR standards, 'seq_index' and 'nt_sequence' column." />
+            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Training sequences" help="CSV files need to conform to IGoR standards, 'seq_index' and 'nt_sequence' column." />
 
             <param name="iterations" type="integer" value="1" min="1" max="50" label="Number of training rounds" help="The number of inference iterations to perform when creating the model." />
         </section>

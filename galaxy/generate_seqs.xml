@@ -80,9 +80,9 @@
             </conditional>
 
             <conditional name="cond_cdr3">
-                <param name="cdr3" type="boolean" truevalue="--cdr3" falsevalue="" checked="false" label="Generate CDR3 sequences instead of VDJ?" />
+                <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
 
-                <when value="--cdr3">
+                <when value=" -cdr3">
                     <param name="anchor_v" type="data" format="csv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
                     <param name="anchor_j" type="data" format="csv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                 </when>
