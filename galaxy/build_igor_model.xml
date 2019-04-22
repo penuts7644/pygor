@@ -80,8 +80,8 @@
     </inputs>
 
     <outputs>
-        <data format="txt" name="model_params" from_work_dir="model_params.txt" label="${tool.name} on ${on_string}: model parameters" />
-        <data format="txt" name="model_marginals" from_work_dir="model_marginals.txt" label="${tool.name} on ${on_string}: model marginals" />
+        <data format="txt" name="model_params" from_work_dir="model_params.txt" label="${tool.name} on ${on_string}: ${$input.cond_type.type} model parameters" />
+        <data format="txt" name="model_marginals" from_work_dir="model_marginals.txt" label="${tool.name} on ${on_string}: ${$input.cond_type.type} model marginals" />
     </outputs>
 
     <help>

@@ -20,7 +20,7 @@
 
                     -model '$input.cond_category.default'
 
-                #elif $input.model.category == "custom"
+                #elif $input.cond_category.category == "custom"
 
                     -custom-model '$input.cond_category.parameters' '$input.cond_category.marginals'
                     -type '$input.cond_category.type'
