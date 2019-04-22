@@ -26,7 +26,7 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
-from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv
+from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -165,7 +165,10 @@ class BuildIgorModel(object):
             ref_list = ['set_genomic']
             for i in args.ref:
                 filename = preprocess_reference_file(
-                    os.path.join(working_dir, 'genomic_templates'), i[1], 1)
+                    os.path.join(working_dir, 'genomic_templates'),
+                    copy_to_dir(working_dir, i[1], 'fasta'),
+                    1
+                )
                 ref_list.append([i[0], filename])
             command_list.append(ref_list)
             spinner.succeed()
@@ -176,11 +179,15 @@ class BuildIgorModel(object):
         # Set the initial model parameters using a build-in model.
         spinner.start('Setting initial model parameters')
         if args.type in ['beta', 'heavy']:
-            command_list.append(['set_custom_model', get_default_model_file_paths(
-                name='human-t-beta')['parameters']])
+            command_list.append([
+                'set_custom_model',
+                get_default_model_file_paths(name='human-t-beta')['parameters']
+            ])
         elif args.type in ['alpha', 'light']:
-            command_list.append(['set_custom_model', get_default_model_file_paths(
-                name='human-t-alpha')['parameters']])
+            command_list.append([
+                'set_custom_model',
+                get_default_model_file_paths(name='human-t-alpha')['parameters']
+            ])
         spinner.succeed()
 
         # Add the sequence command after pre-processing of the input file.
@@ -188,12 +195,19 @@ class BuildIgorModel(object):
         try:
             if is_fasta(args.seqs):
                 spinner.info('FASTA input file extension detected')
-                command_list.append(['read_seqs', str(args.seqs)])
+                command_list.append([
+                    'read_seqs',
+                    copy_to_dir(working_dir, str(args.seqs), 'fasta')
+                ])
             elif is_csv(args.seqs, get_separator()):
                 spinner.info('CSV input file extension detected')
                 input_seqs = preprocess_csv_file(
-                    os.path.join(working_dir, 'input'), str(args.seqs),
-                    get_separator(), ';', [0, 1])
+                    os.path.join(working_dir, 'input'),
+                    copy_to_dir(working_dir, str(args.seqs), 'csv'),
+                    get_separator(),
+                    ';',
+                    [0, 1]
+                )
                 command_list.append(['read_seqs', input_seqs])
             else:
                 spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
@@ -209,12 +223,15 @@ class BuildIgorModel(object):
         # Add inference commands.
         command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
+        # Execute IGoR through command line and catch error code.
+        spinner.start('Executing IGoR')
         igor_cline = IgorInterface(args=command_list)
         exit_code, _, _, _ = igor_cline.call()
         if exit_code != 0:
-            print("An error occurred during execution of IGoR " \
-                  "command (exit code {})".format(exit_code))
+            spinner.fail("An error occurred during execution of IGoR " \
+                "command (exit code {})".format(exit_code))
             return
+        spinner.succeed()
 
         # Copy the output files to the output directory with prefix.
         spinner.start('Writting files')

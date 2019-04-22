@@ -33,7 +33,7 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv
+from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv, copy_to_dir
 
 
 class EvaluateSeqs(object):
@@ -164,8 +164,11 @@ class EvaluateSeqs(object):
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
                 model_type = files['type']
-                command_list.append(['set_custom_model', files['parameters'],
-                                     files['marginals']])
+                command_list.append([
+                    'set_custom_model',
+                    files['parameters'],
+                    files['marginals']
+                ])
                 ref_list = ['set_genomic']
                 for gene, filename in files['reference'].items():
                     ref_list.append([gene, filename])
@@ -174,12 +177,18 @@ class EvaluateSeqs(object):
                     args.seqs = files['seqs']
             elif args.custom_model:
                 model_type = args.type
-                command_list.append(['set_custom_model', str(args.custom_model[0]),
-                                     str(args.custom_model[1])])
+                command_list.append([
+                    'set_custom_model',
+                    copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
+                    copy_to_dir(working_dir, str(args.custom_model[1]), 'txt'),
+                ])
                 ref_list = ['set_genomic']
                 for i in args.ref:
                     filename = preprocess_reference_file(
-                        os.path.join(working_dir, 'genomic_templates'), i[1], 1)
+                        os.path.join(working_dir, 'genomic_templates'),
+                        copy_to_dir(working_dir, i[1], 'fasta'),
+                        1
+                    )
                     ref_list.append([i[0], filename])
                 command_list.append(ref_list)
             spinner.succeed()
@@ -189,12 +198,19 @@ class EvaluateSeqs(object):
             try:
                 if is_fasta(args.seqs):
                     spinner.info('FASTA input file extension detected')
-                    command_list.append(['read_seqs', str(args.seqs)])
+                    command_list.append([
+                        'read_seqs',
+                        copy_to_dir(working_dir, str(args.seqs), 'fasta')
+                    ])
                 elif is_csv(args.seqs, get_separator()):
                     spinner.info('CSV input file extension detected')
                     input_seqs = preprocess_csv_file(
-                        os.path.join(working_dir, 'input'), str(args.seqs),
-                        get_separator(), ';', [0, 1])
+                        os.path.join(working_dir, 'input'),
+                        copy_to_dir(working_dir, str(args.seqs), 'csv'),
+                        get_separator(),
+                        ';',
+                        [0, 1]
+                    )
                     command_list.append(['read_seqs', input_seqs])
                 else:
                     spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
@@ -211,12 +227,15 @@ class EvaluateSeqs(object):
             command_list.append(['evaluate'])
             command_list.append(['output', ['Pgen']])
 
+            # Execute IGoR through command line and catch error code.
+            spinner.start('Executing IGoR')
             igor_cline = IgorInterface(args=command_list)
             exit_code, _, _, _ = igor_cline.call()
             if exit_code != 0:
-                print("An error occurred during execution of IGoR " \
-                      "command (exit code {})".format(exit_code))
+                spinner.fail("An error occurred during execution of IGoR " \
+                    "command (exit code {})".format(exit_code))
                 return
+            spinner.succeed()
 
             # Read in all data frame files, based on input file type.
             spinner.start('Processing generation probabilities')
@@ -283,8 +302,11 @@ class EvaluateSeqs(object):
                                        model_marginals=args.custom_model[1])
                     for gene in args.anchor:
                         anchor_file = preprocess_csv_file(
-                            os.path.join(working_dir, 'cdr3_anchors'), str(gene[1]),
-                            get_separator(), ',')
+                            os.path.join(working_dir, 'cdr3_anchors'),
+                            str(gene[1]),
+                            get_separator(),
+                            ','
+                        )
                         model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 spinner.succeed()

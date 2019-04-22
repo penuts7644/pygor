@@ -32,7 +32,7 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_csv_file
+from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, preprocess_csv_file, copy_to_dir
 
 
 class GenerateSeqs(object):
@@ -189,29 +189,37 @@ class GenerateSeqs(object):
             working_dir = get_working_dir()
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_num_threads())])
-            spinner = Halo(text='Building IGoR command', spinner='dots')
+            spinner = Halo(text='Processing IGoR model files', spinner='dots')
 
             # Add the model (build-in or custom) command.
             spinner.start()
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
-                command_list.append(['set_custom_model', files['parameters'],
-                                     files['marginals']])
+                command_list.append([
+                    'set_custom_model',
+                    files['parameters'],
+                    files['marginals']
+                ])
             elif args.custom_model:
-                command_list.append(['set_custom_model', str(args.custom_model[0]),
-                                     str(args.custom_model[1])])
+                command_list.append([
+                    'set_custom_model',
+                    copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
+                    copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
+                ])
+            spinner.succeed()
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
+            spinner.start('Executing IGoR')
             igor_cline = IgorInterface(args=command_list)
-            spinner.succeed()
             exit_code, _, _, _ = igor_cline.call()
             if exit_code != 0:
-                print("An error occurred during execution of IGoR " \
-                      "command (exit code {})".format(exit_code))
+                spinner.fail("An error occurred during execution of IGoR " \
+                    "command (exit code {})".format(exit_code))
                 return
+            spinner.succeed()
 
             # Merge the generated output files together (translated).
             spinner.start('Processing sequence realizations')
@@ -275,8 +283,11 @@ class GenerateSeqs(object):
                                        model_marginals=args.custom_model[1])
                     for gene in args.anchor:
                         anchor_file = preprocess_csv_file(
-                            os.path.join(working_dir, 'cdr3_anchors'), str(gene[1]),
-                            get_separator(), ',')
+                            os.path.join(working_dir, 'cdr3_anchors'),
+                            str(gene[1]),
+                            get_separator(),
+                            ','
+                        )
                         model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 spinner.succeed()
