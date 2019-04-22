@@ -20,10 +20,14 @@
 
 import os
 
+from halo import Halo
+import numpy
+
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_working_dir, get_separator, get_output_name
+from immuno_probs.util.exception import AlignerException, GeneIdentifierException
 from immuno_probs.util.io import write_dataframe_to_csv
 
 
@@ -72,9 +76,9 @@ class LocateCdr3Anchors(object):
                         "needs to conform to IGMT annotation (separated by " \
                         "'|' character)."
             },
-            '-motifs': {
-                'type': 'str',
-                'nargs': '*',
+            '-motif': {
+                'type': 'str.upper',
+                'action': 'append',
                 'help': "The motifs to look for. If none specified, the " \
                         "default 'V' (Cystein - TGT and TGC) or 'J' " \
                         "(Tryptophan - TGG, Phenylalanine - TTC and TTT)."
@@ -104,29 +108,35 @@ class LocateCdr3Anchors(object):
         if not os.path.isdir(working_dir):
             os.makedirs(os.path.join(get_working_dir(), 'cdr3_anchors'))
 
+        # Setup and start spinner.
+        spinner = Halo(text='Locating CDR3 anchors', spinner='dots')
+        spinner.start()
+
         # Create the alignment and locate the motifs.
         for gene in args.ref:
-            aligner = MuscleAligner(infile=gene[1])
-            locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
-                                    gene=gene[0])
+            try:
+                aligner = MuscleAligner(infile=gene[1])
+                locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
+                                        gene=gene[0])
+            except (AlignerException, GeneIdentifierException) as err:
+                spinner.fail(str(err))
+                return
 
-            if args.motifs is not None:
-                anchors_df = locator.get_indices_motifs(args.motifs)
+            if args.motif is not None:
+                anchors_df = locator.get_indices_motifs(*args.motif)
             else:
                 anchors_df = locator.get_indices_motifs()
 
             # Modify the dataframe to make it OLGA compliant.
-            anchors_df.insert(2, 'function', anchors_df['name'])
+            anchors_df.insert(2, 'function', numpy.nan)
             anchors_df.rename(columns={'name': 'gene'}, inplace=True)
             try:
-                for i, row in anchors_df.iterrows():
-                    description_list = row['gene'].split('|')
-                    anchors_df.ix[i, 'gene'] = description_list[1]
-                    anchors_df.ix[i, 'function'] = description_list[3]
-            except IndexError:
-                print("FASTA header needs to be separated by '|', needs to " \
-                    "have gene name on index position 1 and function on " \
-                    "index position 3: '{}'".format(anchors_df['gene']))
+                anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
+                    lambda value: (value.split('|')[1], value.split('|')[3])))
+            except (IndexError, ValueError):
+                spinner.fail("FASTA header needs to be separated by '|', " \
+                    "needs to have gene name on index position 1 and " \
+                    "function on index position 3: '{}'".format(anchors_df['gene']))
                 return
 
             # Apply some filtering to the anchor dataframe.
@@ -137,13 +147,13 @@ class LocateCdr3Anchors(object):
             output_prefix = get_output_name()
             if not output_prefix:
                 output_prefix = 'gene_CDR3_anchors'
-            directory, filename = write_dataframe_to_csv(
+            _, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
                 filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,
                 separator=get_separator())
-            print("Written '{}' file to '{}' directory.".format(
-                filename, directory))
+            spinner.info("Written '{}' for {} gene".format(filename, gene[0]))
+        spinner.succeed()
 
 
 def main():

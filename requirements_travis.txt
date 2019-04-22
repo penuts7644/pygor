@@ -7,3 +7,4 @@ pathos>=0.2.2.1
 pytest>=3.8.2
 twine>=1.12.1
 olga>=1.0.2
+halo>=0.0.23

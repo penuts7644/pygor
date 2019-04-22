@@ -19,6 +19,7 @@
 
 
 import os
+from shutil import copy2
 
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import SimpleFastaParser
@@ -55,6 +56,34 @@ def create_directory_path(directory):
     return updated_directory
 
 
+def is_fasta(file):
+    """Checks if the input file is valid fasta.
+
+    Parameters
+    ----------
+    file : string
+        Location of the FASTA file to be tested.
+
+    """
+    with open(file, "r") as fasta_file:
+        return any(SeqIO.parse(fasta_file, "fasta"))
+
+
+def is_csv(file, separator):
+    """Checks if the input file is valid csv.
+
+    Parameters
+    ----------
+    file : string
+        Location of the CSV file to be tested.
+    separator : string
+        A separator character used for separating the fields in the file.
+
+    """
+    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0, nrows=100)
+    return not dataframe.empty
+
+
 def read_fasta_as_dataframe(file):
     """Creates a pandas.DataFrame from the FASTA file.
 
@@ -89,7 +118,7 @@ def read_csv_to_dataframe(file, separator):
     file : string
         File path to be read in as dataframe.
     separator : string
-        A separator character used for separating the fields in the CSV file.
+        A separator character used for separating the fields in the file.
 
     Notes
     -----
@@ -142,7 +171,7 @@ def write_dataframe_to_csv(dataframe, filename, directory, separator):
     return (directory, updated_filename + '.csv')
 
 
-def preprocess_input_file(directory, file, in_sep, out_sep, cols=None):
+def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
     """Function for formatting the input sequence file for IGoR.
 
     Parameters
@@ -228,3 +257,32 @@ def preprocess_reference_file(directory, file, index):
     updated_path = os.path.join(directory, os.path.basename(file))
     SeqIO.write(records, updated_path, "fasta")
     return updated_path
+
+
+def copy_to_dir(directory, file, extension):
+    """Function for copying file to directory and modifying the extension.
+
+    Parameters
+    ----------
+    directory : str
+        A directory path to write the file to.
+    file : str
+        A FASTA file path for a reference genomic template file.
+    extension : str
+        An extension name, if the same, file will NOT be coppied.
+
+    Returns
+    -------
+    str
+        A string file path to the new file location and name.
+
+    """
+    # Check if file name extension if different, or return.
+    filename, file_extension = os.path.splitext(os.path.basename(file))
+    if file_extension == str('.' + extension):
+        return file
+
+    # Copy file to given directory if necessary.
+    output_file = os.path.join(directory, filename + '.' + extension)
+    copy2(file, output_file)
+    return output_file
