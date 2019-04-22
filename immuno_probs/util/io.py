@@ -19,6 +19,7 @@
 
 
 import os
+from shutil import copy2
 
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import SimpleFastaParser
@@ -256,3 +257,32 @@ def preprocess_reference_file(directory, file, index):
     updated_path = os.path.join(directory, os.path.basename(file))
     SeqIO.write(records, updated_path, "fasta")
     return updated_path
+
+
+def copy_to_dir(directory, file, extension):
+    """Function for copying file to directory and modifying the extension.
+
+    Parameters
+    ----------
+    directory : str
+        A directory path to write the file to.
+    file : str
+        A FASTA file path for a reference genomic template file.
+    extension : str
+        An extension name, if the same, file will NOT be coppied.
+
+    Returns
+    -------
+    str
+        A string file path to the new file location and name.
+
+    """
+    # Check if file name extension if different, or return.
+    filename, file_extension = os.path.splitext(os.path.basename(file))
+    if file_extension == str('.' + extension):
+        return file
+
+    # Copy file to given directory if necessary.
+    output_file = os.path.join(directory, filename + '.' + extension)
+    copy2(file, output_file)
+    return output_file
