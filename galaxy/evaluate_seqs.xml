@@ -159,7 +159,7 @@
                 </when>
             </conditional>
 
-            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Evaluation sequences" help="CSV files need to conform to IGoR standards, 'seq_index' and 'nt_sequence' column." />
+            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Evaluation sequences" help="CSV files need to have a 'seq_index' column plus optional columns: 'nt_sequence', 'aa_sequence', 'gene_choice_v' and 'gene_choic_j'." />
         </section>
     </inputs>
 
