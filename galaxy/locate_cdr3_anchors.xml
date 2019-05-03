@@ -11,6 +11,7 @@
 
             ## general immuno-probs parameters
             -separator '$optional.separator'
+            -threads \$GALAXY_SLOTS 
 
             ## tool command
             locate-cdr3-anchors

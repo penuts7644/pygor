@@ -11,6 +11,7 @@
 
             ## general immuno-probs parameters
             -separator '$optional.separator'
+            -threads \$GALAXY_SLOTS
 
             ## tool command
             generate-seqs
@@ -19,20 +20,21 @@
                 #if $input.cond_category.category == "default":
 
                     -model '$input.cond_category.default'
+                    $input.cond_category.cdr3
 
                 #elif $input.cond_category.category == "custom"
 
                     -custom-model '$input.cond_category.parameters' '$input.cond_category.marginals'
                     -type '$input.cond_category.type'
 
-                #end if
+                    ## specify CDR3 option with anchor files
+                    #if $input.cond_category.cond_cdr3.cdr3:
 
-                ## specify CDR3 option with anchor files
-                #if $input.cond_cdr3.cdr3:
+                        $input.cond_category.cond_cdr3.cdr3
+                        -anchor 'V' '$input.cond_category.cond_cdr3.anchor_v'
+                        -anchor 'J' '$input.cond_category.cond_cdr3.anchor_j'
 
-                    $input.cond_cdr3.cdr3
-                    -anchor 'V' '$input.cond_cdr3.anchor_v'
-                    -anchor 'J' '$input.cond_cdr3.anchor_j'
+                    #end if
 
                 #end if
 
@@ -63,6 +65,7 @@
                         <option value="human-b-heavy">Human IG heavy</option>
                         <option value="mouse-t-beta">Mouse TCR beta</option>
                     </param>
+                    <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
                 </when>
 
                 <when value="custom">
@@ -73,18 +76,18 @@
                         <option value="heavy">Heavy</option>
                     </param>
 
+                    <conditional name="cond_cdr3">
+                        <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
+
+                        <when value=" -cdr3">
+                            <param name="anchor_v" type="data" format="csv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                            <param name="anchor_j" type="data" format="csv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                        </when>
+                    </conditional>
+
                     <param name="parameters" type="data" format="txt" label="Model - parameters" help="Needs to conform to IGoR standards." />
 
                     <param name="marginals" type="data" format="txt" label="Model - marginals" help="Needs to conform to IGoR standards." />
-                </when>
-            </conditional>
-
-            <conditional name="cond_cdr3">
-                <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
-
-                <when value=" -cdr3">
-                    <param name="anchor_v" type="data" format="csv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                    <param name="anchor_j" type="data" format="csv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                 </when>
             </conditional>
 
