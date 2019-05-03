@@ -23,7 +23,7 @@ import olga.generation_probability as olga_pgen
 import pandas
 import numpy
 
-from immuno_probs.util.constant import get_num_threads
+from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.exception import OlgaException
 from immuno_probs.util.processing import multiprocess_array
@@ -60,15 +60,16 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence index - 'seq_index', nucleotide
-            CDR3 sequence - 'nt_sequence', ammino acid CDR3 sequence -
-            'aa_sequence', the index of the chosen V gene - 'gene_choice_v'
-            and the index of the chosen J gene - 'gene_choice_j'.
+            Containing columns with sequence index, nucleotide CDR3 sequence,
+            ammino acid CDR3 sequence, the index of the chosen V gene and the
+            index of the chosen J gene.
 
         """
         # Create the dataframe and set the generation objects.
         generated_seqs = pandas.DataFrame(
-            columns=['seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v', 'gene_choice_j'])
+            columns=[get_config_data('I_COL'), get_config_data('NT_COL'),
+                     get_config_data('AA_COL'), get_config_data('V_GENE_COL'),
+                     get_config_data('J_GENE_COL')])
         seq_gen_model = None
         if self.igor_model.get_type() == "VDJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -85,11 +86,13 @@ class OlgaContainer(object):
         for i in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
             generated_seqs = generated_seqs.append({
-                'seq_index': i,
-                'nt_sequence': generated_seq[0],
-                'aa_sequence': generated_seq[1],
-                'gene_choice_v': self.igor_model.get_genomic_data().genV[generated_seq[2]][0],
-                'gene_choice_j': self.igor_model.get_genomic_data().genJ[generated_seq[3]][0],
+                get_config_data('I_COL'): i,
+                get_config_data('NT_COL'): generated_seq[0],
+                get_config_data('AA_COL'): generated_seq[1],
+                get_config_data('V_GENE_COL'): self.igor_model.get_genomic_data() \
+                    .genV[generated_seq[2]][0],
+                get_config_data('J_GENE_COL'): self.igor_model.get_genomic_data() \
+                    .genJ[generated_seq[3]][0]
             }, ignore_index=True)
         return generated_seqs
 
@@ -108,34 +111,41 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number - 'seq_index', the
-            generation probability of nucleotide sequence if
-            given - 'nt_pgen_estimate' and the generation probability of
-            aminoacid sequence if given - 'aa_pgen_estimate'.
+            Containing columns sequence index number, the generation probability
+            of nucleotide sequence if given and the generation probability of
+            aminoacid sequence if given.
 
         """
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        pgen_seqs = pandas.DataFrame(ary['seq_index'], columns=['seq_index'])
+        pgen_seqs = pandas.DataFrame(ary[get_config_data('I_COL')],
+                                     columns=[get_config_data('I_COL')])
 
         # Evaluate the sequences, add them to the dataframe and return.
-        if set(['gene_choice_v', 'gene_choice_j']).issubset(ary.columns):
-            if 'nt_sequence' in ary.columns:
-                pgen_seqs['nt_pgen_estimate'] = ary.apply(
+        if set([get_config_data('V_GENE_COL'),
+                get_config_data('J_GENE_COL')]).issubset(ary.columns):
+            if get_config_data('NT_COL') in ary.columns:
+                pgen_seqs[get_config_data('NT_P_COL')] = ary.apply(
                     lambda row: model.compute_nt_CDR3_pgen(
-                        row['nt_sequence'], row['gene_choice_v'], row['gene_choice_j']
+                        row[get_config_data('NT_COL')],
+                        row[get_config_data('V_GENE_COL')],
+                        row[get_config_data('J_GENE_COL')]
                     ), axis=1)
-            if 'aa_sequence' in ary.columns:
-                pgen_seqs['aa_pgen_estimate'] = ary.apply(
+            if get_config_data('AA_COL') in ary.columns:
+                pgen_seqs[get_config_data('AA_P_COL')] = ary.apply(
                     lambda row: model.compute_aa_CDR3_pgen(
-                        row['aa_sequence'], row['gene_choice_v'], row['gene_choice_j']
+                        row[get_config_data('AA_COL')],
+                        row[get_config_data('V_GENE_COL')],
+                        row[get_config_data('J_GENE_COL')]
                     ), axis=1)
         else:
-            if 'nt_sequence' in ary.columns:
-                pgen_seqs['nt_pgen_estimate'] = ary['nt_sequence'].apply(model.compute_nt_CDR3_pgen)
-            if 'aa_sequence' in ary.columns:
-                pgen_seqs['aa_pgen_estimate'] = ary['aa_sequence'].apply(model.compute_aa_CDR3_pgen)
+            if get_config_data('NT_COL') in ary.columns:
+                pgen_seqs[get_config_data('NT_P_COL')] = ary[get_config_data('NT_COL')] \
+                    .apply(model.compute_nt_CDR3_pgen)
+            if get_config_data('AA_COL') in ary.columns:
+                pgen_seqs[get_config_data('AA_P_COL')] = ary[get_config_data('AA_COL')] \
+                    .apply(model.compute_aa_CDR3_pgen)
         return pgen_seqs
 
     def evaluate(self, seqs):
@@ -145,21 +155,20 @@ class OlgaContainer(object):
         ----------
         seqs : pandas.DataFrame
             A pandas dataframe object containing column with nucleotide CDR3
-            sequences - 'nt_sequence' and/or amino acid sequences - 'aa_sequence'.
+            sequences and/or amino acid sequences.
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number - 'seq_index', the
-            generation probability of nucleotide sequence if
-            given - 'nt_pgen_estimate' and the generation probability of
-            aminoacid sequence if given - 'aa_pgen_estimate'.
+            Containing columns sequence index number, the generation probability
+            of nucleotide sequence if given and the generation probability of
+            aminoacid sequence if given.
 
         Notes
         -----
-        This fucntion also checks if the given input sequence file contains the
-        'gene_choice_v' and 'gene_choice_j' columns. If so, then the V and J
-        gene masks in these columns are used to incease accuracy of the
+        This function also checks if the given input sequence file contains the
+        gene index columns for the V and J gene. If so, then the V and J gene
+        masks in these columns are used to incease accuracy of the
         generation probabality.
 
         """
@@ -177,14 +186,17 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a GenerationProbability object")
 
         # Insert amino acid sequence column if not existent.
-        if 'nt_sequence' in seqs.columns and not 'aa_sequence' in seqs.columns:
-            seqs.insert(seqs.columns.get_loc('nt_sequence') + 1, 'aa_sequence', numpy.nan)
-            seqs['aa_sequence'] = seqs['nt_sequence'].apply(nucleotides_to_aminoacids)
+        if (get_config_data('NT_COL') in seqs.columns
+                and not get_config_data('AA_COL') in seqs.columns):
+            seqs.insert(seqs.columns.get_loc(get_config_data('NT_COL')) + 1,
+                        get_config_data('AA_COL'), numpy.nan)
+            seqs[get_config_data('AA_COL')] = seqs[get_config_data('NT_COL')] \
+                .apply(nucleotides_to_aminoacids)
 
         # Use multiprocessing to evaluate the sequences in chunks and return.
         result = multiprocess_array(ary=seqs,
                                     func=self._evaluate,
-                                    num_workers=get_num_threads(),
+                                    num_workers=get_config_data('NUM_THREADS'),
                                     model=pgen_model)
         result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)

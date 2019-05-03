@@ -21,7 +21,7 @@
 import pandas
 import numpy
 
-from immuno_probs.util.constant import get_num_threads
+from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import GeneIdentifierException
 from immuno_probs.util.processing import multiprocess_array
 
@@ -53,8 +53,8 @@ class AnchorLocator(object):
         super(AnchorLocator, self).__init__()
         self.alignment = alignment
         self.gene = self._set_gene(gene)
-        self.default_motifs = {"V": ["TGT", "TGC"],
-                               "J": ["TGG", "TTC", "TTT"]}
+        self.default_motifs = {"V": get_config_data('V_MOTIFS').split(','),
+                               "J": get_config_data('J_MOTIFS').split(',')}
 
     @staticmethod
     def _set_gene(gene):
@@ -149,8 +149,8 @@ class AnchorLocator(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence identifier - 'name', start index
-            values for the anchors - 'anchor_index' and motifs - 'motif'.
+            Containing columns with sequence identifier, start index values for
+            the anchors and motifs.
 
         Notes
         -----
@@ -166,7 +166,7 @@ class AnchorLocator(object):
             motifs = self.default_motifs[self.gene]
         result = multiprocess_array(ary=motifs,
                                     func=self._find_conserved_motif_indices,
-                                    num_workers=get_num_threads(),
+                                    num_workers=get_config_data('NUM_THREADS'),
                                     alignment=self.alignment)
         result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
         result.drop_duplicates(inplace=True)
