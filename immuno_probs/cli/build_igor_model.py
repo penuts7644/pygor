@@ -25,8 +25,9 @@ from halo import Halo
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
-from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv, copy_to_dir
+from immuno_probs.util.constant import get_config_data
+from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, \
+is_fasta, is_csv, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -154,9 +155,9 @@ class BuildIgorModel(object):
         """
         # Add general igor commands and setup spinner.
         command_list = []
-        working_dir = get_working_dir()
+        working_dir = get_config_data('WORKING_DIR')
         command_list.append(['set_wd', working_dir])
-        command_list.append(['threads', str(get_num_threads())])
+        command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
         spinner = Halo(text='Processing genomic reference templates', spinner='dots')
 
         # Add sequence and file paths commands.
@@ -199,12 +200,12 @@ class BuildIgorModel(object):
                     'read_seqs',
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
-            elif is_csv(args.seqs, get_separator()):
+            elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                 spinner.info('CSV input file extension detected')
                 input_seqs = preprocess_csv_file(
                     os.path.join(working_dir, 'input'),
                     copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                    get_separator(),
+                    get_config_data('SEPARATOR'),
                     ';',
                     [0, 1]
                 )
@@ -235,7 +236,7 @@ class BuildIgorModel(object):
 
         # Copy the output files to the output directory with prefix.
         spinner.start('Writting files')
-        output_prefix = get_output_name()
+        output_prefix = get_config_data('OUT_NAME')
         if not output_prefix:
             output_prefix = 'model'
         _, filename = self._copy_file_to_output(

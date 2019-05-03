@@ -31,9 +31,11 @@ from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
-from immuno_probs.util.constant import get_num_threads, get_working_dir, get_separator, get_output_name
+from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, is_csv, copy_to_dir
+from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, \
+write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, \
+is_csv, copy_to_dir
 
 
 class EvaluateSeqs(object):
@@ -154,9 +156,9 @@ class EvaluateSeqs(object):
 
             # Add general IGoR commands and setup spinner.
             command_list = []
-            working_dir = get_working_dir()
+            working_dir = get_config_data('WORKING_DIR')
             command_list.append(['set_wd', working_dir])
-            command_list.append(['threads', str(get_num_threads())])
+            command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
             spinner = Halo(text='Processing genomic reference templates', spinner='dots')
 
             # Add the model (build-in or custom) command depending on given.
@@ -202,12 +204,12 @@ class EvaluateSeqs(object):
                         'read_seqs',
                         copy_to_dir(working_dir, str(args.seqs), 'fasta')
                     ])
-                elif is_csv(args.seqs, get_separator()):
+                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
                     input_seqs = preprocess_csv_file(
                         os.path.join(working_dir, 'input'),
                         copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                        get_separator(),
+                        get_config_data('SEPARATOR'),
                         ';',
                         [0, 1]
                     )
@@ -240,46 +242,55 @@ class EvaluateSeqs(object):
             # Read in all data frame files, based on input file type.
             spinner.start('Processing generation probabilities')
             try:
+                columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
                 if is_fasta(args.seqs):
-                    seqs_df = read_fasta_as_dataframe(file=args.seqs)
-                elif is_csv(args.seqs, get_separator()):
+                    seqs_df = read_fasta_as_dataframe(file=args.seqs,
+                                                      columns=columns)
+                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_separator())
+                                                    separator=get_config_data('SEPARATOR'))
                 full_pgen_df = read_csv_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';')
+                full_pgen_df.rename(columns={'Pgen_estimate': get_config_data('NT_P_COL')},
+                                    inplace=True)
+                full_pgen_df.loc[:, get_config_data('AA_P_COL')] = numpy.nan
             except IOError as err:
                 spinner.fail(str(err))
                 return
 
             # Insert amino acid sequence column if not existent.
-            if 'nt_sequence' in seqs_df.columns and not 'aa_sequence' in seqs_df.columns:
-                seqs_df.insert(seqs_df.columns.get_loc('nt_sequence') + 1, 'aa_sequence', numpy.nan)
-                seqs_df['aa_sequence'] = seqs_df['nt_sequence'].apply(nucleotides_to_aminoacids)
+            if (get_config_data('NT_COL') in seqs_df.columns
+                    and not get_config_data('AA_COL') in seqs_df.columns):
+                seqs_df.insert(
+                    seqs_df.columns.get_loc(get_config_data('NT_COL')) + 1,
+                    get_config_data('AA_COL'), numpy.nan)
+                seqs_df[get_config_data('AA_COL')] = seqs_df[get_config_data('NT_COL')] \
+                    .apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
-            full_pgen_df = seqs_df.merge(full_pgen_df, on='seq_index')
+            full_pgen_df = seqs_df.merge(full_pgen_df, on=get_config_data('I_COL'))
             spinner.succeed()
 
             # Write the pandas dataframe to a CSV file.
             spinner.start('Writting file')
-            output_filename = get_output_name()
+            output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}'.format(model_type)
             _, _ = write_dataframe_to_csv(
                 dataframe=full_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_separator())
+                separator=get_config_data('SEPARATOR'))
             spinner.succeed()
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.cdr3:
 
             # Create the directory for the output files and setup spinner.
-            working_dir = os.path.join(get_working_dir(), 'output')
+            working_dir = os.path.join(get_config_data('WORKING_DIR'), 'output')
             if not os.path.isdir(working_dir):
-                os.makedirs(os.path.join(get_working_dir(), 'output'))
+                os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'output'))
             spinner = Halo(text='Loading model', spinner='dots')
 
             # Load the model and create the sequence evaluator.
@@ -304,7 +315,7 @@ class EvaluateSeqs(object):
                         anchor_file = preprocess_csv_file(
                             os.path.join(working_dir, 'cdr3_anchors'),
                             str(gene[1]),
-                            get_separator(),
+                            get_config_data('SEPARATOR'),
                             ','
                         )
                         model.set_anchor(gene=gene[0], file=anchor_file)
@@ -319,11 +330,13 @@ class EvaluateSeqs(object):
             try:
                 if is_fasta(args.seqs):
                     spinner.info('FASTA input file extension detected')
-                    seqs_df = read_fasta_as_dataframe(file=args.seqs)
-                elif is_csv(args.seqs, get_separator()):
+                    columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
+                    seqs_df = read_fasta_as_dataframe(file=args.seqs,
+                                                      columns=columns)
+                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
                     seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_separator())
+                                                    separator=get_config_data('SEPARATOR'))
                 else:
                     spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
                     return
@@ -339,7 +352,7 @@ class EvaluateSeqs(object):
                 cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
 
                 # Merge IGoR generated sequence output dataframes.
-                cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, on='seq_index')
+                cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, on=get_config_data('I_COL'))
                 spinner.succeed()
             except (OlgaException) as err:
                 spinner.fail(str(err))
@@ -347,14 +360,14 @@ class EvaluateSeqs(object):
 
             # Write the pandas dataframe to a CSV file.
             spinner.start('Writting file')
-            output_filename = get_output_name()
+            output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
             _, _ = write_dataframe_to_csv(
                 dataframe=cdr3_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_separator())
+                separator=get_config_data('SEPARATOR'))
             spinner.succeed()
 
 

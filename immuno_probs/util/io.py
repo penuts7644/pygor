@@ -84,7 +84,7 @@ def is_csv(file, separator):
     return not dataframe.empty
 
 
-def read_fasta_as_dataframe(file):
+def read_fasta_as_dataframe(file, columns):
     """Creates a pandas.DataFrame from the FASTA file.
 
     The dataframe contains header name and sequence columns containing the
@@ -94,17 +94,18 @@ def read_fasta_as_dataframe(file):
     ----------
     file : string
         Location of the FASTA file to be read in.
+    columns : list
+        A list of strings to use as columns names.
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=['seq_index', 'header', 'nt_sequence'])
+    fasta_df = pandas.DataFrame(columns=columns)
     with open(file, 'r') as fasta_file:
         fasta_count = 0
-        for title, sequence in SimpleFastaParser(fasta_file):
+        for _, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
-                'seq_index': fasta_count,
-                'header': title,
-                'nt_sequence': sequence.upper(),
+                columns[0]: fasta_count,
+                columns[1]: sequence.upper()
             }, ignore_index=True)
             fasta_count += 1
     return fasta_df
@@ -126,8 +127,7 @@ def read_csv_to_dataframe(file, separator):
         string for the input CSV file. Comments ('#') in the file are skipped.
 
     """
-    dataframe = pandas.read_csv(file, sep=separator, comment='#',
-                                header=0)
+    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0)
     return dataframe
 
 
@@ -166,8 +166,9 @@ def write_dataframe_to_csv(dataframe, filename, directory, separator):
         file_count += 1
 
     # Write dataframe contents to csv file and return info.
-    pandas.DataFrame.to_csv(dataframe, path_or_buf=os.path.join(
-        directory, updated_filename + '.csv'), sep=separator, index=False)
+    pandas.DataFrame.to_csv(
+        dataframe, path_or_buf=os.path.join(directory, updated_filename + '.csv'),
+        sep=separator, index=False, na_rep='na')
     return (directory, updated_filename + '.csv')
 
 

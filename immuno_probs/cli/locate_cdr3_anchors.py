@@ -26,7 +26,7 @@ import numpy
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
-from immuno_probs.util.constant import get_working_dir, get_separator, get_output_name
+from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import AlignerException, GeneIdentifierException
 from immuno_probs.util.io import write_dataframe_to_csv
 
@@ -104,9 +104,9 @@ class LocateCdr3Anchors(object):
 
         """
         # Create the directory for the output files.
-        working_dir = os.path.join(get_working_dir(), 'cdr3_anchors')
+        working_dir = os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors')
         if not os.path.isdir(working_dir):
-            os.makedirs(os.path.join(get_working_dir(), 'cdr3_anchors'))
+            os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors'))
 
         # Setup and start spinner.
         spinner = Halo(text='Locating CDR3 anchors', spinner='dots')
@@ -144,14 +144,14 @@ class LocateCdr3Anchors(object):
             anchors_df.reset_index(inplace=True, drop=True)
 
             # Write the pandas dataframe to a CSV file with prefix.
-            output_prefix = get_output_name()
+            output_prefix = get_config_data('OUT_NAME')
             if not output_prefix:
                 output_prefix = 'gene_CDR3_anchors'
             _, filename = write_dataframe_to_csv(
                 dataframe=anchors_df,
                 filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,
-                separator=get_separator())
+                separator=get_config_data('SEPARATOR'))
             spinner.info("Written '{}' for {} gene".format(filename, gene[0]))
         spinner.succeed()
 

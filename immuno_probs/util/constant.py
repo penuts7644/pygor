@@ -18,20 +18,62 @@
 """Contains global constant variables used in immuno_probs."""
 
 
+from ConfigParser import RawConfigParser
 import os
+from pkg_resources import resource_filename
 
 import pathos.helpers as ph
 
-from immuno_probs.util.exception import SeparatorNotValidException, NumThreadsValueException, DirectoryNonExistingException
+from immuno_probs.util.exception import SeparatorNotValidException, \
+NumThreadsValueException, DirectoryNonExistingException
 
 
-NUM_THREADS = ph.cpu_count()
-SEPARATOR = ','
-WORKING_DIR = os.getcwd()
-OUTPUT_NAME = ''
+# NUM_THREADS = ph.cpu_count()
+# SEPARATOR = ','
+# WORKING_DIR = os.getcwd()
+# OUT_NAME = ''
+CONFIG_DATA = None
 
 
-def set_num_threads(value):
+def set_config_data(value=None):
+    """Updates the global CONFIG_DATA variable by parsing configfiles.
+
+    Parameters
+    ----------
+    value : str
+        An optional configuration file path for ImmunoProbs to parse next to
+        the default file.
+
+    """
+    # Parse default configuration file.
+    pkg_name = __name__.split('.')[0]
+    config_file_path = resource_filename(
+        pkg_name, os.path.join('config', 'default.ini'))
+    conf_parser = RawConfigParser()
+    conf_parser.read(config_file_path)
+
+    # If given parse additional configuration and set global variable.
+    if value:
+        conf_parser.read(value)
+    globals().update(CONFIG_DATA=conf_parser)
+
+def get_config_data(value):
+    """Returns the global CONFIG_DATA variable.
+
+    Parameters
+    ----------
+    value : str
+        The option to return its value from.
+
+    Returns
+    -------
+    str
+        The value of the option within the configuration file.
+
+    """
+    return CONFIG_DATA.get('ImmunoProbs', value)
+
+def set_num_threads(value=None):
     """Updates the global NUM_THREADS variable.
 
     Parameters
@@ -47,23 +89,15 @@ def set_num_threads(value):
         then 1.
 
     """
+    # Reset number of threads if not given, check value and set value.
+    if not value:
+        value = str(ph.cpu_count())
     if not isinstance(value, int) or value < 1:
         raise NumThreadsValueException(
             "The NUM_THREADS variable needs to be of type integer and higher " \
             "than zero", value)
     else:
-        globals().update(NUM_THREADS=value)
-
-def get_num_threads():
-    """Returns the global NUM_THREADS variable.
-
-    Returns
-    -------
-    str
-        The globally set value for the number of threads.
-
-    """
-    return NUM_THREADS
+        CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', value)
 
 def set_separator(value):
     """Updates the global SEPARATOR variable.
@@ -84,18 +118,7 @@ def set_separator(value):
         raise SeparatorNotValidException(
             "The SEPARATOR variable needs to be of type string", value)
     else:
-        globals().update(SEPARATOR=value)
-
-def get_separator():
-    """Returns the global SEPARATOR variable.
-
-    Returns
-    -------
-    str
-        The globally set separator value.
-
-    """
-    return SEPARATOR
+        CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
 
 def set_working_dir(value):
     """Updates the global WORKING_DIR variable.
@@ -118,21 +141,10 @@ def set_working_dir(value):
             "The WORKING_DIR variable needs to be of type string and exist " \
             "on the system", value)
     else:
-        globals().update(WORKING_DIR=value)
-
-def get_working_dir():
-    """Returns the global WORKING_DIR variable.
-
-    Returns
-    -------
-    str
-        The globally set working directory value.
-
-    """
-    return WORKING_DIR
+        CONFIG_DATA.set('ImmunoProbs', 'WORKING_DIR', value)
 
 def set_output_name(value):
-    """Updates the global OUTPUT_NAME variable.
+    """Updates the global OUT_NAME variable.
 
     Parameters
     ----------
@@ -141,16 +153,8 @@ def set_output_name(value):
         prefixing output files. (default: none).
 
     """
-    updated_str = ''.join(char for char in value if char.isalnum())
-    globals().update(OUTPUT_NAME=updated_str)
+    updated_value = ''.join(char for char in value if char.isalnum())
+    CONFIG_DATA.set('ImmunoProbs', 'OUT_NAME', updated_value)
 
-def get_output_name():
-    """Returns the global OUTPUT_NAME variable.
-
-    Returns
-    -------
-    str
-        The globally set output file name value.
-
-    """
-    return OUTPUT_NAME
+# Set the default config data object.
+set_config_data()

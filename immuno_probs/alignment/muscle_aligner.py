@@ -18,12 +18,12 @@
 """MuscleAligner class for performing MUSCLE alignments."""
 
 
-from immuno_probs.util.exception import AlignerException
-
 from Bio.Align.Applications import MuscleCommandline
 from StringIO import StringIO
 from Bio import AlignIO
 from Bio.Application import ApplicationError
+
+from immuno_probs.util.exception import AlignerException
 
 
 class MuscleAligner(object):
