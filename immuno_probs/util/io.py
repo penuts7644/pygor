@@ -172,7 +172,7 @@ def write_dataframe_to_csv(dataframe, filename, directory, separator):
     return (directory, updated_filename + '.csv')
 
 
-def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
+def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
     """Function for formatting the input sequence file for IGoR.
 
     Parameters
@@ -185,8 +185,12 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
         The input file seperator.
     out_sep : str
         The wanted output file seperator.
+    index_col : str, optional
+        The name of the index column to use. If specified and given column is
+        not found in the dataframe, the index values are generated. (default: No
+        index column)
     cols : list, optional
-        Containing column indices to keep in the output file. The order will
+        Containing column names to keep in the output file. The order will
         change the output file column formatting (default: includes all
         columns in the output file).
 
@@ -201,6 +205,11 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
         This means, the input seperator and output seperator are equal and the
         columns attribute has not been specified.
 
+    Raises
+    ------
+    KeyError
+        If a column is not found in the input data file.
+
     """
     # If the seperators are the same and no columns are given, return the input.
     if out_sep == in_sep and cols is None:
@@ -210,16 +219,27 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
     if not os.path.isdir(directory):
         os.makedirs(directory)
 
-    # Open the sequence input file and update the columns.
+    # Open the sequence input file.
     sequence_df = read_csv_to_dataframe(
         file=file,
         separator=in_sep)
+
+    # Create new dataframe and add index if specified.
+    updated_df = pandas.DataFrame()
+    if index_col is not None:
+        if index_col in sequence_df.columns:
+            updated_df[index_col] = sequence_df.loc[:, index_col]
+        else:
+            updated_df[index_col] = range(0, sequence_df.size + 1)
+
+    # Add the remainder columns if given.
     if cols is not None:
-        sequence_df = sequence_df.iloc[:, cols]
+        for col in cols:
+            updated_df[col] = sequence_df.loc[:, [col]]
 
     # Write the new pandas dataframe to a CSV file.
     directory, filename = write_dataframe_to_csv(
-        dataframe=sequence_df,
+        dataframe=updated_df,
         filename=os.path.basename(str(file)),
         directory=directory,
         separator=out_sep)

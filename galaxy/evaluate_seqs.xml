@@ -159,7 +159,7 @@
                 </when>
             </conditional>
 
-            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Evaluation sequences" help="CSV files need to have a 'seq_index' column plus optional columns: 'nt_sequence', 'aa_sequence', 'gene_choice_v' and 'gene_choic_j'." />
+            <param name="sequences" type="data" format="fasta,csv" optional="false" label="Evaluation sequences" help="CSV files need to have the following optional columns: 'seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v' and 'gene_choic_j'." />
         </section>
     </inputs>
 

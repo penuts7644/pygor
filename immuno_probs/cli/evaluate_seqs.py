@@ -76,9 +76,7 @@ class EvaluateSeqs(object):
                 'required': 'True',
                 'type': 'str',
                 'help': "An input FASTA or CSV file with sequences for " \
-                        "training the model. Note: file needs to end on " \
-                        "'.fasta' or '.csv'. CSV files need to conform to " \
-                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
+                        "training the model."
             },
             '-model': {
                 'type': 'str.lower',
@@ -206,14 +204,20 @@ class EvaluateSeqs(object):
                     ])
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
-                    input_seqs = preprocess_csv_file(
-                        os.path.join(working_dir, 'input'),
-                        copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                        get_config_data('SEPARATOR'),
-                        ';',
-                        [0, 1]
-                    )
-                    command_list.append(['read_seqs', input_seqs])
+                    try:
+                        input_seqs = preprocess_csv_file(
+                            os.path.join(working_dir, 'input'),
+                            copy_to_dir(working_dir, str(args.seqs), 'csv'),
+                            get_config_data('SEPARATOR'),
+                            ';',
+                            get_config_data('I_COL'),
+                            [get_config_data('NT_COL')]
+                        )
+                        command_list.append(['read_seqs', input_seqs])
+                    except KeyError as err:
+                        spinner.fail("Given input sequence file does not have a '{}' column" \
+                            .format(get_config_data('NT_COL')))
+                        return
                 else:
                     spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
                     return
