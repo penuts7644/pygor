@@ -246,10 +246,10 @@ class EvaluateSeqs(object):
             # Read in all data frame files, based on input file type.
             spinner.start('Processing generation probabilities')
             try:
-                columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      columns=columns)
+                                                      index_col=get_config_data('I_COL'),
+                                                      seq_col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     seqs_df = read_csv_to_dataframe(file=args.seqs,
                                                     separator=get_config_data('SEPARATOR'))
@@ -334,9 +334,9 @@ class EvaluateSeqs(object):
             try:
                 if is_fasta(args.seqs):
                     spinner.info('FASTA input file extension detected')
-                    columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      columns=columns)
+                                                      index_col=get_config_data('I_COL'),
+                                                      seq_col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
                     seqs_df = read_csv_to_dataframe(file=args.seqs,

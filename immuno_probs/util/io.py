@@ -84,7 +84,7 @@ def is_csv(file, separator):
     return not dataframe.empty
 
 
-def read_fasta_as_dataframe(file, columns):
+def read_fasta_as_dataframe(file, index_col, seq_col):
     """Creates a pandas.DataFrame from the FASTA file.
 
     The dataframe contains header name and sequence columns containing the
@@ -94,18 +94,20 @@ def read_fasta_as_dataframe(file, columns):
     ----------
     file : string
         Location of the FASTA file to be read in.
-    columns : list
-        A list of strings to use as columns names.
+    index_col : string
+        The name of the index column.
+    seq_col : string
+        The name of the FASTA sequence column.
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=columns)
+    fasta_df = pandas.DataFrame(columns=[index_col, seq_col])
     with open(file, 'r') as fasta_file:
         fasta_count = 0
         for _, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
-                columns[0]: fasta_count,
-                columns[1]: sequence.upper()
+                index_col: fasta_count,
+                seq_col: sequence.upper()
             }, ignore_index=True)
             fasta_count += 1
     return fasta_df

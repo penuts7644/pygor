@@ -54,5 +54,5 @@ def test_read_fasta_as_dataframe(file, expected):
 
     """
     result = read_fasta_as_dataframe(
-        file=file, columns=['seq_index', 'nt_sequence'])
+        file=file, index_col='seq_index', seq_col='nt_sequence')
     assert (result.head() == expected).all().all()
