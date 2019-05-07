@@ -67,9 +67,8 @@ class OlgaContainer(object):
         """
         # Create the dataframe and set the generation objects.
         generated_seqs = pandas.DataFrame(
-            columns=[get_config_data('I_COL'), get_config_data('NT_COL'),
-                     get_config_data('AA_COL'), get_config_data('V_GENE_COL'),
-                     get_config_data('J_GENE_COL')])
+            columns=[get_config_data('NT_COL'), get_config_data('AA_COL'),
+                     get_config_data('V_GENE_COL'), get_config_data('J_GENE_COL')])
         seq_gen_model = None
         if self.igor_model.get_type() == "VDJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -83,10 +82,9 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a SequenceGeneration object")
 
         # Generate the sequences, add them to the dataframe and return.
-        for i in range(num_seqs):
+        for _ in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
             generated_seqs = generated_seqs.append({
-                get_config_data('I_COL'): i,
                 get_config_data('NT_COL'): generated_seq[0],
                 get_config_data('AA_COL'): generated_seq[1],
                 get_config_data('V_GENE_COL'): self.igor_model.get_genomic_data() \
@@ -119,33 +117,43 @@ class OlgaContainer(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        pgen_seqs = pandas.DataFrame(ary[get_config_data('I_COL')],
-                                     columns=[get_config_data('I_COL')])
+        pgen_seqs = pandas.DataFrame(
+            index=ary.index.tolist(),
+            columns=[get_config_data('NT_P_COL'), get_config_data('AA_P_COL')])
 
-        # Evaluate the sequences, add them to the dataframe and return.
-        if set([get_config_data('V_GENE_COL'),
-                get_config_data('J_GENE_COL')]).issubset(ary.columns):
-            if get_config_data('NT_COL') in ary.columns:
-                pgen_seqs[get_config_data('NT_P_COL')] = ary.apply(
-                    lambda row: model.compute_nt_CDR3_pgen(
-                        row[get_config_data('NT_COL')],
-                        row[get_config_data('V_GENE_COL')],
-                        row[get_config_data('J_GENE_COL')]
-                    ), axis=1)
-            if get_config_data('AA_COL') in ary.columns:
-                pgen_seqs[get_config_data('AA_P_COL')] = ary.apply(
-                    lambda row: model.compute_aa_CDR3_pgen(
-                        row[get_config_data('AA_COL')],
-                        row[get_config_data('V_GENE_COL')],
-                        row[get_config_data('J_GENE_COL')]
-                    ), axis=1)
-        else:
-            if get_config_data('NT_COL') in ary.columns:
-                pgen_seqs[get_config_data('NT_P_COL')] = ary[get_config_data('NT_COL')] \
-                    .apply(model.compute_nt_CDR3_pgen)
-            if get_config_data('AA_COL') in ary.columns:
-                pgen_seqs[get_config_data('AA_P_COL')] = ary[get_config_data('AA_COL')] \
-                    .apply(model.compute_aa_CDR3_pgen)
+        for i, row in ary.iterrows():
+
+            # Evaluate the nucleotide sequences, add them to the dataframe
+            if (get_config_data('NT_COL') in ary.columns
+                    and isinstance(row[get_config_data('NT_COL')], str)):
+                if ((get_config_data('V_GENE_COL') in ary.columns
+                     and isinstance(row[get_config_data('V_GENE_COL')], str))
+                        and (get_config_data('J_GENE_COL') in ary.columns
+                             and isinstance(row[get_config_data('J_GENE_COL')], str))):
+                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = \
+                        model.compute_nt_CDR3_pgen(
+                            row[get_config_data('NT_COL')],
+                            row[get_config_data('V_GENE_COL')],
+                            row[get_config_data('J_GENE_COL')])
+                else:
+                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = \
+                        model.compute_nt_CDR3_pgen(row[get_config_data('NT_COL')])
+
+            # Evaluate the ammino acid sequences, add them to the dataframe
+            if (get_config_data('AA_COL') in ary.columns
+                    and isinstance(row[get_config_data('AA_COL')], str)):
+                if ((get_config_data('V_GENE_COL') in ary.columns
+                     and isinstance(row[get_config_data('V_GENE_COL')], str))
+                        and (get_config_data('J_GENE_COL') in ary.columns
+                             and isinstance(row[get_config_data('J_GENE_COL')], str))):
+                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = \
+                        model.compute_aa_CDR3_pgen(
+                            row[get_config_data('AA_COL')],
+                            row[get_config_data('V_GENE_COL')],
+                            row[get_config_data('J_GENE_COL')])
+                else:
+                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = \
+                        model.compute_aa_CDR3_pgen(row[get_config_data('AA_COL')])
         return pgen_seqs
 
     def evaluate(self, seqs):
@@ -198,9 +206,7 @@ class OlgaContainer(object):
                                     func=self._evaluate,
                                     num_workers=get_config_data('NUM_THREADS'),
                                     model=pgen_model)
-        result = pandas.concat(result, axis=0, ignore_index=True, copy=False)
-        result.drop_duplicates(inplace=True)
-        result.reset_index(inplace=True, drop=True)
+        result = pandas.concat(result, axis=0, copy=False)
         return result
 
 
