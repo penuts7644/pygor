@@ -144,13 +144,12 @@ class GenerateSeqs(object):
         """
         # If the suplied model is VDJ, locate important columns and update index values.
         if model.get_type() == "VDJ":
-            real_df = pandas.concat([data[[get_config_data('I_COL')]],
-                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+            real_df = pandas.concat([data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*")),
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
-                                    ignore_index=True, axis=1, sort=False)
-            real_df.columns = [get_config_data('I_COL'), get_config_data('V_GENE_COL'),
-                               get_config_data('J_GENE_COL'), get_config_data('D_GENE_COL')]
+                                    axis=1, sort=False)
+            real_df.columns = [get_config_data('V_GENE_COL'), get_config_data('J_GENE_COL'),
+                               get_config_data('D_GENE_COL')]
             real_df[get_config_data('V_GENE_COL')], \
             real_df[get_config_data('J_GENE_COL')], \
             real_df[get_config_data('D_GENE_COL')] = zip(
@@ -165,12 +164,10 @@ class GenerateSeqs(object):
 
         # Or do the same if the model is VJ.
         elif model.get_type() == "VJ":
-            real_df = pandas.concat([data[[get_config_data('I_COL')]],
-                                     data.filter(regex=("GeneChoice_V_gene_.*")),
+            real_df = pandas.concat([data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
-                                    ignore_index=True, axis=1, sort=False)
-            real_df.columns = [get_config_data('I_COL'), get_config_data('V_GENE_COL'),
-                               get_config_data('J_GENE_COL')]
+                                    axis=1, sort=False)
+            real_df.columns = [get_config_data('V_GENE_COL'), get_config_data('J_GENE_COL')]
             real_df[get_config_data('V_GENE_COL')], \
             real_df[get_config_data('J_GENE_COL')] = zip(
                 *real_df.apply(lambda row: (
@@ -236,12 +233,14 @@ class GenerateSeqs(object):
             spinner.start('Processing sequence realizations')
             sequence_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
-                separator=';')
+                separator=';',
+                index_col=get_config_data('I_COL'))
             sequence_df[get_config_data('AA_COL')] = sequence_df[get_config_data('NT_COL')] \
                 .apply(nucleotides_to_aminoacids)
             realizations_df = read_csv_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
-                separator=';')
+                separator=';',
+                index_col=get_config_data('I_COL'))
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
                 model_type = files['type']
@@ -255,7 +254,7 @@ class GenerateSeqs(object):
                                    model_marginals=args.custom_model[1])
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
-            full_seqs_df = sequence_df.merge(realizations_df, on=get_config_data('I_COL'))
+            full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
             spinner.succeed()
 
             # Write the pandas dataframe to a CSV file.
@@ -267,7 +266,8 @@ class GenerateSeqs(object):
                 dataframe=full_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'))
+                separator=get_config_data('SEPARATOR'),
+                index_name=get_config_data('I_COL'))
             spinner.succeed()
 
         # If the given type of sequences generation is CDR3, use OLGA.
@@ -298,7 +298,8 @@ class GenerateSeqs(object):
                             os.path.join(working_dir, 'cdr3_anchors'),
                             str(gene[1]),
                             get_config_data('SEPARATOR'),
-                            ','
+                            ',',
+                            get_config_data('I_COL')
                         )
                         model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
@@ -326,7 +327,8 @@ class GenerateSeqs(object):
                 dataframe=cdr3_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'))
+                separator=get_config_data('SEPARATOR'),
+                index_name=get_config_data('I_COL'))
             spinner.succeed()
 
 
