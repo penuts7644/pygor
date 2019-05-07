@@ -76,9 +76,7 @@ class EvaluateSeqs(object):
                 'required': 'True',
                 'type': 'str',
                 'help': "An input FASTA or CSV file with sequences for " \
-                        "training the model. Note: file needs to end on " \
-                        "'.fasta' or '.csv'. CSV files need to conform to " \
-                        "IGoR standards, 'seq_index' and 'nt_sequence' column."
+                        "training the model."
             },
             '-model': {
                 'type': 'str.lower',
@@ -206,14 +204,20 @@ class EvaluateSeqs(object):
                     ])
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
-                    input_seqs = preprocess_csv_file(
-                        os.path.join(working_dir, 'input'),
-                        copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                        get_config_data('SEPARATOR'),
-                        ';',
-                        [0, 1]
-                    )
-                    command_list.append(['read_seqs', input_seqs])
+                    try:
+                        input_seqs = preprocess_csv_file(
+                            os.path.join(working_dir, 'input'),
+                            copy_to_dir(working_dir, str(args.seqs), 'csv'),
+                            get_config_data('SEPARATOR'),
+                            ';',
+                            get_config_data('I_COL'),
+                            [get_config_data('NT_COL')]
+                        )
+                        command_list.append(['read_seqs', input_seqs])
+                    except KeyError as err:
+                        spinner.fail("Given input sequence file does not have a '{}' column" \
+                            .format(get_config_data('NT_COL')))
+                        return
                 else:
                     spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
                     return
@@ -242,16 +246,18 @@ class EvaluateSeqs(object):
             # Read in all data frame files, based on input file type.
             spinner.start('Processing generation probabilities')
             try:
-                columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      columns=columns)
+                                                      col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_config_data('SEPARATOR'))
+                                                    separator=get_config_data('SEPARATOR'),
+                                                    index_col=get_config_data('I_COL'))
                 full_pgen_df = read_csv_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
-                    separator=';')
+                    separator=';',
+                    index_col=get_config_data('I_COL'),
+                    cols=['Pgen_estimate'])
                 full_pgen_df.rename(columns={'Pgen_estimate': get_config_data('NT_P_COL')},
                                     inplace=True)
                 full_pgen_df.loc[:, get_config_data('AA_P_COL')] = numpy.nan
@@ -269,7 +275,7 @@ class EvaluateSeqs(object):
                     .apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
-            full_pgen_df = seqs_df.merge(full_pgen_df, on=get_config_data('I_COL'))
+            full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
             spinner.succeed()
 
             # Write the pandas dataframe to a CSV file.
@@ -281,7 +287,8 @@ class EvaluateSeqs(object):
                 dataframe=full_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'))
+                separator=get_config_data('SEPARATOR'),
+                index_name=get_config_data('I_COL'))
             spinner.succeed()
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
@@ -316,7 +323,8 @@ class EvaluateSeqs(object):
                             os.path.join(working_dir, 'cdr3_anchors'),
                             str(gene[1]),
                             get_config_data('SEPARATOR'),
-                            ','
+                            ',',
+                            get_config_data('I_COL')
                         )
                         model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
@@ -330,13 +338,13 @@ class EvaluateSeqs(object):
             try:
                 if is_fasta(args.seqs):
                     spinner.info('FASTA input file extension detected')
-                    columns = [get_config_data('I_COL'), get_config_data('NT_COL')]
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      columns=columns)
+                                                      col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
                     seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_config_data('SEPARATOR'))
+                                                    separator=get_config_data('SEPARATOR'),
+                                                    index_col=get_config_data('I_COL'))
                 else:
                     spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
                     return
@@ -352,7 +360,7 @@ class EvaluateSeqs(object):
                 cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
 
                 # Merge IGoR generated sequence output dataframes.
-                cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, on=get_config_data('I_COL'))
+                cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
                 spinner.succeed()
             except (OlgaException) as err:
                 spinner.fail(str(err))
@@ -367,7 +375,8 @@ class EvaluateSeqs(object):
                 dataframe=cdr3_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'))
+                separator=get_config_data('SEPARATOR'),
+                index_name=get_config_data('I_COL'))
             spinner.succeed()
 
 

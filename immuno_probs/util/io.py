@@ -84,7 +84,7 @@ def is_csv(file, separator):
     return not dataframe.empty
 
 
-def read_fasta_as_dataframe(file, columns):
+def read_fasta_as_dataframe(file, col):
     """Creates a pandas.DataFrame from the FASTA file.
 
     The dataframe contains header name and sequence columns containing the
@@ -94,24 +94,21 @@ def read_fasta_as_dataframe(file, columns):
     ----------
     file : string
         Location of the FASTA file to be read in.
-    columns : list
-        A list of strings to use as columns names.
+    col : string
+        The name of the FASTA sequence column.
 
     """
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=columns)
+    fasta_df = pandas.DataFrame(columns=[col])
     with open(file, 'r') as fasta_file:
-        fasta_count = 0
         for _, sequence in SimpleFastaParser(fasta_file):
             fasta_df = fasta_df.append({
-                columns[0]: fasta_count,
-                columns[1]: sequence.upper()
+                col: sequence.upper()
             }, ignore_index=True)
-            fasta_count += 1
     return fasta_df
 
 
-def read_csv_to_dataframe(file, separator):
+def read_csv_to_dataframe(file, separator, index_col=None, cols=None):
     """Read in a CSV file as pandas.DataFrame.
 
     Parameters
@@ -120,18 +117,45 @@ def read_csv_to_dataframe(file, separator):
         File path to be read in as dataframe.
     separator : string
         A separator character used for separating the fields in the file.
+    index_col : str, optional
+        The name of the index column to use. If specified and given column is
+        not found in the dataframe, the index values are generated. (default: No
+        index column)
+    cols : list, optional
+        Containing column names to keep in the output file. The order will
+        change the output file column formatting (default: includes all
+        columns in the output file).
 
     Notes
     -----
         This function uses the global SEPARATOR variable to set the separator
         string for the input CSV file. Comments ('#') in the file are skipped.
+        If the given index column contains NA values, the column is ignored.
+
+    Raises
+    ------
+    KeyError
+        If a given column is not found in the input data file.
 
     """
-    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0)
-    return dataframe
+    # Read in columns of the given csv file.
+    if cols:
+        if index_col:
+            cols.insert(0, index_col)
+        csv_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
+                                 usecols=lambda value: value in cols)
+    else:
+        csv_df = pandas.read_csv(file, sep=separator, comment='#', header=0)
+
+    # Set the index column, only use if no NA values.
+    if index_col and index_col in csv_df.columns:
+        if not csv_df[index_col].isna().any():
+            csv_df.set_index(index_col, inplace=True)
+
+    return csv_df
 
 
-def write_dataframe_to_csv(dataframe, filename, directory, separator):
+def write_dataframe_to_csv(dataframe, filename, directory, separator, index_name=None):
     """Writes a pandas.DataFrame to a CSV formatted file.
 
     If the file already exists, a number will be appended to the filename.
@@ -148,6 +172,9 @@ def write_dataframe_to_csv(dataframe, filename, directory, separator):
         A directory path location to create recursively.
     separator : string
         A separator character used for separating the fields in the CSV file.
+    index_name : string, optional
+        The output column name for the dataframe index (default: will not write
+        the index to the file).
 
     Returns
     -------
@@ -166,13 +193,16 @@ def write_dataframe_to_csv(dataframe, filename, directory, separator):
         file_count += 1
 
     # Write dataframe contents to csv file and return info.
+    enable_index = False
+    if index_name:
+        enable_index = True
     pandas.DataFrame.to_csv(
         dataframe, path_or_buf=os.path.join(directory, updated_filename + '.csv'),
-        sep=separator, index=False, na_rep='na')
+        sep=separator, index=enable_index, index_label=index_name, na_rep='NA')
     return (directory, updated_filename + '.csv')
 
 
-def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
+def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
     """Function for formatting the input sequence file for IGoR.
 
     Parameters
@@ -185,8 +215,12 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
         The input file seperator.
     out_sep : str
         The wanted output file seperator.
+    index_col : str, optional
+        The name of the index column to use. If specified and given column is
+        not found in the dataframe, the index values are generated. (default: No
+        index column)
     cols : list, optional
-        Containing column indices to keep in the output file. The order will
+        Containing column names to keep in the output file. The order will
         change the output file column formatting (default: includes all
         columns in the output file).
 
@@ -201,6 +235,11 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
         This means, the input seperator and output seperator are equal and the
         columns attribute has not been specified.
 
+    Raises
+    ------
+    KeyError
+        If a given column is not found in the input data file.
+
     """
     # If the seperators are the same and no columns are given, return the input.
     if out_sep == in_sep and cols is None:
@@ -210,19 +249,20 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, cols=None):
     if not os.path.isdir(directory):
         os.makedirs(directory)
 
-    # Open the sequence input file and update the columns.
+    # Open the sequence input file.
     sequence_df = read_csv_to_dataframe(
         file=file,
-        separator=in_sep)
-    if cols is not None:
-        sequence_df = sequence_df.iloc[:, cols]
+        separator=in_sep,
+        index_col=index_col,
+        cols=cols)
 
     # Write the new pandas dataframe to a CSV file.
     directory, filename = write_dataframe_to_csv(
         dataframe=sequence_df,
         filename=os.path.basename(str(file)),
         directory=directory,
-        separator=out_sep)
+        separator=out_sep,
+        index_name=index_col)
     return os.path.join(directory, filename)
 
 

@@ -27,12 +27,12 @@ from immuno_probs.util.io import read_fasta_as_dataframe
 @pytest.mark.parametrize('file, expected', [
     ('tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta',
      pandas.DataFrame(
-         [[0, 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
-          [1, 'CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
-          [2, 'CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
-          [3, 'ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
-          [4, 'ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
-         columns=['seq_index', 'nt_sequence']))
+         [['CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
+          ['CTACTGGTACTTCGATGTCTGGGGCACAGGGACCACGGTCACCGTCTCCTCAG'],
+          ['ACTACTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAG'],
+          ['ACTACTTTGACTACTGGGGCCAAGGCACCTCTCTCACAGTCTCCTCAG']],
+         columns=['nt_sequence']))
 ])
 def test_read_fasta_as_dataframe(file, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
@@ -53,6 +53,5 @@ def test_read_fasta_as_dataframe(file, expected):
         If the performed test failed.
 
     """
-    result = read_fasta_as_dataframe(
-        file=file, columns=['seq_index', 'nt_sequence'])
+    result = read_fasta_as_dataframe(file=file, col='nt_sequence')
     assert (result.head() == expected).all().all()

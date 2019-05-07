@@ -20,19 +20,20 @@
 
 import pandas
 import pytest
+import numpy
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.igor_loader import IgorLoader
 
 
 @pytest.mark.parametrize('option, expected', [
-    ('generate', [['seq_index', int], ['nt_sequence', str], ['aa_sequence', str],
+    ('generate', [['nt_sequence', str], ['aa_sequence', str],
                   ['gene_choice_v', str], ['gene_choice_j', str]]),
     ('evaluate', pandas.DataFrame(
-        [[0, 'TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', 0],
-         [1, 'TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', 6.022455403460228e-08],
-         [2, 'TGTGCATTGAACAGAGATGACAAGATCATCTTT', 3.8690138672702246e-07]],
-        columns=['seq_index', 'nt_sequence', 'nt_pgen_estimate',])
+        [['TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', numpy.nan, 0, numpy.nan],
+         ['TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', numpy.nan, 6.022455403460228e-08, numpy.nan],
+         ['TGTGCATTGAACAGAGATGACAAGATCATCTTT', numpy.nan, 3.8690138672702246e-07, numpy.nan]],
+        columns=['nt_sequence', 'aa_sequence', 'nt_pgen_estimate', 'aa_pgen_estimate'])
     )
 ])
 def test_olga_container(option, expected):
@@ -65,7 +66,7 @@ def test_olga_container(option, expected):
         for i in expected:
             assert isinstance(i[1](result.iloc[0][i[0]]), i[1])
     elif option == 'evaluate':
-        pgen_seqs = expected.drop(['nt_pgen_estimate'], axis=1)
+        pgen_seqs = expected.drop(['nt_pgen_estimate', 'aa_pgen_estimate'], axis=1)
         result = olga_container.evaluate(seqs=pgen_seqs)
         for index, row in result.iterrows():
             assert (row['nt_pgen_estimate'] - expected['nt_pgen_estimate'][index]) < 0.0000001

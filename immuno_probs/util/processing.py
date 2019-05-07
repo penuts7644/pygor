@@ -20,7 +20,6 @@
 
 import numpy
 import pathos.pools as pp
-import pathos.helpers as help
 
 
 def multiprocess_array(ary, func, num_workers, **kwargs):
@@ -44,6 +43,7 @@ def multiprocess_array(ary, func, num_workers, **kwargs):
 
     """
     # Check out available worker count and adjust accordingly.
+    num_workers = int(num_workers)
     if len(ary) < num_workers:
         num_workers = len(ary)
 
