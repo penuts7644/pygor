@@ -28,10 +28,6 @@ from immuno_probs.util.exception import SeparatorNotValidException, \
 NumThreadsValueException, DirectoryNonExistingException
 
 
-# NUM_THREADS = ph.cpu_count()
-# SEPARATOR = ','
-# WORKING_DIR = os.getcwd()
-# OUT_NAME = ''
 CONFIG_DATA = None
 
 
@@ -49,13 +45,25 @@ def set_config_data(value=None):
     pkg_name = __name__.split('.')[0]
     config_file_path = resource_filename(
         pkg_name, os.path.join('config', 'default.ini'))
-    conf_parser = RawConfigParser()
+    conf_parser = RawConfigParser(allow_no_value=True)
     conf_parser.read(config_file_path)
 
-    # If given parse additional configuration and set global variable.
+    # If given parse additional configuration.
     if value:
         conf_parser.read(value)
+
+    # Set the global config data object.
     globals().update(CONFIG_DATA=conf_parser)
+
+    # Overwrite default values if not given.
+    if not conf_parser.get('ImmunoProbs', 'NUM_THREADS'):
+        set_num_threads()
+    if not conf_parser.get('ImmunoProbs', 'SEPARATOR'):
+        set_separator()
+    if not conf_parser.get('ImmunoProbs', 'WORKING_DIR'):
+        set_working_dir()
+    if not conf_parser.get('ImmunoProbs', 'OUT_NAME'):
+        set_out_name()
 
 def get_config_data(value):
     """Returns the global CONFIG_DATA variable.
@@ -73,7 +81,7 @@ def get_config_data(value):
     """
     return CONFIG_DATA.get('ImmunoProbs', value)
 
-def set_num_threads(value=None):
+def set_num_threads(value=ph.cpu_count()):
     """Updates the global NUM_THREADS variable.
 
     Parameters
@@ -89,24 +97,21 @@ def set_num_threads(value=None):
         then 1.
 
     """
-    # Reset number of threads if not given, check value and set value.
-    if not value:
-        value = str(ph.cpu_count())
     if not isinstance(value, int) or value < 1:
         raise NumThreadsValueException(
             "The NUM_THREADS variable needs to be of type integer and higher " \
             "than zero", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', value)
+        CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
 
-def set_separator(value):
+def set_separator(value=','):
     """Updates the global SEPARATOR variable.
 
     Parameters
     ----------
     value : str
         The separator character to be used when writing files (default:
-        semicolon character).
+        comma character).
 
     Raises
     ------
@@ -120,7 +125,7 @@ def set_separator(value):
     else:
         CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
 
-def set_working_dir(value):
+def set_working_dir(value=os.getcwd()):
     """Updates the global WORKING_DIR variable.
 
     Parameters
@@ -143,7 +148,7 @@ def set_working_dir(value):
     else:
         CONFIG_DATA.set('ImmunoProbs', 'WORKING_DIR', value)
 
-def set_output_name(value):
+def set_out_name(value=''):
     """Updates the global OUT_NAME variable.
 
     Parameters
