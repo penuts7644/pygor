@@ -33,8 +33,8 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, \
-write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, \
+from immuno_probs.util.io import read_separated_to_dataframe, read_fasta_as_dataframe, \
+write_dataframe_to_separated, preprocess_csv_file, preprocess_reference_file, is_fasta, \
 is_csv, copy_to_dir
 
 
@@ -250,10 +250,10 @@ class EvaluateSeqs(object):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
                                                       col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
-                    seqs_df = read_csv_to_dataframe(file=args.seqs,
+                    seqs_df = read_separated_to_dataframe(file=args.seqs,
                                                     separator=get_config_data('SEPARATOR'),
                                                     index_col=get_config_data('I_COL'))
-                full_pgen_df = read_csv_to_dataframe(
+                full_pgen_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';',
                     index_col=get_config_data('I_COL'),
@@ -283,7 +283,7 @@ class EvaluateSeqs(object):
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=full_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
@@ -342,7 +342,7 @@ class EvaluateSeqs(object):
                                                       col=get_config_data('NT_COL'))
                 elif is_csv(args.seqs, get_config_data('SEPARATOR')):
                     spinner.info('CSV input file extension detected')
-                    seqs_df = read_csv_to_dataframe(file=args.seqs,
+                    seqs_df = read_separated_to_dataframe(file=args.seqs,
                                                     separator=get_config_data('SEPARATOR'),
                                                     index_col=get_config_data('I_COL'))
                 else:
@@ -371,7 +371,7 @@ class EvaluateSeqs(object):
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=cdr3_pgen_df,
                 filename=output_filename,
                 directory=output_dir,

@@ -108,7 +108,7 @@ def read_fasta_as_dataframe(file, col):
     return fasta_df
 
 
-def read_csv_to_dataframe(file, separator, index_col=None, cols=None):
+def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
     """Read in a CSV file as pandas.DataFrame.
 
     Parameters
@@ -155,7 +155,7 @@ def read_csv_to_dataframe(file, separator, index_col=None, cols=None):
     return csv_df
 
 
-def write_dataframe_to_csv(dataframe, filename, directory, separator, index_name=None):
+def write_dataframe_to_separated(dataframe, filename, directory, separator, index_name=None):
     """Writes a pandas.DataFrame to a CSV formatted file.
 
     If the file already exists, a number will be appended to the filename.
@@ -250,14 +250,14 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=N
         os.makedirs(directory)
 
     # Open the sequence input file.
-    sequence_df = read_csv_to_dataframe(
+    sequence_df = read_separated_to_dataframe(
         file=file,
         separator=in_sep,
         index_col=index_col,
         cols=cols)
 
     # Write the new pandas dataframe to a CSV file.
-    directory, filename = write_dataframe_to_csv(
+    directory, filename = write_dataframe_to_separated(
         dataframe=sequence_df,
         filename=os.path.basename(str(file)),
         directory=directory,

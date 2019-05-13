@@ -32,7 +32,7 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, \
+from immuno_probs.util.io import read_separated_to_dataframe, write_dataframe_to_separated, \
 preprocess_csv_file, copy_to_dir
 
 
@@ -231,13 +231,13 @@ class GenerateSeqs(object):
 
             # Merge the generated output files together (translated).
             spinner.start('Processing sequence realizations')
-            sequence_df = read_csv_to_dataframe(
+            sequence_df = read_separated_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';',
                 index_col=get_config_data('I_COL'))
             sequence_df[get_config_data('AA_COL')] = sequence_df[get_config_data('NT_COL')] \
                 .apply(nucleotides_to_aminoacids)
-            realizations_df = read_csv_to_dataframe(
+            realizations_df = read_separated_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';',
                 index_col=get_config_data('I_COL'))
@@ -262,7 +262,7 @@ class GenerateSeqs(object):
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=full_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
@@ -323,7 +323,7 @@ class GenerateSeqs(object):
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=cdr3_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
