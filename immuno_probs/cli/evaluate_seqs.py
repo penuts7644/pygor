@@ -215,11 +215,12 @@ class EvaluateSeqs(object):
                         )
                         command_list.append(['read_seqs', input_seqs])
                     except KeyError as err:
-                        spinner.fail("Given input sequence file does not have a '{}' column" \
-                            .format(get_config_data('NT_COL')))
+                        spinner.fail("Given input sequence file does not have " \
+                                     "a '{}' column".format(get_config_data('NT_COL')))
                         return
                 else:
-                    spinner.fail('Given input sequence file could not be detected as FASTA or separated')
+                    spinner.fail('Given input sequence file could not be ' \
+                                 'detected as FASTA or separated')
                     return
                 spinner.succeed()
             except IOError as err:
@@ -309,8 +310,8 @@ class EvaluateSeqs(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=files['parameters'],
                                        model_marginals=files['marginals'])
-                    model.set_anchor(gene='V', file=files['v_anchors'])
-                    model.set_anchor(gene='J', file=files['j_anchors'])
+                    args.anchor = [['V', files['v_anchors']],
+                                   ['J', files['j_anchors']]]
                     if args.model == 'tutorial-model':
                         args.seqs = files['cdr3']
                 elif args.custom_model:
@@ -318,15 +319,14 @@ class EvaluateSeqs(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                    for gene in args.anchor:
-                        anchor_file = preprocess_separated_file(
-                            os.path.join(working_dir, 'cdr3_anchors'),
-                            str(gene[1]),
-                            get_config_data('SEPARATOR'),
-                            ',',
-                            get_config_data('I_COL')
-                        )
-                        model.set_anchor(gene=gene[0], file=anchor_file)
+                for gene in args.anchor:
+                    anchor_file = preprocess_separated_file(
+                        os.path.join(working_dir, 'cdr3_anchors'),
+                        str(gene[1]),
+                        get_config_data('SEPARATOR'),
+                        ','
+                    )
+                    model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 spinner.succeed()
             except (ModelLoaderException, GeneIdentifierException) as err:
