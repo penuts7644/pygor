@@ -69,13 +69,13 @@ def is_fasta(file):
         return any(SeqIO.parse(fasta_file, "fasta"))
 
 
-def is_csv(file, separator):
-    """Checks if the input file is valid csv.
+def is_separated(file, separator):
+    """Checks if the input file is a valid separated file.
 
     Parameters
     ----------
     file : string
-        Location of the CSV file to be tested.
+        Location of the separated file to be tested.
     separator : string
         A separator character used for separating the fields in the file.
 
@@ -109,7 +109,7 @@ def read_fasta_as_dataframe(file, col):
 
 
 def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
-    """Read in a CSV file as pandas.DataFrame.
+    """Read in a separated file as pandas.DataFrame.
 
     Parameters
     ----------
@@ -129,7 +129,7 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
     Notes
     -----
         This function uses the global SEPARATOR variable to set the separator
-        string for the input CSV file. Comments ('#') in the file are skipped.
+        string for the input file. Comments ('#') in the file are skipped.
         If the given index column contains NA values, the column is ignored.
 
     Raises
@@ -138,40 +138,40 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
         If a given column is not found in the input data file.
 
     """
-    # Read in columns of the given csv file.
+    # Read in columns of the given file.
     if cols:
         if index_col:
             cols.insert(0, index_col)
-        csv_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
-                                 usecols=lambda value: value in cols)
+        separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
+                                       usecols=lambda value: value in cols)
     else:
-        csv_df = pandas.read_csv(file, sep=separator, comment='#', header=0)
+        separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0)
 
     # Set the index column, only use if no NA values.
-    if index_col and index_col in csv_df.columns:
-        if not csv_df[index_col].isna().any():
-            csv_df.set_index(index_col, inplace=True)
+    if index_col and index_col in separated_df.columns:
+        if not separated_df[index_col].isna().any():
+            separated_df.set_index(index_col, inplace=True)
 
-    return csv_df
+    return separated_df
 
 
 def write_dataframe_to_separated(dataframe, filename, directory, separator, index_name=None):
-    """Writes a pandas.DataFrame to a CSV formatted file.
+    """Writes a pandas.DataFrame to a separated formatted file.
 
     If the file already exists, a number will be appended to the filename.
     The given output directory is created recursively if it does not exist.
-    The column names in the dataframe is used as first line in the csv file.
+    The column names in the dataframe is used as first line in the file.
 
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        The dataframe to be written to the CSV file.
+        The dataframe to be written to the separated file.
     filename : string
         Base filename for writting the file, excluding the extension.
     directory : string
         A directory path location to create recursively.
     separator : string
-        A separator character used for separating the fields in the CSV file.
+        A separator character used for separating the fields in the file.
     index_name : string, optional
         The output column name for the dataframe index (default: will not write
         the index to the file).
@@ -187,22 +187,26 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     file_count = 1
     updated_filename = filename
 
+    extension = '.csv'
+    if separator == '\t':
+        extension = '.tsv'
+
     # Keep modifying the filename until it doesn't exist.
-    while os.path.isfile(os.path.join(directory, updated_filename + '.csv')):
+    while os.path.isfile(os.path.join(directory, updated_filename + extension)):
         updated_filename = str(filename) + '_' + str(file_count)
         file_count += 1
 
-    # Write dataframe contents to csv file and return info.
+    # Write dataframe contents to separated file and return info.
     enable_index = False
     if index_name:
         enable_index = True
     pandas.DataFrame.to_csv(
-        dataframe, path_or_buf=os.path.join(directory, updated_filename + '.csv'),
+        dataframe, path_or_buf=os.path.join(directory, updated_filename + extension),
         sep=separator, index=enable_index, index_label=index_name, na_rep='NA')
-    return (directory, updated_filename + '.csv')
+    return (directory, updated_filename + extension)
 
 
-def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
+def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
     """Function for formatting the input sequence file for IGoR.
 
     Parameters
@@ -210,7 +214,7 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=N
     directory : str
         A directory path to write the file to.
     file : str
-        A CSV formatted file path to precess for IGoR.
+        A separated data file path to process for IGoR.
     in_sep : str
         The input file seperator.
     out_sep : str
@@ -256,7 +260,7 @@ def preprocess_csv_file(directory, file, in_sep, out_sep, index_col=None, cols=N
         index_col=index_col,
         cols=cols)
 
-    # Write the new pandas dataframe to a CSV file.
+    # Write the new pandas dataframe to a separated file.
     directory, filename = write_dataframe_to_separated(
         dataframe=sequence_df,
         filename=os.path.basename(str(file)),

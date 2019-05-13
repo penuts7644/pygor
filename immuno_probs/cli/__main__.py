@@ -42,7 +42,7 @@ def main():
             'type': 'str',
             'nargs': '?',
             'help': 'The separator character used for input files and for ' \
-                    'writing new files (default: comma character).'
+                    'writing new files (default: tab character).'
         },
         '-threads': {
             'type': 'int',

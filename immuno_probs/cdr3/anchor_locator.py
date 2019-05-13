@@ -43,7 +43,7 @@ class AnchorLocator(object):
 
     Notes
     -----
-        This class followes OLGA's CSV formatting standard for the outputed
+        This class followes OLGA's formatting standard for the outputed
         CDR3 anchor files. The reference genome alignment's gene name should
         be located in the second position and the function on the fourth
         position in the sequence header (separated by '|').

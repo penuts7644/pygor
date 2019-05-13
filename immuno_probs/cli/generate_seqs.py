@@ -33,7 +33,7 @@ from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
 from immuno_probs.util.io import read_separated_to_dataframe, write_dataframe_to_separated, \
-preprocess_csv_file, copy_to_dir
+preprocess_separated_file, copy_to_dir
 
 
 class GenerateSeqs(object):
@@ -86,12 +86,12 @@ class GenerateSeqs(object):
                         '%(choices)s) (required for -custom_model).'
             },
             '-anchor': {
-                'metavar': ('<gene>', '<csv>'),
+                'metavar': ('<gene>', '<separated>'),
                 'type': 'str',
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor CSV file. ' \
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated file. ' \
                         'Note: need to contain gene in the firts column, ' \
                         'anchor index in the second and gene function in the ' \
                         'third (required for -cdr3 and -custom_model).'
@@ -257,7 +257,7 @@ class GenerateSeqs(object):
             full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
             spinner.succeed()
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a separated file.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
@@ -294,7 +294,7 @@ class GenerateSeqs(object):
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
                     for gene in args.anchor:
-                        anchor_file = preprocess_csv_file(
+                        anchor_file = preprocess_separated_file(
                             os.path.join(working_dir, 'cdr3_anchors'),
                             str(gene[1]),
                             get_config_data('SEPARATOR'),
@@ -318,7 +318,7 @@ class GenerateSeqs(object):
                 spinner.fail(str(err))
                 return
 
-            # Write the pandas dataframe to a CSV file with.
+            # Write the pandas dataframe to a separated file with.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:

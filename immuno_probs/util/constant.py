@@ -104,14 +104,14 @@ def set_num_threads(value=ph.cpu_count()):
     else:
         CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
 
-def set_separator(value=','):
+def set_separator(value='\t'):
     """Updates the global SEPARATOR variable.
 
     Parameters
     ----------
     value : str
         The separator character to be used when writing files (default:
-        comma character).
+        tab character).
 
     Raises
     ------
