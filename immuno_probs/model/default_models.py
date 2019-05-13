@@ -45,9 +45,9 @@ def get_default_model_file_paths(name):
             'parameters': resource_filename(
                 pkg_name, os.path.join('data', 'human_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.tsv')),
             'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
                     pkg_name, os.path.join('data', 'human_t_beta', 'genomic_V.fasta')),
@@ -57,9 +57,9 @@ def get_default_model_file_paths(name):
                     pkg_name, os.path.join('data', 'human_t_beta', 'genomic_J.fasta')),
             },
             'seqs': resource_filename(
-                pkg_name, os.path.join('data', 'tutorial_model', 'VDJ_sequences.csv')),
+                pkg_name, os.path.join('data', 'tutorial_model', 'VDJ_sequences.tsv')),
             'cdr3': resource_filename(
-                pkg_name, os.path.join('data', 'tutorial_model', 'CDR3_sequences.csv')),
+                pkg_name, os.path.join('data', 'tutorial_model', 'CDR3_sequences.tsv')),
         },
         'human-t-alpha': {
             'type': 'alpha',
@@ -68,9 +68,9 @@ def get_default_model_file_paths(name):
             'parameters': resource_filename(
                 pkg_name, os.path.join('data', 'human_t_alpha', 'model_params.txt')),
             'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_alpha', 'V_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_alpha', 'V_gene_CDR3_anchors.tsv')),
             'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_alpha', 'J_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_alpha', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
                     pkg_name, os.path.join('data', 'human_t_alpha', 'genomic_V.fasta')),
@@ -85,9 +85,9 @@ def get_default_model_file_paths(name):
             'parameters': resource_filename(
                 pkg_name, os.path.join('data', 'human_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.tsv')),
             'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
                     pkg_name, os.path.join('data', 'human_t_beta', 'genomic_V.fasta')),
@@ -104,9 +104,9 @@ def get_default_model_file_paths(name):
             'parameters': resource_filename(
                 pkg_name, os.path.join('data', 'human_b_heavy', 'model_params.txt')),
             'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_b_heavy', 'V_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_b_heavy', 'V_gene_CDR3_anchors.tsv')),
             'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_b_heavy', 'J_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'human_b_heavy', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
                     pkg_name, os.path.join('data', 'human_b_heavy', 'genomic_V.fasta')),
@@ -123,9 +123,9 @@ def get_default_model_file_paths(name):
             'parameters': resource_filename(
                 pkg_name, os.path.join('data', 'mouse_t_beta', 'model_params.txt')),
             'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'mouse_t_beta', 'V_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'mouse_t_beta', 'V_gene_CDR3_anchors.tsv')),
             'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'mouse_t_beta', 'J_gene_CDR3_anchors.csv')),
+                pkg_name, os.path.join('data', 'mouse_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
                     pkg_name, os.path.join('data', 'mouse_t_beta', 'genomic_V.fasta')),
