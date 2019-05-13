@@ -1,15 +1,15 @@
 #!/bin/bash
 
-if [ "$1" = "immuno-probs" ]; then
+if [[ $1 = "immuno-probs" ]]; then
     shift
 
-    if [ -z "$@" ]
+    if [[ -z $@ ]]
     then
         exec immuno-probs -h
     else
-        exec immuno-probs "$@"
+        exec immuno-probs $@
     fi
 
 fi
 
-exec "$@"
+exec $@
