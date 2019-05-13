@@ -231,10 +231,10 @@ class BuildIgorModel(object):
         # Execute IGoR through command line and catch error code.
         spinner.start('Executing IGoR')
         igor_cline = IgorInterface(args=command_list)
-        exit_code, _, _, _ = igor_cline.call()
+        exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
             spinner.fail("An error occurred during execution of IGoR " \
-                "command (exit code {})".format(exit_code))
+                "command (exit code {}):\n{}".format(exit_code, stderr))
             return
         spinner.succeed()
 

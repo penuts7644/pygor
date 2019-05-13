@@ -18,9 +18,8 @@
 """IgorInterface class for interfacing with IGoR's commandline tool."""
 
 
-import os
 import shlex
-from subprocess import Popen
+from subprocess import Popen, PIPE
 
 from immuno_probs.util.exception import SubprocessException
 
@@ -101,10 +100,9 @@ class IgorInterface(object):
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
         try:
-            with open(os.devnull, 'w') as no_std:
-                process = Popen(shlex.split(updated_command),
-                                stderr=no_std, stdout=no_std)
-                (stdout, stderr) = process.communicate()
+            process = Popen(shlex.split(updated_command),
+                            stderr=PIPE, stdout=PIPE)
+            (stdout, stderr) = process.communicate()
             return (process.returncode, stdout, stderr, updated_command)
         except OSError as err:
             raise SubprocessException(err)
