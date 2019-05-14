@@ -117,46 +117,59 @@ class OlgaContainer(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
+        allele = kwargs["allele"]
         pgen_seqs = pandas.DataFrame(
             index=ary.index.tolist(),
             columns=[get_config_data('NT_P_COL'), get_config_data('AA_P_COL')])
 
         for i, row in ary.iterrows():
 
-            # Evaluate the nucleotide sequences, add them to the dataframe
-            if (get_config_data('NT_COL') in ary.columns
-                    and isinstance(row[get_config_data('NT_COL')], str)):
-                if ((get_config_data('V_GENE_COL') in ary.columns
-                     and isinstance(row[get_config_data('V_GENE_COL')], str))
-                        and (get_config_data('J_GENE_COL') in ary.columns
-                             and isinstance(row[get_config_data('J_GENE_COL')], str))):
-                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = \
-                        model.compute_nt_CDR3_pgen(
-                            row[get_config_data('NT_COL')],
-                            row[get_config_data('V_GENE_COL')],
-                            row[get_config_data('J_GENE_COL')])
-                else:
+            # Evaluate the sequences with V/J gene columns.
+            if ((get_config_data('V_GENE_COL') in ary.columns
+                 and isinstance(row[get_config_data('V_GENE_COL')], str))
+                    and (get_config_data('J_GENE_COL') in ary.columns
+                         and isinstance(row[get_config_data('J_GENE_COL')], str))):
+                permutations = [
+                    (v_gene, j_gene)
+                    for v_gene in row[get_config_data('V_GENE_COL')].split('|')
+                    for j_gene in row[get_config_data('J_GENE_COL')].split('|')
+                ]
+
+                # For the nucleotide sequence if exists.
+                if (get_config_data('NT_COL') in ary.columns
+                        and isinstance(row[get_config_data('NT_COL')], str)):
+                    sum_pgen = 0
+                    for v_gene, j_gene in permutations:
+                        sum_pgen += model.compute_nt_CDR3_pgen(
+                            row[get_config_data('NT_COL')], v_gene, j_gene)
+                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = sum_pgen
+
+                # For the amino acid sequence if exists.
+                if (get_config_data('AA_COL') in ary.columns
+                        and isinstance(row[get_config_data('AA_COL')], str)):
+                    sum_pgen = 0
+                    for v_gene, j_gene in permutations:
+                        sum_pgen += model.compute_aa_CDR3_pgen(
+                            row[get_config_data('AA_COL')], v_gene, j_gene)
+                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = sum_pgen
+
+            # If no V/J gene choice column, use less complicated method.
+            else:
+
+                # For the nucleotide sequence if exists.
+                if (get_config_data('NT_COL') in ary.columns
+                        and isinstance(row[get_config_data('NT_COL')], str)):
                     pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = \
                         model.compute_nt_CDR3_pgen(row[get_config_data('NT_COL')])
 
-            # Evaluate the ammino acid sequences, add them to the dataframe
-            if (get_config_data('AA_COL') in ary.columns
-                    and isinstance(row[get_config_data('AA_COL')], str)):
-                if ((get_config_data('V_GENE_COL') in ary.columns
-                     and isinstance(row[get_config_data('V_GENE_COL')], str))
-                        and (get_config_data('J_GENE_COL') in ary.columns
-                             and isinstance(row[get_config_data('J_GENE_COL')], str))):
-                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = \
-                        model.compute_aa_CDR3_pgen(
-                            row[get_config_data('AA_COL')],
-                            row[get_config_data('V_GENE_COL')],
-                            row[get_config_data('J_GENE_COL')])
-                else:
+                # For the amino acid sequence if exists.
+                if (get_config_data('AA_COL') in ary.columns
+                        and isinstance(row[get_config_data('AA_COL')], str)):
                     pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = \
                         model.compute_aa_CDR3_pgen(row[get_config_data('AA_COL')])
         return pgen_seqs
 
-    def evaluate(self, seqs):
+    def evaluate(self, seqs, allele=None):
         """Evaluate a given nucleotide CDR3 sequence through OLGA.
 
         Parameters
@@ -164,6 +177,10 @@ class OlgaContainer(object):
         seqs : pandas.DataFrame
             A pandas dataframe object containing column with nucleotide CDR3
             sequences and/or amino acid sequences.
+        allele : str, optional
+            An allele value to use when calculating the Pgen for each single
+            gene combination. If given, only the given allele is used
+            (default: use allele info from gene choice column if available).
 
         Returns
         -------
@@ -205,7 +222,8 @@ class OlgaContainer(object):
         result = multiprocess_array(ary=seqs,
                                     func=self._evaluate,
                                     num_workers=get_config_data('NUM_THREADS'),
-                                    model=pgen_model)
+                                    model=pgen_model,
+                                    allele=allele)
         result = pandas.concat(result, axis=0, copy=False)
         return result
 
