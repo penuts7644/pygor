@@ -70,12 +70,12 @@ def is_fasta(file):
 
 
 def is_separated(file, separator):
-    """Checks if the input file is a valid separated file.
+    """Checks if the input file is a valid separated data file.
 
     Parameters
     ----------
     file : string
-        Location of the separated file to be tested.
+        Location of the separated data file to be tested.
     separator : string
         A separator character used for separating the fields in the file.
 
@@ -156,7 +156,7 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
 
 
 def write_dataframe_to_separated(dataframe, filename, directory, separator, index_name=None):
-    """Writes a pandas.DataFrame to a separated formatted file.
+    """Writes a pandas.DataFrame to a separated formatted data file.
 
     If the file already exists, a number will be appended to the filename.
     The given output directory is created recursively if it does not exist.
@@ -165,7 +165,7 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        The dataframe to be written to the separated file.
+        The dataframe to be written to the separated data file.
     filename : string
         Base filename for writting the file, excluding the extension.
     directory : string
@@ -214,7 +214,7 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
     directory : str
         A directory path to write the file to.
     file : str
-        A separated data file path to process for IGoR.
+        A separated data data file path to process for IGoR.
     in_sep : str
         The input file seperator.
     out_sep : str

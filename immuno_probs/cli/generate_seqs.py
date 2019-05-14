@@ -91,10 +91,10 @@ class GenerateSeqs(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor separated file. ' \
-                        'Note: need to contain gene in the firts column, ' \
-                        'anchor index in the second and gene function in the ' \
-                        'third (required for -cdr3 and -custom_model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated '
+                        'data file. Note: need to contain gene in the firts ' \
+                        'column, anchor index in the second and gene function ' \
+                        'in the third (required for -cdr3 and -custom_model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),

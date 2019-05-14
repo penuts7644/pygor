@@ -75,8 +75,8 @@ class EvaluateSeqs(object):
                 'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or separated file with sequences for " \
-                        "training the model."
+                'help': "An input FASTA or separated data file with " \
+                        "sequences for training the model."
             },
             '-model': {
                 'type': 'str.lower',
@@ -119,15 +119,22 @@ class EvaluateSeqs(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor separated file. ' \
-                        'Note: need to contain gene in the firts column, ' \
-                        'anchor index in the second and gene function in the ' \
-                        'third (required for -cdr3 and -custom_model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated ' \
+                        'data file. Note: need to contain gene in the firts ' \
+                        'column, anchor index in the second and gene function ' \
+                        'in the third (required for -cdr3 and -custom_model).'
             },
             '-cdr3': {
                 'action': 'store_true',
                 'help': 'If specified, CDR3 sequences should be evaluated, ' \
                         'else expecting V(D)J input sequences.'
+            },
+            '-use-cdr3-allele': {
+                'action': 'store_true',
+                'help': "If specified in combination with the '-cdr3' flag, " \
+                        "the allele information from the gene choice fields " \
+                        "is used to calculate the generation probability " \
+                        "(default: allele '*01' is used for each gene)."
             },
         }
 
@@ -203,7 +210,7 @@ class EvaluateSeqs(object):
                         copy_to_dir(working_dir, str(args.seqs), 'fasta')
                     ])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('separated input file extension detected')
+                    spinner.info('Separated input file type detected')
                     try:
                         input_seqs = preprocess_separated_file(
                             os.path.join(working_dir, 'input'),
@@ -219,8 +226,9 @@ class EvaluateSeqs(object):
                                      "a '{}' column".format(get_config_data('NT_COL')))
                         return
                 else:
-                    spinner.fail('Given input sequence file could not be ' \
-                                 'detected as FASTA or separated')
+                    spinner.fail(
+                        'Given input sequence file could not be detected as ' \
+                        'FASTA file or separated data type')
                     return
                 spinner.succeed()
             except IOError as err:
@@ -341,13 +349,14 @@ class EvaluateSeqs(object):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
                                                       col=get_config_data('NT_COL'))
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('separated input file extension detected')
+                    spinner.info('Separated input file type detected')
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
                         index_col=get_config_data('I_COL'))
                 else:
-                    spinner.fail('Given input sequence file could not be ' \
-                                 'detected as FASTA or separated')
+                    spinner.fail(
+                        'Given input sequence file could not be detected as ' \
+                        'FASTA file or separated data type')
                     return
                 spinner.succeed()
             except (IOError) as err:

@@ -68,7 +68,7 @@ class BuildIgorModel(object):
                 'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or separated file with sequences for " \
+                'help': "An input FASTA or separated data file with sequences for " \
                         "training the model."
             },
             '-ref': {
@@ -199,7 +199,7 @@ class BuildIgorModel(object):
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
             elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                spinner.info('Separated input file extension detected')
+                spinner.info('Separated input file type detected')
                 try:
                     input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
@@ -216,7 +216,7 @@ class BuildIgorModel(object):
                     return
             else:
                 spinner.fail('Given input sequence file could not be detected ' \
-                             'as FASTA or separated')
+                             'as FASTA file or separated data type')
                 return
             spinner.succeed()
         except IOError as err:
