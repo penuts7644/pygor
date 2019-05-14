@@ -53,14 +53,14 @@ def main():
         '-set-wd': {
             'type': 'str',
             'nargs': '?',
-            'help': 'An optional location for writing files. (default: ' \
+            'help': 'An optional location for writing files (default: ' \
                     'the current working directory).'
         },
         '-out-name': {
             'type': 'str',
             'nargs': '?',
             'help': 'An optional output file name. If multiple files are ' \
-                    'created, the value is used as a prefix for the file. ' \
+                    'created, the value is used as a prefix for the file ' \
                     '(default: none).'
         },
         '-config-file': {
@@ -86,6 +86,8 @@ def main():
 
     # Parse the commandline arguments and set variables.
     parsed_arguments = parser.parse_args()
+    if parsed_arguments.config_file is not None:
+        set_config_data(parsed_arguments.config_file)
     if parsed_arguments.separator is not None:
         set_separator(parsed_arguments.separator)
     if parsed_arguments.threads is not None:
@@ -94,8 +96,6 @@ def main():
         set_working_dir(parsed_arguments.set_wd)
     if parsed_arguments.out_name is not None:
         set_out_name(parsed_arguments.out_name)
-    if parsed_arguments.config_file is not None:
-        set_config_data(parsed_arguments.config_file)
 
     # Create the directory paths for temporary files.
     working_dir = get_config_data('WORKING_DIR')
