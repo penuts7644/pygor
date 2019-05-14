@@ -31,7 +31,7 @@ def create_directory_path(directory):
 
     Parameters
     ----------
-    directory : string
+    directory : str
         A directory path location to create recursively.
 
     Returns
@@ -61,7 +61,7 @@ def is_fasta(file):
 
     Parameters
     ----------
-    file : string
+    file : str
         Location of the FASTA file to be tested.
 
     """
@@ -74,9 +74,9 @@ def is_separated(file, separator):
 
     Parameters
     ----------
-    file : string
+    file : str
         Location of the separated data file to be tested.
-    separator : string
+    separator : str
         A separator character used for separating the fields in the file.
 
     """
@@ -92,9 +92,9 @@ def read_fasta_as_dataframe(file, col):
 
     Parameters
     ----------
-    file : string
+    file : str
         Location of the FASTA file to be read in.
-    col : string
+    col : str
         The name of the FASTA sequence column.
 
     """
@@ -113,9 +113,9 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
 
     Parameters
     ----------
-    file : string
+    file : str
         File path to be read in as dataframe.
-    separator : string
+    separator : str
         A separator character used for separating the fields in the file.
     index_col : str, optional
         The name of the index column to use. If specified and given column is
@@ -166,13 +166,13 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     ----------
     dataframe : pandas.DataFrame
         The dataframe to be written to the separated data file.
-    filename : string
+    filename : str
         Base filename for writting the file, excluding the extension.
-    directory : string
+    directory : str
         A directory path location to create recursively.
-    separator : string
+    separator : str
         A separator character used for separating the fields in the file.
-    index_name : string, optional
+    index_name : str, optional
         The output column name for the dataframe index (default: will not write
         the index to the file).
 

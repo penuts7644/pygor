@@ -35,9 +35,9 @@ def test_muscle_aligner(infile, cmd, expected):
 
     Parameters
     ----------
-    infile : string
+    infile : str
         A file path to a FASTA file containining the genomic data to align.
-    cmd : string
+    cmd : str
         The MUSCLE terminal command executable location/name.
     expected : MultipleSeqAlignment
         The expected output type MultipleSeqAlignment.

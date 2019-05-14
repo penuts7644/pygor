@@ -33,7 +33,7 @@ class AnchorLocator(object):
     ----------
     alignment : Bio.AlignIO
         An biopython MUSCLE alignement object from alignment.MuscleAligner.
-    gene : string
+    gene : str
         A gene identifier, either V or J, specifying the alignement's origin.
 
     Methods
@@ -62,7 +62,7 @@ class AnchorLocator(object):
 
         Parameters
         ----------
-        gene : string
+        gene : str
             A gene identifier, either V or J, specifying the alignment's origin.
 
         Returns

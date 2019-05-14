@@ -42,7 +42,7 @@ def test_read_fasta_as_dataframe(file, expected):
 
     Parameters
     ----------
-    filename : string
+    filename : str
         Location of the FASTA file to be read in.
     expected : pandas.DataFrame
         The expected output pandas dataframe.

@@ -51,9 +51,9 @@ def test_anchor_locator(gene, motif, expected):
 
     Parameters
     ----------
-    gene : string
+    gene : str
         A gene identifier, either V or J, specifying the alignment's origin.
-    motif : string
+    motif : str
         A custom motif string to use for the search.
     expected : pandas.DataFrame
         The expected output pandas.Dataframe with correct columns and values.

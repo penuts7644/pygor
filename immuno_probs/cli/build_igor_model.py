@@ -115,9 +115,9 @@ class BuildIgorModel(object):
         ----------
         file : str
             A string path to the file to copy over to the directory
-        filename : string
+        filename : str
             Base filename for writting the file, excluding the extension.
-        directory : string
+        directory : str
             A directory path location to write the file to.
 
         Returns

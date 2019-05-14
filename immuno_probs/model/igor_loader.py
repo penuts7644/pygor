@@ -28,11 +28,11 @@ class IgorLoader(object):
 
     Parameters
     ----------
-    model_type : string
+    model_type : str
         The type of the input model, VJ or VDJ.
-    model_params : string
+    model_params : str
         A file path location for the IGoR parameters model file.
-    model_marginals : string
+    model_marginals : str
         A file path location for the IGoR marginals model file.
 
     Methods
@@ -64,9 +64,9 @@ class IgorLoader(object):
 
         Parameters
         ----------
-        model_type : string
+        model_type : str
             The type of the input model: alpha, beta, light or heavy.
-        model_marginals : string
+        model_marginals : str
             A file path location for the IGoR marginals model file.
 
         Returns
@@ -99,7 +99,7 @@ class IgorLoader(object):
 
         Parameters
         ----------
-        model_params : string
+        model_params : str
             A file path location for the IGoR parameters model file.
 
         Returns
@@ -139,7 +139,7 @@ class IgorLoader(object):
 
         Parameters
         ----------
-        model_marginals : string
+        model_marginals : str
             A file path location for the IGoR marginals model file.
 
         Returns
@@ -177,9 +177,9 @@ class IgorLoader(object):
 
         Parameters
         ----------
-        gene : string
+        gene : str
             A gene identifier, either V or J, specifying the alignement's origin.
-        file : string
+        file : str
             File path loaction for the CDR3 anchor positions for the given gene.
 
         Returns

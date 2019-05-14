@@ -41,7 +41,7 @@ def test_olga_container(option, expected):
 
     Parameters
     ----------
-    option : string
+    option : str
         A option to run in the container ('generate' of 'evaluate').
     expected : pandas.DataFrame
         The expected output pandas.Dataframe with correct columns and values.
