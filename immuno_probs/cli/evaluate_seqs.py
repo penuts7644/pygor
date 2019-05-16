@@ -367,7 +367,11 @@ class EvaluateSeqs(object):
             spinner.start('Evaluating sequences')
             try:
                 seq_evaluator = OlgaContainer(igor_model=model)
-                cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
+                if args.use_cdr3_allele:
+                    cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
+                else:
+                    cdr3_pgen_df = seq_evaluator.evaluate(
+                        seqs=seqs_df, default_allele=get_config_data('ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)

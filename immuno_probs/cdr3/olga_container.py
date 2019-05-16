@@ -95,7 +95,63 @@ class OlgaContainer(object):
         return generated_seqs
 
     @staticmethod
-    def _evaluate(args):
+    def _locate_genes(genes, ref_genes, default_allele=None):
+        """Locate the given gene strings in the reference list.
+
+        Parameters
+        ----------
+        genes : list
+            Containing gene string values that need to be located.
+        ref_genes : list
+            Containing reference gene string values.
+        default_allele : str, optional
+            An allele value to use when calculating the Pgen for each single
+            gene combination. If given, only the given allele is used
+            (default: use allele info from the gene if available).
+
+        Returns
+        -------
+        list
+            A list with the genes that where located in the reference genes
+            list. If no where found, an empty list is returned.
+
+        Notes
+        -----
+            If a gene family is specified instead of the gene, all possible
+            genes within that family are used.
+
+        """
+        # For each given gene, split up the name into family, gene and allele.
+        located_genes = set()
+        for name in genes:
+            name = name.split('*')
+            name[0] = name[0].split('-')
+            family, gene, allele = [None] * 3
+            if len(name[0]) == 2:
+                family, gene = name[0][0], name[0][1]
+            else:
+                family = name[0][0]
+            if len(name) == 2:
+                allele = name[1]
+                if default_allele:
+                    allele = default_allele
+
+            # Collect the subsection of the genes using the reference genes.
+            if family and not gene:
+                if allele:
+                    located_genes.update(
+                        [i for i in ref_genes if family in i and '*' + allele in i])
+                else:
+                    located_genes.update([i for i in ref_genes if family in i])
+            elif family and gene:
+                if allele:
+                    located_genes.update(
+                        [i for i in ref_genes if family + '-' + gene in i and '*' + allele in i])
+                else:
+                    located_genes.update([i for i in ref_genes if family + '-' + gene in i])
+        return list(located_genes)
+
+    def _evaluate(self, args):
         """Evaluate a given nucleotide CDR3 sequence through OLGA.
 
         Parameters
@@ -104,7 +160,7 @@ class OlgaContainer(object):
             The arguments from the multiprocess_array function. Consists of an
             pandas.DataFrame and additional kwargs like the
             GenerationProbability object, the column name containing the
-            nucleotide sequences and a boolean for usingf V/J masks.
+            nucleotide sequences and value to use as allele information.
 
         Returns
         -------
@@ -117,7 +173,9 @@ class OlgaContainer(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
-        allele = kwargs["allele"]
+        default_allele = kwargs["default_allele"]
+        ref_genes_v = [i[0] for i in self.igor_model.get_genomic_data().genV]
+        ref_genes_j = [i[0] for i in self.igor_model.get_genomic_data().genJ]
         pgen_seqs = pandas.DataFrame(
             index=ary.index.tolist(),
             columns=[get_config_data('NT_P_COL'), get_config_data('AA_P_COL')])
@@ -129,11 +187,15 @@ class OlgaContainer(object):
                  and isinstance(row[get_config_data('V_GENE_COL')], str))
                     and (get_config_data('J_GENE_COL') in ary.columns
                          and isinstance(row[get_config_data('J_GENE_COL')], str))):
-                permutations = [
-                    (v_gene, j_gene)
-                    for v_gene in row[get_config_data('V_GENE_COL')].split('|')
-                    for j_gene in row[get_config_data('J_GENE_COL')].split('|')
-                ]
+
+                # Create all V/J gene combinations for pgen calculation.
+                located_v = self._locate_genes(
+                    row[get_config_data('V_GENE_COL')].split('|'),
+                    ref_genes_v, default_allele)
+                located_j = self._locate_genes(
+                    row[get_config_data('J_GENE_COL')].split('|'),
+                    ref_genes_j, default_allele)
+                permutations = [(v, j) for v in located_v for j in located_j]
 
                 # For the nucleotide sequence if exists.
                 if (get_config_data('NT_COL') in ary.columns
@@ -169,7 +231,7 @@ class OlgaContainer(object):
                         model.compute_aa_CDR3_pgen(row[get_config_data('AA_COL')])
         return pgen_seqs
 
-    def evaluate(self, seqs, allele=None):
+    def evaluate(self, seqs, default_allele=None):
         """Evaluate a given nucleotide CDR3 sequence through OLGA.
 
         Parameters
@@ -177,7 +239,7 @@ class OlgaContainer(object):
         seqs : pandas.DataFrame
             A pandas dataframe object containing column with nucleotide CDR3
             sequences and/or amino acid sequences.
-        allele : str, optional
+        default_allele : str, optional
             An allele value to use when calculating the Pgen for each single
             gene combination. If given, only the given allele is used
             (default: use allele info from gene choice column if available).
@@ -223,7 +285,7 @@ class OlgaContainer(object):
                                     func=self._evaluate,
                                     num_workers=get_config_data('NUM_THREADS'),
                                     model=pgen_model,
-                                    allele=allele)
+                                    default_allele=default_allele)
         result = pandas.concat(result, axis=0, copy=False)
         return result
 
