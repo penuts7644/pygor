@@ -65,7 +65,7 @@
             </when>
         </conditional>
 
-        <param name="sequences" type="data" format="fasta,tsv" optional="false" label="Training sequences" help="TSV files need to have 'nt_sequence' column and optional 'seq_index' column." />
+        <param name="sequences" type="data" format="fasta,tabular" optional="false" label="Training sequences" help="TSV files need to have 'nt_sequence' column and optional 'seq_index' column." />
 
         <param name="iterations" type="integer" value="1" min="1" max="30" label="Number of training rounds" help="The number of inference iterations to perform when creating the model." />
     </inputs>

@@ -82,8 +82,8 @@
                             <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Evaluate CDR3 sequences instead of VDJ?" />
 
                             <when value=" -cdr3">
-                                <param name="anchor_v" type="data" format="tsv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                                <param name="anchor_j" type="data" format="tsv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_v" type="data" format="tabular" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_j" type="data" format="tabular" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                             </when>
 
                             <when value=" ">
@@ -98,8 +98,8 @@
                             <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
 
                             <when value=" -cdr3">
-                                <param name="anchor_v" type="data" format="tsv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                                <param name="anchor_j" type="data" format="tsv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_v" type="data" format="tabular" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_j" type="data" format="tabular" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                             </when>
 
                             <when value=" ">
@@ -115,8 +115,8 @@
                             <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
 
                             <when value=" -cdr3">
-                                <param name="anchor_v" type="data" format="tsv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                                <param name="anchor_j" type="data" format="tsv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_v" type="data" format="tabular" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_j" type="data" format="tabular" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                             </when>
 
                             <when value=" ">
@@ -131,8 +131,8 @@
                             <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
 
                             <when value=" -cdr3">
-                                <param name="anchor_v" type="data" format="tsv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                                <param name="anchor_j" type="data" format="tsv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_v" type="data" format="tabular" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                                <param name="anchor_j" type="data" format="tabular" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                             </when>
 
                             <when value=" ">
@@ -150,11 +150,11 @@
             </when>
         </conditional>
 
-        <param name="sequences" type="data" format="fasta,tsv" optional="false" label="Evaluation sequences" help="TSV files need to have the following optional columns: 'seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v' and 'gene_choice_j'." />
+        <param name="sequences" type="data" format="fasta,tabular" optional="false" label="Evaluation sequences" help="TSV files need to have the following optional columns: 'seq_index', 'nt_sequence', 'aa_sequence', 'gene_choice_v' and 'gene_choice_j'." />
     </inputs>
 
     <outputs>
-        <data name="evaluated_seqs" format="tsv" label="${tool.name} on ${on_string}: evaluated sequences">
+        <data name="evaluated_seqs" format="tabular" label="${tool.name} on ${on_string}: evaluated sequences">
             <discover_datasets assign_primary_output="true" pattern="pgen_estimate_[a-zA-Z]+?(_CDR3){0,1}\.tsv" />
         </data>
     </outputs>
