@@ -33,9 +33,9 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, read_fasta_as_dataframe, \
-write_dataframe_to_csv, preprocess_csv_file, preprocess_reference_file, is_fasta, \
-is_csv, copy_to_dir
+from immuno_probs.util.io import read_separated_to_dataframe, read_fasta_as_dataframe, \
+write_dataframe_to_separated, preprocess_separated_file, preprocess_reference_file, is_fasta, \
+is_separated, copy_to_dir
 
 
 class EvaluateSeqs(object):
@@ -72,11 +72,11 @@ class EvaluateSeqs(object):
             "subprocess. Or evaluate CDR3 sequences through OLGA."
         parser_options = {
             '-seqs': {
-                'metavar': '<fasta/csv>',
+                'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or CSV file with sequences for " \
-                        "training the model."
+                'help': "An input FASTA or separated data file with " \
+                        "sequences for training the model."
             },
             '-model': {
                 'type': 'str.lower',
@@ -114,20 +114,27 @@ class EvaluateSeqs(object):
                         'marginals txt file.'
             },
             '-anchor': {
-                'metavar': ('<gene>', '<csv>'),
+                'metavar': ('<gene>', '<separated>'),
                 'type': 'str',
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor CSV file. ' \
-                        'Note: need to contain gene in the firts column, ' \
-                        'anchor index in the second and gene function in the ' \
-                        'third (required for -cdr3 and -custom_model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated ' \
+                        'data file. Note: need to contain gene in the firts ' \
+                        'column, anchor index in the second and gene function ' \
+                        'in the third (required for -cdr3 and -custom_model).'
             },
             '-cdr3': {
                 'action': 'store_true',
                 'help': 'If specified, CDR3 sequences should be evaluated, ' \
                         'else expecting V(D)J input sequences.'
+            },
+            '-use-cdr3-allele': {
+                'action': 'store_true',
+                'help': "If specified in combination with the '-cdr3' flag, " \
+                        "the allele information from the gene choice fields " \
+                        "is used to calculate the generation probability " \
+                        "(default: allele '*01' is used for each gene)."
             },
         }
 
@@ -202,10 +209,10 @@ class EvaluateSeqs(object):
                         'read_seqs',
                         copy_to_dir(working_dir, str(args.seqs), 'fasta')
                     ])
-                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('CSV input file extension detected')
+                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                    spinner.info('Separated input file type detected')
                     try:
-                        input_seqs = preprocess_csv_file(
+                        input_seqs = preprocess_separated_file(
                             os.path.join(working_dir, 'input'),
                             copy_to_dir(working_dir, str(args.seqs), 'csv'),
                             get_config_data('SEPARATOR'),
@@ -215,11 +222,13 @@ class EvaluateSeqs(object):
                         )
                         command_list.append(['read_seqs', input_seqs])
                     except KeyError as err:
-                        spinner.fail("Given input sequence file does not have a '{}' column" \
-                            .format(get_config_data('NT_COL')))
+                        spinner.fail("Given input sequence file does not have " \
+                                     "a '{}' column".format(get_config_data('NT_COL')))
                         return
                 else:
-                    spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
+                    spinner.fail(
+                        'Given input sequence file could not be detected as ' \
+                        'FASTA file or separated data type')
                     return
                 spinner.succeed()
             except IOError as err:
@@ -249,11 +258,11 @@ class EvaluateSeqs(object):
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
                                                       col=get_config_data('NT_COL'))
-                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
-                    seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_config_data('SEPARATOR'),
-                                                    index_col=get_config_data('I_COL'))
-                full_pgen_df = read_csv_to_dataframe(
+                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                    seqs_df = read_separated_to_dataframe(
+                        file=args.seqs, separator=get_config_data('SEPARATOR'),
+                        index_col=get_config_data('I_COL'))
+                full_pgen_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';',
                     index_col=get_config_data('I_COL'),
@@ -278,12 +287,12 @@ class EvaluateSeqs(object):
             full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
             spinner.succeed()
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a separated file.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=full_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
@@ -309,8 +318,8 @@ class EvaluateSeqs(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=files['parameters'],
                                        model_marginals=files['marginals'])
-                    model.set_anchor(gene='V', file=files['v_anchors'])
-                    model.set_anchor(gene='J', file=files['j_anchors'])
+                    args.anchor = [['V', files['v_anchors']],
+                                   ['J', files['j_anchors']]]
                     if args.model == 'tutorial-model':
                         args.seqs = files['cdr3']
                 elif args.custom_model:
@@ -318,15 +327,14 @@ class EvaluateSeqs(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                    for gene in args.anchor:
-                        anchor_file = preprocess_csv_file(
-                            os.path.join(working_dir, 'cdr3_anchors'),
-                            str(gene[1]),
-                            get_config_data('SEPARATOR'),
-                            ',',
-                            get_config_data('I_COL')
-                        )
-                        model.set_anchor(gene=gene[0], file=anchor_file)
+                for gene in args.anchor:
+                    anchor_file = preprocess_separated_file(
+                        os.path.join(working_dir, 'cdr3_anchors'),
+                        str(gene[1]),
+                        get_config_data('SEPARATOR'),
+                        ','
+                    )
+                    model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 spinner.succeed()
             except (ModelLoaderException, GeneIdentifierException) as err:
@@ -340,13 +348,15 @@ class EvaluateSeqs(object):
                     spinner.info('FASTA input file extension detected')
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
                                                       col=get_config_data('NT_COL'))
-                elif is_csv(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('CSV input file extension detected')
-                    seqs_df = read_csv_to_dataframe(file=args.seqs,
-                                                    separator=get_config_data('SEPARATOR'),
-                                                    index_col=get_config_data('I_COL'))
+                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                    spinner.info('Separated input file type detected')
+                    seqs_df = read_separated_to_dataframe(
+                        file=args.seqs, separator=get_config_data('SEPARATOR'),
+                        index_col=get_config_data('I_COL'))
                 else:
-                    spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
+                    spinner.fail(
+                        'Given input sequence file could not be detected as ' \
+                        'FASTA file or separated data type')
                     return
                 spinner.succeed()
             except (IOError) as err:
@@ -357,7 +367,11 @@ class EvaluateSeqs(object):
             spinner.start('Evaluating sequences')
             try:
                 seq_evaluator = OlgaContainer(igor_model=model)
-                cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
+                if args.use_cdr3_allele:
+                    cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
+                else:
+                    cdr3_pgen_df = seq_evaluator.evaluate(
+                        seqs=seqs_df, default_allele=get_config_data('ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
@@ -366,12 +380,12 @@ class EvaluateSeqs(object):
                 spinner.fail(str(err))
                 return
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a separated file.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=cdr3_pgen_df,
                 filename=output_filename,
                 directory=output_dir,

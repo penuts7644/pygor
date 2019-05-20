@@ -28,11 +28,11 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import AlignerException, GeneIdentifierException
-from immuno_probs.util.io import write_dataframe_to_csv
+from immuno_probs.util.io import write_dataframe_to_separated
 
 
 class LocateCdr3Anchors(object):
-    """Commandline tool for creating compatible CDR3 anchor CSV files.
+    """Commandline tool for creating compatible CDR3 anchor separated files.
 
     Parameters
     ----------
@@ -63,7 +63,7 @@ class LocateCdr3Anchors(object):
         # Create the description and options for the parser.
         description = "Create an alignment for the given reference genome " \
             "FASTA file and seach the given alignment for conserved motif " \
-            "regions. The located regions with motifs are written to CSV."
+            "regions."
         parser_options = {
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -143,11 +143,11 @@ class LocateCdr3Anchors(object):
             anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
             anchors_df.reset_index(inplace=True, drop=True)
 
-            # Write the pandas dataframe to a CSV file with prefix.
+            # Write the pandas dataframe to a separated file with prefix.
             output_prefix = get_config_data('OUT_NAME')
             if not output_prefix:
                 output_prefix = 'gene_CDR3_anchors'
-            _, filename = write_dataframe_to_csv(
+            _, filename = write_dataframe_to_separated(
                 dataframe=anchors_df,
                 filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,

@@ -60,6 +60,8 @@ def set_config_data(value=None):
         set_num_threads()
     if not conf_parser.get('ImmunoProbs', 'SEPARATOR'):
         set_separator()
+    if conf_parser.get('ImmunoProbs', 'SEPARATOR') == '|':
+        set_separator('|')
     if not conf_parser.get('ImmunoProbs', 'WORKING_DIR'):
         set_working_dir()
     if not conf_parser.get('ImmunoProbs', 'OUT_NAME'):
@@ -104,24 +106,26 @@ def set_num_threads(value=ph.cpu_count()):
     else:
         CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
 
-def set_separator(value=','):
+def set_separator(value='\t'):
     """Updates the global SEPARATOR variable.
 
     Parameters
     ----------
     value : str
         The separator character to be used when writing files (default:
-        comma character).
+        tab character).
 
     Raises
     ------
     SeparatorNotValidException
-        When the SEPARATOR global variable is not of type string.
+        When the SEPARATOR global variable is not of type string or is a single
+        '|' character.
 
     """
-    if not isinstance(value, str):
+    if not isinstance(value, str) or value == '|':
         raise SeparatorNotValidException(
-            "The SEPARATOR variable needs to be of type string", value)
+            "The SEPARATOR variable needs to be of type string and cannot " \
+            "be '|' character", value)
     else:
         CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
 

@@ -32,8 +32,8 @@ from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_csv_to_dataframe, write_dataframe_to_csv, \
-preprocess_csv_file, copy_to_dir
+from immuno_probs.util.io import read_separated_to_dataframe, write_dataframe_to_separated, \
+preprocess_separated_file, copy_to_dir
 
 
 class GenerateSeqs(object):
@@ -86,15 +86,15 @@ class GenerateSeqs(object):
                         '%(choices)s) (required for -custom_model).'
             },
             '-anchor': {
-                'metavar': ('<gene>', '<csv>'),
+                'metavar': ('<gene>', '<separated>'),
                 'type': 'str',
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor CSV file. ' \
-                        'Note: need to contain gene in the firts column, ' \
-                        'anchor index in the second and gene function in the ' \
-                        'third (required for -cdr3 and -custom_model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated '
+                        'data file. Note: need to contain gene in the firts ' \
+                        'column, anchor index in the second and gene function ' \
+                        'in the third (required for -cdr3 and -custom_model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
@@ -231,13 +231,13 @@ class GenerateSeqs(object):
 
             # Merge the generated output files together (translated).
             spinner.start('Processing sequence realizations')
-            sequence_df = read_csv_to_dataframe(
+            sequence_df = read_separated_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';',
                 index_col=get_config_data('I_COL'))
             sequence_df[get_config_data('AA_COL')] = sequence_df[get_config_data('NT_COL')] \
                 .apply(nucleotides_to_aminoacids)
-            realizations_df = read_csv_to_dataframe(
+            realizations_df = read_separated_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                 separator=';',
                 index_col=get_config_data('I_COL'))
@@ -257,12 +257,12 @@ class GenerateSeqs(object):
             full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
             spinner.succeed()
 
-            # Write the pandas dataframe to a CSV file.
+            # Write the pandas dataframe to a separated file.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=full_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
@@ -286,22 +286,21 @@ class GenerateSeqs(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=files['parameters'],
                                        model_marginals=files['marginals'])
-                    model.set_anchor(gene='V', file=files['v_anchors'])
-                    model.set_anchor(gene='J', file=files['j_anchors'])
+                    args.anchor = [['V', files['v_anchors']],
+                                   ['J', files['j_anchors']]]
                 elif args.custom_model:
                     model_type = args.type
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                    for gene in args.anchor:
-                        anchor_file = preprocess_csv_file(
-                            os.path.join(working_dir, 'cdr3_anchors'),
-                            str(gene[1]),
-                            get_config_data('SEPARATOR'),
-                            ',',
-                            get_config_data('I_COL')
-                        )
-                        model.set_anchor(gene=gene[0], file=anchor_file)
+                for gene in args.anchor:
+                    anchor_file = preprocess_separated_file(
+                        os.path.join(working_dir, 'cdr3_anchors'),
+                        str(gene[1]),
+                        get_config_data('SEPARATOR'),
+                        ','
+                    )
+                    model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 spinner.succeed()
             except (ModelLoaderException, GeneIdentifierException) as err:
@@ -318,12 +317,12 @@ class GenerateSeqs(object):
                 spinner.fail(str(err))
                 return
 
-            # Write the pandas dataframe to a CSV file with.
+            # Write the pandas dataframe to a separated file with.
             spinner.start('Writting file')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_csv(
+            _, _ = write_dataframe_to_separated(
                 dataframe=cdr3_seqs_df,
                 filename=output_filename,
                 directory=output_dir,

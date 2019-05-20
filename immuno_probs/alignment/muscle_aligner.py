@@ -31,7 +31,7 @@ class MuscleAligner(object):
 
     Parameters
     ----------
-    infile : string
+    infile : str
         A file path to a FASTA file containining the genomic data to align.
     **kwargs
         Dict of optional arguments for MuscleCommandline biopython class.

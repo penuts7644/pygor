@@ -26,8 +26,8 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import preprocess_csv_file, preprocess_reference_file, \
-is_fasta, is_csv, copy_to_dir
+from immuno_probs.util.io import preprocess_separated_file, preprocess_reference_file, \
+is_fasta, is_separated, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -65,10 +65,10 @@ class BuildIgorModel(object):
             "parameters."
         parser_options = {
             '-seqs': {
-                'metavar': '<fasta/csv>',
+                'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or CSV file with sequences for " \
+                'help': "An input FASTA or separated data file with sequences for " \
                         "training the model."
             },
             '-ref': {
@@ -115,9 +115,9 @@ class BuildIgorModel(object):
         ----------
         file : str
             A string path to the file to copy over to the directory
-        filename : string
+        filename : str
             Base filename for writting the file, excluding the extension.
-        directory : string
+        directory : str
             A directory path location to write the file to.
 
         Returns
@@ -198,10 +198,10 @@ class BuildIgorModel(object):
                     'read_seqs',
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
-            elif is_csv(args.seqs, get_config_data('SEPARATOR')):
-                spinner.info('CSV input file extension detected')
+            elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                spinner.info('Separated input file type detected')
                 try:
-                    input_seqs = preprocess_csv_file(
+                    input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
                         copy_to_dir(working_dir, str(args.seqs), 'csv'),
                         get_config_data('SEPARATOR'),
@@ -215,7 +215,8 @@ class BuildIgorModel(object):
                         .format(get_config_data('NT_COL')))
                     return
             else:
-                spinner.fail('Given input sequence file could not be detected as FASTA or CSV')
+                spinner.fail('Given input sequence file could not be detected ' \
+                             'as FASTA file or separated data type')
                 return
             spinner.succeed()
         except IOError as err:

@@ -36,7 +36,7 @@ def test_nucleotides_to_integers(seq, expected):
 
     Parameters
     ----------
-    seq : string
+    seq : str
         A nucleotide sequence string.
     expected : str
         The expected output string.
@@ -60,7 +60,7 @@ def test_integers_to_nucleotides(int_seq, expected):
 
     Parameters
     ----------
-    int_seq : string
+    int_seq : str
         A integer sequence string.
     expected : str
         The expected output string.
@@ -84,7 +84,7 @@ def test_nucleotides_to_aminoacids(seq, expected):
 
     Parameters
     ----------
-    seq : string
+    seq : str
         A nucleotide sequence string.
     expected : str
         The expected output string.
@@ -108,7 +108,7 @@ def test_reverse_complement(seq, expected):
 
     Parameters
     ----------
-    seq : string
+    seq : str
         A nucleotide sequence string.
     expected : str
         The expected output string.
@@ -135,15 +135,15 @@ def test_string_array_to_list(in_str, dtype, l_bound, r_bound, sep, expected):
 
     Parameters
     ----------
-    in_str : string
+    in_str : str
         A array representated as string.
     dtype : type
         The dtype to used for converting the individual the list elements.
-    l_bound : string
+    l_bound : str
         A string specifying the left boundary character(s).
-    r_bound : string
+    r_bound : str
         A string specifying the right boundary character(s).
-    sep : string
+    sep : str
         The separator character used in the input string.
     expected : list
         The expected output list.
