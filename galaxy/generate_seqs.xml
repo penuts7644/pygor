@@ -71,8 +71,8 @@
                     <param name="cdr3" type="boolean" truevalue=" -cdr3" falsevalue=" " checked="false" label="Generate CDR3 sequences instead of VDJ?" />
 
                     <when value=" -cdr3">
-                        <param name="anchor_v" type="data" format="tsv" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
-                        <param name="anchor_j" type="data" format="tsv" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                        <param name="anchor_v" type="data" format="tabular" label="CDR3 anchors - V gene" help="Use 'Locate CDR3 anchors' to generate file." />
+                        <param name="anchor_j" type="data" format="tabular" label="CDR3 anchors - J gene" help="Use 'Locate CDR3 anchors' to generate file." />
                     </when>
                 </conditional>
 
@@ -86,7 +86,7 @@
     </inputs>
 
     <outputs>
-        <data name="generated_seqs" format="tsv" label="${tool.name} on ${on_string}: generated sequences">
+        <data name="generated_seqs" format="tabular" label="${tool.name} on ${on_string}: generated sequences">
             <discover_datasets assign_primary_output="true" pattern="generated_seqs_[a-zA-Z]+?(_CDR3){0,1}\.tsv" />
         </data>
     </outputs>
