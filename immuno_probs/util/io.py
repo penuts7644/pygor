@@ -80,7 +80,8 @@ def is_separated(file, separator):
         A separator character used for separating the fields in the file.
 
     """
-    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0, nrows=100)
+    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0,
+                                nrows=100, engine='python')
     return not dataframe.empty
 
 
@@ -143,9 +144,11 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
         if index_col:
             cols.insert(0, index_col)
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
-                                       usecols=lambda value: value in cols)
+                                       usecols=lambda value: value in cols,
+                                       engine='python')
     else:
-        separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0)
+        separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
+                                       engine='python')
 
     # Set the index column, only use if no NA values.
     if index_col and index_col in separated_df.columns:
