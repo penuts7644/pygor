@@ -28,7 +28,8 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import AlignerException, GeneIdentifierException
-from immuno_probs.util.io import write_dataframe_to_separated
+from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
+write_dataframe_to_separated
 
 
 class LocateCdr3Anchors(object):
@@ -103,19 +104,19 @@ class LocateCdr3Anchors(object):
             A directory path for writing output files to.
 
         """
-        # Create the directory for the output files.
-        working_dir = os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors')
-        if not os.path.isdir(working_dir):
-            os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors'))
-
-        # Setup and start spinner.
+        # Set the working directory and setup and start spinner.
+        working_dir = get_config_data('WORKING_DIR')
         spinner = Halo(text='Locating CDR3 anchors', spinner='dots')
         spinner.start()
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
+            filename = preprocess_reference_file(
+                os.path.join(working_dir, 'genomic_templates'),
+                copy_to_dir(working_dir, gene[1], 'fasta'),
+            )
             try:
-                aligner = MuscleAligner(infile=gene[1])
+                aligner = MuscleAligner(infile=filename)
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (AlignerException, GeneIdentifierException) as err:
