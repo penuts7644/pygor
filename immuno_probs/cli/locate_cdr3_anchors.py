@@ -119,7 +119,7 @@ class LocateCdr3Anchors(object):
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (AlignerException, GeneIdentifierException) as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -135,7 +135,7 @@ class LocateCdr3Anchors(object):
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
             except (IndexError, ValueError):
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write("FASTA header needs to be separated by '|', " \
                     "needs to have gene name on index position 1 and function " \
                     "on index position 3: '{}'\n".format(anchors_df['gene']))
@@ -155,7 +155,7 @@ class LocateCdr3Anchors(object):
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'))
             sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():

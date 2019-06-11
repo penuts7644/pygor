@@ -196,7 +196,7 @@ class EvaluateSeqs(object):
                     )
                     ref_list.append([i[0], filename])
                 command_list.append(ref_list)
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Add the sequence command after pre-processing of the input file.
             sys.stdout.write('Pre-processing input sequence file...')
@@ -220,18 +220,18 @@ class EvaluateSeqs(object):
                         )
                         command_list.append(['read_seqs', input_seqs])
                     except KeyError as err:
-                        sys.stdout.write('error\n')
+                        sys.stdout.write('\033[91merror\033[0m\n')
                         sys.stderr.write("Given input sequence file does not" \
                             "have a '{}' column\n".format(get_config_data('NT_COL')))
                         return
                 else:
-                    sys.stdout.write('error\n')
+                    sys.stdout.write('\033[91merror\033[0m\n')
                     sys.stderr.write('Given input sequence file could not be ' \
                         'detected as FASTA file or separated data type\n')
                     return
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except IOError as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -247,11 +247,11 @@ class EvaluateSeqs(object):
             igor_cline = IgorInterface(args=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write("An error occurred during execution of IGoR " \
                     "command (exit code {}):\n{}\n".format(exit_code, stderr))
                 return
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Read in all data frame files, based on input file type.
             sys.stdout.write('Processing generation probabilities...')
@@ -272,7 +272,7 @@ class EvaluateSeqs(object):
                                     inplace=True)
                 full_pgen_df.loc[:, get_config_data('AA_P_COL')] = numpy.nan
             except IOError as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -287,7 +287,7 @@ class EvaluateSeqs(object):
 
             # Merge IGoR generated sequence output dataframes.
             full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
@@ -301,7 +301,7 @@ class EvaluateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.cdr3:
@@ -338,9 +338,9 @@ class EvaluateSeqs(object):
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except (ModelLoaderException, GeneIdentifierException) as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -357,13 +357,13 @@ class EvaluateSeqs(object):
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
                         index_col=get_config_data('I_COL'))
                 else:
-                    sys.stdout.write('error\n')
+                    sys.stdout.write('\033[91merror\033[0m\n')
                     sys.stderr.write('Given input sequence file could not be ' \
                         'detected as FASTA file or separated data type\n')
                     return
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except (IOError) as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -379,9 +379,9 @@ class EvaluateSeqs(object):
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except (OlgaException) as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -397,7 +397,7 @@ class EvaluateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():

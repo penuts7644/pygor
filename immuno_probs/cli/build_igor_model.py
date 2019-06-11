@@ -168,9 +168,9 @@ class BuildIgorModel(object):
                 )
                 ref_list.append([i[0], filename])
             command_list.append(ref_list)
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
         except IOError as err:
-            sys.stdout.write('error\n')
+            sys.stdout.write('\033[91merror\033[0m\n')
             sys.stderr.write(str(err) + '\n')
             return
 
@@ -186,7 +186,7 @@ class BuildIgorModel(object):
                 'set_custom_model',
                 get_default_model_file_paths(name='human-t-alpha')['parameters']
             ])
-        sys.stdout.write('success\n')
+        sys.stdout.write('\033[92msuccess\033[0m\n')
 
         # Add the sequence command after pre-processing of the input file.
         sys.stdout.write('Pre-processing input sequence file...')
@@ -210,18 +210,18 @@ class BuildIgorModel(object):
                     )
                     command_list.append(['read_seqs', input_seqs])
                 except KeyError as err:
-                    sys.stdout.write('error\n')
+                    sys.stdout.write('\033[91merror\033[0m\n')
                     sys.stderr.write("Given input sequence file does not have " \
                         "a '{}' column\n".format(get_config_data('NT_COL')))
                     return
             else:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write('Given input sequence file could not be ' \
                     'detected as FASTA file or separated data type\n')
                 return
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
         except IOError as err:
-            sys.stdout.write('error\n')
+            sys.stdout.write('\033[91merror\033[0m\n')
             sys.stderr.write(str(err) + '\n')
             return
 
@@ -236,11 +236,11 @@ class BuildIgorModel(object):
         igor_cline = IgorInterface(args=command_list)
         exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
-            sys.stdout.write('error\n')
+            sys.stdout.write('\033[91merror\033[0m\n')
             sys.stderr.write("An error occurred during execution of IGoR " \
                 "command (exit code {}):\n{}\n".format(exit_code, stderr))
             return
-        sys.stdout.write('success\n')
+        sys.stdout.write('\033[92msuccess\033[0m\n')
 
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
@@ -256,7 +256,7 @@ class BuildIgorModel(object):
             filename='{}_params'.format(output_prefix),
             directory=output_dir)
         sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
-        sys.stdout.write('success\n')
+        sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():

@@ -212,7 +212,7 @@ class GenerateSeqs(object):
                     copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
                     copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
                 ])
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
@@ -222,11 +222,11 @@ class GenerateSeqs(object):
             igor_cline = IgorInterface(args=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write("An error occurred during execution of IGoR " \
                     "command (exit code {}):\n{}\n".format(exit_code, stderr))
                 return
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Merge the generated output files together (translated).
             sys.stdout.write('Processing sequence realizations...')
@@ -254,7 +254,7 @@ class GenerateSeqs(object):
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
             full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
@@ -268,7 +268,7 @@ class GenerateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.cdr3:
@@ -301,9 +301,9 @@ class GenerateSeqs(object):
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except (ModelLoaderException, GeneIdentifierException) as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -312,9 +312,9 @@ class GenerateSeqs(object):
             try:
                 seq_generator = OlgaContainer(igor_model=model)
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
-                sys.stdout.write('success\n')
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except OlgaException as err:
-                sys.stdout.write('error\n')
+                sys.stdout.write('\033[91merror\033[0m\n')
                 sys.stderr.write(str(err) + '\n')
                 return
 
@@ -330,7 +330,7 @@ class GenerateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('success\n')
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():
