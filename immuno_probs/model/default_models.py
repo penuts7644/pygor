@@ -50,11 +50,11 @@ def get_default_model_file_paths(name):
                 pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_V.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBV.fasta')),
                 'D': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_D.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBD.fasta')),
                 'J': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_J.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBJ.fasta')),
             },
             'seqs': resource_filename(
                 pkg_name, os.path.join('data', 'tutorial_model', 'VDJ_sequences.tsv')),
@@ -73,9 +73,9 @@ def get_default_model_file_paths(name):
                 pkg_name, os.path.join('data', 'human_t_alpha', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_alpha', 'genomic_V.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_alpha', 'TRAV.fasta')),
                 'J': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_alpha', 'genomic_J.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_alpha', 'TRAJ.fasta')),
             },
         },
         'human-t-beta': {
@@ -90,11 +90,11 @@ def get_default_model_file_paths(name):
                 pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_V.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBV.fasta')),
                 'D': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_D.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBD.fasta')),
                 'J': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'genomic_J.fasta')),
+                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBJ.fasta')),
             },
         },
         'human-b-heavy': {
@@ -109,11 +109,11 @@ def get_default_model_file_paths(name):
                 pkg_name, os.path.join('data', 'human_b_heavy', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
-                    pkg_name, os.path.join('data', 'human_b_heavy', 'genomic_V.fasta')),
+                    pkg_name, os.path.join('data', 'human_b_heavy', 'IGHV.fasta')),
                 'D': resource_filename(
-                    pkg_name, os.path.join('data', 'human_b_heavy', 'genomic_D.fasta')),
+                    pkg_name, os.path.join('data', 'human_b_heavy', 'IGHD.fasta')),
                 'J': resource_filename(
-                    pkg_name, os.path.join('data', 'human_b_heavy', 'genomic_J.fasta')),
+                    pkg_name, os.path.join('data', 'human_b_heavy', 'IGHJ.fasta')),
             },
         },
         'mouse-t-beta': {
@@ -128,11 +128,11 @@ def get_default_model_file_paths(name):
                 pkg_name, os.path.join('data', 'mouse_t_beta', 'J_gene_CDR3_anchors.tsv')),
             'reference': {
                 'V': resource_filename(
-                    pkg_name, os.path.join('data', 'mouse_t_beta', 'genomic_V.fasta')),
+                    pkg_name, os.path.join('data', 'mouse_t_beta', 'TRBV.fasta')),
                 'D': resource_filename(
-                    pkg_name, os.path.join('data', 'mouse_t_beta', 'genomic_D.fasta')),
+                    pkg_name, os.path.join('data', 'mouse_t_beta', 'TRBD.fasta')),
                 'J': resource_filename(
-                    pkg_name, os.path.join('data', 'mouse_t_beta', 'genomic_J.fasta')),
+                    pkg_name, os.path.join('data', 'mouse_t_beta', 'TRBJ.fasta')),
             },
         },
     }

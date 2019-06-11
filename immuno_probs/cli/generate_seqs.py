@@ -21,7 +21,6 @@
 import os
 import sys
 
-from halo import Halo
 import pandas
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
@@ -75,7 +74,7 @@ class GenerateSeqs(object):
                             'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for generation. " \
-                        "(required if --custom-model not specified) " \
+                        "(required if -custom-model NOT specified) " \
                         "(select one: %(choices)s)."
             },
             '-type': {
@@ -83,7 +82,7 @@ class GenerateSeqs(object):
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \
-                        '%(choices)s) (required for -custom_model).'
+                        '%(choices)s) (required for -custom-model).'
             },
             '-anchor': {
                 'metavar': ('<gene>', '<separated>'),
@@ -92,16 +91,16 @@ class GenerateSeqs(object):
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
                 'help': 'A gene (V or J) followed by a CDR3 anchor separated '
-                        'data file. Note: need to contain gene in the firts ' \
+                        'data file. Note: need to contain gene in the first ' \
                         'column, anchor index in the second and gene function ' \
-                        'in the third (required for -cdr3 and -custom_model).'
+                        'in the third (required for -cdr3 and -custom-model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
                 'nargs': 2,
-                'help': 'A IGoR parameters txt file followed by an IGoR ' \
-                        'marginals txt file.'
+                'help': 'A IGoR parameters file followed by an IGoR ' \
+                        'marginals file.'
             },
             '-generate': {
                 'type': 'int',
@@ -192,15 +191,14 @@ class GenerateSeqs(object):
         # If the given type of sequences generation is not CDR3, use IGoR.
         if not args.cdr3:
 
-            # Add general igor commands and setup spinner.
+            # Add general igor commands.
             command_list = []
             working_dir = get_config_data('WORKING_DIR')
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
-            spinner = Halo(text='Processing IGoR model files', spinner='dots')
 
             # Add the model (build-in or custom) command.
-            spinner.start()
+            sys.stdout.write('Processing IGoR model files...')
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
                 command_list.append([
@@ -214,23 +212,24 @@ class GenerateSeqs(object):
                     copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
                     copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
                 ])
-            spinner.succeed()
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
-            spinner.start('Executing IGoR')
+            sys.stdout.write('Executing IGoR...')
             igor_cline = IgorInterface(args=command_list)
-            exit_code, _, _, _ = igor_cline.call()
+            exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                spinner.fail("An error occurred during execution of IGoR " \
-                    "command (exit code {})".format(exit_code))
+                sys.stdout.write('\033[91merror\033[0m\n')
+                sys.stderr.write("An error occurred during execution of IGoR " \
+                    "command (exit code {}):\n{}\n".format(exit_code, stderr))
                 return
-            spinner.succeed()
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Merge the generated output files together (translated).
-            spinner.start('Processing sequence realizations')
+            sys.stdout.write('Processing sequence realizations...')
             sequence_df = read_separated_to_dataframe(
                 file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                 separator=';',
@@ -255,30 +254,30 @@ class GenerateSeqs(object):
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
             full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
-            spinner.succeed()
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
             # Write the pandas dataframe to a separated file.
-            spinner.start('Writting file')
+            sys.stdout.write('Writting file...')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}'.format(model_type)
-            _, _ = write_dataframe_to_separated(
+            _, filename = write_dataframe_to_separated(
                 dataframe=full_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
-            spinner.succeed()
+            sys.stdout.write("(written '{}')...".format(filename))
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.cdr3:
 
-            # Get the working directory and setup teh spinner.
+            # Get the working directory.
             working_dir = get_config_data('WORKING_DIR')
-            spinner = Halo(text='Loading model', spinner='dots')
 
             # Load the model, create the sequence generator and generate the sequences.
-            spinner.start()
+            sys.stdout.write('Loading model...')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -302,33 +301,36 @@ class GenerateSeqs(object):
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                spinner.succeed()
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except (ModelLoaderException, GeneIdentifierException) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('\033[91merror\033[0m\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Setup the sequence generator and generate sequences.
-            spinner.start('Generating sequences')
+            sys.stdout.write('Generating sequences...')
             try:
                 seq_generator = OlgaContainer(igor_model=model)
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
-                spinner.succeed()
+                sys.stdout.write('\033[92msuccess\033[0m\n')
             except OlgaException as err:
-                spinner.fail(str(err))
+                sys.stdout.write('\033[91merror\033[0m\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Write the pandas dataframe to a separated file with.
-            spinner.start('Writting file')
+            sys.stdout.write('Writting file...')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_separated(
+            _, filename = write_dataframe_to_separated(
                 dataframe=cdr3_seqs_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
-            spinner.succeed()
+            sys.stdout.write("(written '{}')...".format(filename))
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():

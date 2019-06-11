@@ -19,8 +19,8 @@
 
 
 import os
+import sys
 
-from halo import Halo
 import numpy
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
@@ -28,7 +28,8 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import AlignerException, GeneIdentifierException
-from immuno_probs.util.io import write_dataframe_to_separated
+from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
+write_dataframe_to_separated
 
 
 class LocateCdr3Anchors(object):
@@ -103,23 +104,23 @@ class LocateCdr3Anchors(object):
             A directory path for writing output files to.
 
         """
-        # Create the directory for the output files.
-        working_dir = os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors')
-        if not os.path.isdir(working_dir):
-            os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'cdr3_anchors'))
-
-        # Setup and start spinner.
-        spinner = Halo(text='Locating CDR3 anchors', spinner='dots')
-        spinner.start()
+        # Get the working directory.
+        working_dir = get_config_data('WORKING_DIR')
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
+            sys.stdout.write('Locating CDR3 anchors for {}...'.format(gene[0]))
+            filename = preprocess_reference_file(
+                os.path.join(working_dir, 'genomic_templates'),
+                copy_to_dir(working_dir, gene[1], 'fasta'),
+            )
             try:
-                aligner = MuscleAligner(infile=gene[1])
+                aligner = MuscleAligner(infile=filename)
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (AlignerException, GeneIdentifierException) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('\033[91merror\033[0m\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             if args.motif is not None:
@@ -134,9 +135,10 @@ class LocateCdr3Anchors(object):
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
             except (IndexError, ValueError):
-                spinner.fail("FASTA header needs to be separated by '|', " \
-                    "needs to have gene name on index position 1 and " \
-                    "function on index position 3: '{}'".format(anchors_df['gene']))
+                sys.stdout.write('\033[91merror\033[0m\n')
+                sys.stderr.write("FASTA header needs to be separated by '|', " \
+                    "needs to have gene name on index position 1 and function " \
+                    "on index position 3: '{}'\n".format(anchors_df['gene']))
                 return
 
             # Apply some filtering to the anchor dataframe.
@@ -152,8 +154,8 @@ class LocateCdr3Anchors(object):
                 filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'))
-            spinner.info("Written '{}' for {} gene".format(filename, gene[0]))
-        spinner.succeed()
+            sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
+            sys.stdout.write('\033[92msuccess\033[0m\n')
 
 
 def main():
