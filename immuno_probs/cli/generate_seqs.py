@@ -75,7 +75,7 @@ class GenerateSeqs(object):
                             'human-b-heavy', 'mouse-t-beta'],
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for generation. " \
-                        "(required if --custom-model not specified) " \
+                        "(required if -custom-model NOT specified) " \
                         "(select one: %(choices)s)."
             },
             '-type': {
@@ -83,7 +83,7 @@ class GenerateSeqs(object):
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
                 'help': 'The type of model to create. (select one: ' \
-                        '%(choices)s) (required for -custom_model).'
+                        '%(choices)s) (required for -custom-model).'
             },
             '-anchor': {
                 'metavar': ('<gene>', '<separated>'),
@@ -92,16 +92,16 @@ class GenerateSeqs(object):
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
                 'help': 'A gene (V or J) followed by a CDR3 anchor separated '
-                        'data file. Note: need to contain gene in the firts ' \
+                        'data file. Note: need to contain gene in the first ' \
                         'column, anchor index in the second and gene function ' \
-                        'in the third (required for -cdr3 and -custom_model).'
+                        'in the third (required for -cdr3 and -custom-model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
                 'nargs': 2,
-                'help': 'A IGoR parameters txt file followed by an IGoR ' \
-                        'marginals txt file.'
+                'help': 'A IGoR parameters file followed by an IGoR ' \
+                        'marginals file.'
             },
             '-generate': {
                 'type': 'int',
