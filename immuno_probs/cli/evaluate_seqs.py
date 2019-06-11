@@ -327,16 +327,18 @@ class EvaluateSeqs(object):
                                    ['J', files['j_anchors']]]
                     if args.model == 'tutorial-model':
                         args.seqs = files['cdr3']
+                    separator = '\t'
                 elif args.custom_model:
                     model_type = args.type
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
+                    separator = get_config_data('SEPARATOR')
                 for gene in args.anchor:
                     anchor_file = preprocess_separated_file(
                         os.path.join(working_dir, 'cdr3_anchors'),
                         str(gene[1]),
-                        get_config_data('SEPARATOR'),
+                        separator,
                         ','
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
