@@ -22,6 +22,7 @@ import os
 from shutil import copy2
 
 from Bio import SeqIO
+from Bio.Seq import Seq
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import pandas
 
@@ -273,7 +274,7 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
     return os.path.join(directory, filename)
 
 
-def preprocess_reference_file(directory, file, index):
+def preprocess_reference_file(directory, file, index=None):
     """Function for formatting the IMGT reference genome files for IGoR.
 
     Parameters
@@ -282,13 +283,18 @@ def preprocess_reference_file(directory, file, index):
         A directory path to write the file to.
     file : str
         A FASTA file path for a reference genomic template file.
-    index : int
+    index : int, optional
         Index of the header line to keep after splitting on '|'.
 
     Returns
     -------
     str
         A string file path to the new reference FASTA file.
+
+    Notes
+    -----
+        The sequence is always formatted to uppercase and '.' characters are
+        removed from the sequence string.
 
     """
     # Create the output directory.
@@ -298,8 +304,12 @@ def preprocess_reference_file(directory, file, index):
     # Open the fasta file and update the fasta header.
     records = list(SeqIO.parse(file, "fasta"))
     for rec in records:
-        rec.id = rec.description.split('|')[index]
+        if index:
+            rec.id = rec.description.split('|')[index]
+        else:
+            rec.id = rec.description
         rec.description = ""
+        rec.seq = Seq(''.join(str(rec.seq).upper().split('.')))
 
     # Write out the modified file.
     updated_path = os.path.join(directory, os.path.basename(file))
