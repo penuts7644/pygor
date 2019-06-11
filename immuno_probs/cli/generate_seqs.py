@@ -27,7 +27,7 @@ from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
-from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
@@ -212,7 +212,7 @@ class GenerateSeqs(object):
                     copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
                     copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
                 ])
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
@@ -222,11 +222,12 @@ class GenerateSeqs(object):
             igor_cline = IgorInterface(args=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write("An error occurred during execution of IGoR " \
-                    "command (exit code {}):\n{}\n".format(exit_code, stderr))
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(
+                    "An error occurred during execution of IGoR command (exit " \
+                    "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
                 return
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
             # Merge the generated output files together (translated).
             sys.stdout.write('Processing sequence realizations...')
@@ -254,7 +255,7 @@ class GenerateSeqs(object):
             realizations_df = self._process_realizations(data=realizations_df,
                                                          model=model)
             full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
@@ -268,7 +269,7 @@ class GenerateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.cdr3:
@@ -287,24 +288,26 @@ class GenerateSeqs(object):
                                        model_marginals=files['marginals'])
                     args.anchor = [['V', files['v_anchors']],
                                    ['J', files['j_anchors']]]
+                    separator = '\t'
                 elif args.custom_model:
                     model_type = args.type
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
+                    separator = get_config_data('SEPARATOR')
                 for gene in args.anchor:
                     anchor_file = preprocess_separated_file(
                         os.path.join(working_dir, 'cdr3_anchors'),
                         str(gene[1]),
-                        get_config_data('SEPARATOR'),
+                        separator,
                         ','
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                sys.stdout.write('\033[92msuccess\033[0m\n')
+                sys.stdout.write(make_colored('success\n', 'green'))
             except (ModelLoaderException, GeneIdentifierException) as err:
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write(str(err) + '\n')
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Setup the sequence generator and generate sequences.
@@ -312,10 +315,10 @@ class GenerateSeqs(object):
             try:
                 seq_generator = OlgaContainer(igor_model=model)
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
-                sys.stdout.write('\033[92msuccess\033[0m\n')
+                sys.stdout.write(make_colored('success\n', 'green'))
             except OlgaException as err:
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write(str(err) + '\n')
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Write the pandas dataframe to a separated file with.
@@ -330,7 +333,7 @@ class GenerateSeqs(object):
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
 
 def main():
