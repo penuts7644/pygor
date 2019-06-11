@@ -23,7 +23,7 @@ import sys
 
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
-from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import preprocess_separated_file, preprocess_reference_file, \
 is_fasta, is_separated, copy_to_dir
@@ -168,10 +168,10 @@ class BuildIgorModel(object):
                 )
                 ref_list.append([i[0], filename])
             command_list.append(ref_list)
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
         except IOError as err:
-            sys.stdout.write('\033[91merror\033[0m\n')
-            sys.stderr.write(str(err) + '\n')
+            sys.stdout.write(make_colored('error\n', 'red'))
+            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
             return
 
         # Set the initial model parameters using a build-in model.
@@ -186,7 +186,7 @@ class BuildIgorModel(object):
                 'set_custom_model',
                 get_default_model_file_paths(name='human-t-alpha')['parameters']
             ])
-        sys.stdout.write('\033[92msuccess\033[0m\n')
+        sys.stdout.write(make_colored('success\n', 'green'))
 
         # Add the sequence command after pre-processing of the input file.
         sys.stdout.write('Pre-processing input sequence file...')
@@ -210,19 +210,21 @@ class BuildIgorModel(object):
                     )
                     command_list.append(['read_seqs', input_seqs])
                 except KeyError as err:
-                    sys.stdout.write('\033[91merror\033[0m\n')
-                    sys.stderr.write("Given input sequence file does not have " \
-                        "a '{}' column\n".format(get_config_data('NT_COL')))
+                    sys.stdout.write(make_colored('error\n', 'red'))
+                    sys.stderr.write(make_colored(
+                        "Given input sequence file does not have a '{}' column\n" \
+                        .format(get_config_data('NT_COL')), 'bg-red'))
                     return
             else:
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write('Given input sequence file could not be ' \
-                    'detected as FASTA file or separated data type\n')
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(
+                    'Given input sequence file could not be detected as FASTA ' \
+                    'file or separated data type\n', 'bg-red'))
                 return
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
         except IOError as err:
-            sys.stdout.write('\033[91merror\033[0m\n')
-            sys.stderr.write(str(err) + '\n')
+            sys.stdout.write(make_colored('error\n', 'red'))
+            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
             return
 
         # Add alignment commands.
@@ -236,11 +238,12 @@ class BuildIgorModel(object):
         igor_cline = IgorInterface(args=command_list)
         exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
-            sys.stdout.write('\033[91merror\033[0m\n')
-            sys.stderr.write("An error occurred during execution of IGoR " \
-                "command (exit code {}):\n{}\n".format(exit_code, stderr))
+            sys.stdout.write(make_colored('error\n', 'red'))
+            sys.stderr.write(make_colored(
+                "An error occurred during execution of IGoR command (exit " \
+                "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
             return
-        sys.stdout.write('\033[92msuccess\033[0m\n')
+        sys.stdout.write(make_colored('success\n', 'green'))
 
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
@@ -256,7 +259,7 @@ class BuildIgorModel(object):
             filename='{}_params'.format(output_prefix),
             directory=output_dir)
         sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
-        sys.stdout.write('\033[92msuccess\033[0m\n')
+        sys.stdout.write(make_colored('success\n', 'green'))
 
 
 def main():

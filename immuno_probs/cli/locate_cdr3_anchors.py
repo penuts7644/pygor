@@ -25,7 +25,7 @@ import numpy
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
-from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.exception import AlignerException, GeneIdentifierException
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
@@ -119,8 +119,8 @@ class LocateCdr3Anchors(object):
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (AlignerException, GeneIdentifierException) as err:
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write(str(err) + '\n')
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             if args.motif is not None:
@@ -135,10 +135,11 @@ class LocateCdr3Anchors(object):
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
             except (IndexError, ValueError):
-                sys.stdout.write('\033[91merror\033[0m\n')
-                sys.stderr.write("FASTA header needs to be separated by '|', " \
-                    "needs to have gene name on index position 1 and function " \
-                    "on index position 3: '{}'\n".format(anchors_df['gene']))
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(
+                    "FASTA header needs to be separated by '|', needs to have " \
+                    "gene name on index position 1 and function on index " \
+                    "position 3: '{}'\n".format(anchors_df['gene']), 'bg-red'))
                 return
 
             # Apply some filtering to the anchor dataframe.
@@ -155,7 +156,7 @@ class LocateCdr3Anchors(object):
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'))
             sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
-            sys.stdout.write('\033[92msuccess\033[0m\n')
+            sys.stdout.write(make_colored('success\n', 'green'))
 
 
 def main():

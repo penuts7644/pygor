@@ -50,3 +50,41 @@ def dynamic_cli_options(parser, options):
 
     # Return the updated parser.
     return parser
+
+def make_colored(text, color):
+    """Turn a text string into a colored representation.
+
+    Parameters
+    ----------
+    text : str
+        A text string to modify.
+    color : str
+        One of the predefined color options to use for transforming the input
+        string value.
+
+    Returns
+    -------
+    str
+        With the new colored values attached.
+
+    Notes
+    -----
+        As of now, you can select one of the following: black, red, green,
+        white, bg-black, bg-red, bg-green and bg-white.
+
+    """
+    # Specify the colors in the dict.
+    colors = {
+        'black': '\033[30m',
+        'red': '\033[31m',
+        'green': '\033[32m',
+        'white': '\033[37m',
+        'bg-black': '\033[0;37;40m',
+        'bg-red': '\033[0;37;41m',
+        'bg-green': '\033[0;30;42m',
+        'bg-white': '\033[0;30;47m',
+    }
+
+    # Create new text string and return.
+    new_text = colors[color] + text + '\033[0m'
+    return new_text
