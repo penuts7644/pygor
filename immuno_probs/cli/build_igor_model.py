@@ -19,8 +19,7 @@
 
 import os
 from shutil import copy2
-
-from halo import Halo
+import sys
 
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
@@ -151,15 +150,14 @@ class BuildIgorModel(object):
             A directory path for writing output files to.
 
         """
-        # Add general igor commands and setup spinner.
+        # Add general igor commands.
         command_list = []
         working_dir = get_config_data('WORKING_DIR')
         command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
-        spinner = Halo(text='Processing genomic reference templates', spinner='dots')
 
         # Add sequence and file paths commands.
-        spinner.start()
+        sys.stdout.write('Processing genomic reference templates...')
         try:
             ref_list = ['set_genomic']
             for i in args.ref:
@@ -170,13 +168,14 @@ class BuildIgorModel(object):
                 )
                 ref_list.append([i[0], filename])
             command_list.append(ref_list)
-            spinner.succeed()
+            sys.stdout.write('success\n')
         except IOError as err:
-            spinner.fail(str(err))
+            sys.stdout.write('error\n')
+            sys.stderr.write(str(err) + '\n')
             return
 
         # Set the initial model parameters using a build-in model.
-        spinner.start('Setting initial model parameters')
+        sys.stdout.write('Setting initial model parameters...')
         if args.type in ['beta', 'heavy']:
             command_list.append([
                 'set_custom_model',
@@ -187,19 +186,19 @@ class BuildIgorModel(object):
                 'set_custom_model',
                 get_default_model_file_paths(name='human-t-alpha')['parameters']
             ])
-        spinner.succeed()
+        sys.stdout.write('success\n')
 
         # Add the sequence command after pre-processing of the input file.
-        spinner.start('Pre-processing input sequence file')
+        sys.stdout.write('Pre-processing input sequence file...')
         try:
             if is_fasta(args.seqs):
-                spinner.info('FASTA input file extension detected')
+                sys.stdout.write('(FASTA input file extension detected)...')
                 command_list.append([
                     'read_seqs',
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
             elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                spinner.info('Separated input file type detected')
+                sys.stdout.write('(separated input file type detected)...')
                 try:
                     input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
@@ -211,16 +210,19 @@ class BuildIgorModel(object):
                     )
                     command_list.append(['read_seqs', input_seqs])
                 except KeyError as err:
-                    spinner.fail("Given input sequence file does not have a '{}' column" \
-                        .format(get_config_data('NT_COL')))
+                    sys.stdout.write('error\n')
+                    sys.stderr.write("Given input sequence file does not have " \
+                        "a '{}' column\n".format(get_config_data('NT_COL')))
                     return
             else:
-                spinner.fail('Given input sequence file could not be detected ' \
-                             'as FASTA file or separated data type')
+                sys.stdout.write('error\n')
+                sys.stderr.write('Given input sequence file could not be ' \
+                    'detected as FASTA file or separated data type\n')
                 return
-            spinner.succeed()
+            sys.stdout.write('success\n')
         except IOError as err:
-            spinner.fail(str(err))
+            sys.stdout.write('error\n')
+            sys.stderr.write(str(err) + '\n')
             return
 
         # Add alignment commands.
@@ -230,29 +232,31 @@ class BuildIgorModel(object):
         command_list.append(['infer', ['N_iter', str(args.n_iter)]])
 
         # Execute IGoR through command line and catch error code.
-        spinner.start('Executing IGoR')
+        sys.stdout.write('Executing IGoR...')
         igor_cline = IgorInterface(args=command_list)
         exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
-            spinner.fail("An error occurred during execution of IGoR " \
-                "command (exit code {}):\n{}".format(exit_code, stderr))
+            sys.stdout.write('error\n')
+            sys.stderr.write("An error occurred during execution of IGoR " \
+                "command (exit code {}):\n{}\n".format(exit_code, stderr))
             return
-        spinner.succeed()
+        sys.stdout.write('success\n')
 
         # Copy the output files to the output directory with prefix.
-        spinner.start('Writting files')
+        sys.stdout.write('Writting files...')
         output_prefix = get_config_data('OUT_NAME')
         if not output_prefix:
             output_prefix = 'model'
-        _, filename = self._copy_file_to_output(
+        _, filename_1 = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
             filename='{}_marginals'.format(output_prefix),
             directory=output_dir)
-        _, filename = self._copy_file_to_output(
+        _, filename_2 = self._copy_file_to_output(
             file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
             filename='{}_params'.format(output_prefix),
             directory=output_dir)
-        spinner.succeed()
+        sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
+        sys.stdout.write('success\n')
 
 
 def main():

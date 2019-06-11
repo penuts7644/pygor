@@ -21,7 +21,6 @@
 import os
 import sys
 
-from halo import Halo
 import pandas
 import numpy
 
@@ -159,15 +158,14 @@ class EvaluateSeqs(object):
         # If the given type of sequences evaluation is VDJ, use IGoR.
         if not args.cdr3:
 
-            # Add general IGoR commands and setup spinner.
+            # Add general IGoR commands.
             command_list = []
             working_dir = get_config_data('WORKING_DIR')
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
-            spinner = Halo(text='Processing genomic reference templates', spinner='dots')
 
             # Add the model (build-in or custom) command depending on given.
-            spinner.start()
+            sys.stdout.write('Processing genomic reference templates...')
             if args.model:
                 files = get_default_model_file_paths(name=args.model)
                 model_type = files['type']
@@ -198,19 +196,19 @@ class EvaluateSeqs(object):
                     )
                     ref_list.append([i[0], filename])
                 command_list.append(ref_list)
-            spinner.succeed()
+            sys.stdout.write('success\n')
 
             # Add the sequence command after pre-processing of the input file.
-            spinner.start('Pre-processing input sequence file')
+            sys.stdout.write('Pre-processing input sequence file...')
             try:
                 if is_fasta(args.seqs):
-                    spinner.info('FASTA input file extension detected')
+                    sys.stdout.write('(FASTA input file extension detected)...')
                     command_list.append([
                         'read_seqs',
                         copy_to_dir(working_dir, str(args.seqs), 'fasta')
                     ])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('Separated input file type detected')
+                    sys.stdout.write('(separated input file type detected)...')
                     try:
                         input_seqs = preprocess_separated_file(
                             os.path.join(working_dir, 'input'),
@@ -222,17 +220,19 @@ class EvaluateSeqs(object):
                         )
                         command_list.append(['read_seqs', input_seqs])
                     except KeyError as err:
-                        spinner.fail("Given input sequence file does not have " \
-                                     "a '{}' column".format(get_config_data('NT_COL')))
+                        sys.stdout.write('error\n')
+                        sys.stderr.write("Given input sequence file does not" \
+                            "have a '{}' column\n".format(get_config_data('NT_COL')))
                         return
                 else:
-                    spinner.fail(
-                        'Given input sequence file could not be detected as ' \
-                        'FASTA file or separated data type')
+                    sys.stdout.write('error\n')
+                    sys.stderr.write('Given input sequence file could not be ' \
+                        'detected as FASTA file or separated data type\n')
                     return
-                spinner.succeed()
+                sys.stdout.write('success\n')
             except IOError as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Add alignment commands.
@@ -243,17 +243,18 @@ class EvaluateSeqs(object):
             command_list.append(['output', ['Pgen']])
 
             # Execute IGoR through command line and catch error code.
-            spinner.start('Executing IGoR')
+            sys.stdout.write('Executing IGoR...')
             igor_cline = IgorInterface(args=command_list)
-            exit_code, _, _, _ = igor_cline.call()
+            exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                spinner.fail("An error occurred during execution of IGoR " \
-                    "command (exit code {})".format(exit_code))
+                sys.stdout.write('error\n')
+                sys.stderr.write("An error occurred during execution of IGoR " \
+                    "command (exit code {}):\n{}\n".format(exit_code, stderr))
                 return
-            spinner.succeed()
+            sys.stdout.write('success\n')
 
             # Read in all data frame files, based on input file type.
-            spinner.start('Processing generation probabilities')
+            sys.stdout.write('Processing generation probabilities...')
             try:
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
@@ -271,7 +272,8 @@ class EvaluateSeqs(object):
                                     inplace=True)
                 full_pgen_df.loc[:, get_config_data('AA_P_COL')] = numpy.nan
             except IOError as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Insert amino acid sequence column if not existent.
@@ -285,32 +287,32 @@ class EvaluateSeqs(object):
 
             # Merge IGoR generated sequence output dataframes.
             full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
-            spinner.succeed()
+            sys.stdout.write('success\n')
 
             # Write the pandas dataframe to a separated file.
-            spinner.start('Writting file')
+            sys.stdout.write('Writting file...')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}'.format(model_type)
-            _, _ = write_dataframe_to_separated(
+            _, filename = write_dataframe_to_separated(
                 dataframe=full_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
-            spinner.succeed()
+            sys.stdout.write("(written '{}')...".format(filename))
+            sys.stdout.write('success\n')
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.cdr3:
 
-            # Create the directory for the output files and setup spinner.
+            # Create the directory for the output files.
             working_dir = os.path.join(get_config_data('WORKING_DIR'), 'output')
             if not os.path.isdir(working_dir):
                 os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'output'))
-            spinner = Halo(text='Loading model', spinner='dots')
 
             # Load the model and create the sequence evaluator.
-            spinner.start()
+            sys.stdout.write('Loading model...')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -336,35 +338,37 @@ class EvaluateSeqs(object):
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                spinner.succeed()
+                sys.stdout.write('success\n')
             except (ModelLoaderException, GeneIdentifierException) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Based on input file type, load in input file.
-            spinner.start('Pre-processing input sequence file')
+            sys.stdout.write('Pre-processing input sequence file...')
             try:
                 if is_fasta(args.seqs):
-                    spinner.info('FASTA input file extension detected')
+                    sys.stdout.write('(FASTA input file extension detected)...')
                     seqs_df = read_fasta_as_dataframe(file=args.seqs,
                                                       col=get_config_data('NT_COL'))
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
-                    spinner.info('Separated input file type detected')
+                    sys.stdout.write('(separated input file type detected)...')
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
                         index_col=get_config_data('I_COL'))
                 else:
-                    spinner.fail(
-                        'Given input sequence file could not be detected as ' \
-                        'FASTA file or separated data type')
+                    sys.stdout.write('error\n')
+                    sys.stderr.write('Given input sequence file could not be ' \
+                        'detected as FASTA file or separated data type\n')
                     return
-                spinner.succeed()
+                sys.stdout.write('success\n')
             except (IOError) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Evaluate the sequences.
-            spinner.start('Evaluating sequences')
+            sys.stdout.write('Evaluating sequences...')
             try:
                 seq_evaluator = OlgaContainer(igor_model=model)
                 if args.use_cdr3_allele:
@@ -375,23 +379,25 @@ class EvaluateSeqs(object):
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
-                spinner.succeed()
+                sys.stdout.write('success\n')
             except (OlgaException) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             # Write the pandas dataframe to a separated file.
-            spinner.start('Writting file')
+            sys.stdout.write('Writting file...')
             output_filename = get_config_data('OUT_NAME')
             if not output_filename:
                 output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
-            _, _ = write_dataframe_to_separated(
+            _, filename = write_dataframe_to_separated(
                 dataframe=cdr3_pgen_df,
                 filename=output_filename,
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
                 index_name=get_config_data('I_COL'))
-            spinner.succeed()
+            sys.stdout.write("(written '{}')...".format(filename))
+            sys.stdout.write('success\n')
 
 
 def main():

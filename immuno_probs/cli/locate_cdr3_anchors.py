@@ -19,8 +19,8 @@
 
 
 import os
+import sys
 
-from halo import Halo
 import numpy
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
@@ -104,13 +104,12 @@ class LocateCdr3Anchors(object):
             A directory path for writing output files to.
 
         """
-        # Set the working directory and setup and start spinner.
+        # Get the working directory.
         working_dir = get_config_data('WORKING_DIR')
-        spinner = Halo(text='Locating CDR3 anchors', spinner='dots')
-        spinner.start()
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
+            sys.stdout.write('Locating CDR3 anchors for {}...'.format(gene[0]))
             filename = preprocess_reference_file(
                 os.path.join(working_dir, 'genomic_templates'),
                 copy_to_dir(working_dir, gene[1], 'fasta'),
@@ -120,7 +119,8 @@ class LocateCdr3Anchors(object):
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (AlignerException, GeneIdentifierException) as err:
-                spinner.fail(str(err))
+                sys.stdout.write('error\n')
+                sys.stderr.write(str(err) + '\n')
                 return
 
             if args.motif is not None:
@@ -135,9 +135,10 @@ class LocateCdr3Anchors(object):
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
             except (IndexError, ValueError):
-                spinner.fail("FASTA header needs to be separated by '|', " \
-                    "needs to have gene name on index position 1 and " \
-                    "function on index position 3: '{}'".format(anchors_df['gene']))
+                sys.stdout.write('error\n')
+                sys.stderr.write("FASTA header needs to be separated by '|', " \
+                    "needs to have gene name on index position 1 and function " \
+                    "on index position 3: '{}'\n".format(anchors_df['gene']))
                 return
 
             # Apply some filtering to the anchor dataframe.
@@ -153,8 +154,8 @@ class LocateCdr3Anchors(object):
                 filename='{}_{}'.format(gene[0], output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'))
-            spinner.info("Written '{}' for {} gene".format(filename, gene[0]))
-        spinner.succeed()
+            sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
+            sys.stdout.write('success\n')
 
 
 def main():
