@@ -110,15 +110,15 @@ class LocateCdr3Anchors(object):
         # Create the alignment and locate the motifs.
         for gene in args.ref:
             sys.stdout.write('Locating CDR3 anchors for {}...'.format(gene[0]))
-            filename = preprocess_reference_file(
-                os.path.join(working_dir, 'genomic_templates'),
-                copy_to_dir(working_dir, gene[1], 'fasta'),
-            )
             try:
+                filename = preprocess_reference_file(
+                    os.path.join(working_dir, 'genomic_templates'),
+                    copy_to_dir(working_dir, gene[1], 'fasta'),
+                )
                 aligner = MuscleAligner(infile=filename)
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
-            except (AlignerException, GeneIdentifierException) as err:
+            except (AlignerException, GeneIdentifierException, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return

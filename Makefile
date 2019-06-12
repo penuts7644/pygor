@@ -20,7 +20,7 @@ help:
 ##			additional development requirements.
 ##
 setup:
-	pip install -r requirements_travis.txt && pip install -e .[development]
+	pip install -I -r requirements_travis.txt && pip install -e .[development]
 
 ##		make test
 ##			Run pytest tests from the tests directory on the immuno_probs source.
