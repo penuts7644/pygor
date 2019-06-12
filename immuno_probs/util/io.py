@@ -204,8 +204,8 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     enable_index = False
     if index_name:
         enable_index = True
-    pandas.DataFrame.to_csv(
-        dataframe, path_or_buf=os.path.join(directory, updated_filename + extension),
+    dataframe.to_csv(
+        os.path.join(directory, updated_filename + extension),
         sep=separator, index=enable_index, index_label=index_name, na_rep='NA')
     return (directory, updated_filename + extension)
 
