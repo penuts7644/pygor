@@ -20,7 +20,7 @@ help:
 ##			additional development requirements.
 ##
 setup:
-	pip install -r requirements_travis.txt && pip install -e .[development]
+	pip install -I -r requirements_travis.txt && pip install -e .[development]
 
 ##		make test
 ##			Run pytest tests from the tests directory on the immuno_probs source.
@@ -45,7 +45,7 @@ build: test clean
 ##			ImmunoProbs and finally builds a docker image of all executables.
 ##
 build-docker: test clean build
-	docker build -t penuts7644/immuno-probs:0.1.14 . && docker tag penuts7644/immuno-probs:0.1.14 penuts7644/immuno-probs:latest
+	docker build -t penuts7644/immuno-probs:0.1.15 . && docker tag penuts7644/immuno-probs:0.1.15 penuts7644/immuno-probs:latest
 
 ##		make test-deploy
 ##			Tests, cleans, builds and uploads all distribution files to PyPI test server.
