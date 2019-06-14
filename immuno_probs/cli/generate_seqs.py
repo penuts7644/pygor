@@ -41,7 +41,7 @@ class GenerateSeqs(object):
 
     Parameters
     ----------
-    subparsers : ArgumentParser
+    subparsers : argparse.ArgumentParser
         A subparser object for appending the tool's parser and options.
 
     Methods
@@ -70,8 +70,8 @@ class GenerateSeqs(object):
 
         Notes
         -----
-            Uses the class's subparser object for appending the tool's parser
-            and options.
+            Uses the class constructor's subparser object for appending the
+            tool's parser and options.
 
         """
         # Create the description and options for the parser.
@@ -140,15 +140,14 @@ class GenerateSeqs(object):
         ----------
         data : pandas.DataFrame
             A pandas dataframe object with the IGoR realization data.
-        model : IgorLoader
+        model : immuno_probs.model.igor_loader.IgorLoader
             Object containing the IGoR model.
 
         Returns
         -------
         pandas.DataFrame
-            A pandas dataframe object with 'seq_index', 'gene_choice_v',
-            'gene_choice_j' and optionally 'gene_choice_d' columns containing
-            the names of the selected genes.
+            A pandas dataframe object with sequence index, the V(D)J gene
+            choice columns containing the names of the selected genes.
 
         """
         # If the suplied model is VDJ, locate important columns and update index values.

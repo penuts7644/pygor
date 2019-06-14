@@ -34,7 +34,7 @@ class BuildIgorModel(object):
 
     Parameters
     ----------
-    subparsers : ArgumentParser
+    subparsers : argparse.ArgumentParser
         A subparser object for appending the tool's parser and options.
 
     Methods
@@ -54,8 +54,8 @@ class BuildIgorModel(object):
 
         Notes
         -----
-            Uses the class's subparser object for appending the tool's parser
-            and options.
+            Uses the class constructor's subparser object for appending the
+            tool's parser and options.
 
         """
         # Create the description and options for the parser.
@@ -122,8 +122,8 @@ class BuildIgorModel(object):
         Returns
         -------
         tuple
-            Containing the output directory and the name of the file that has been
-            written to disk.
+            Containing the output directory and the name of the file that has
+            been written to disk.
 
         """
         # Check if the filename is unique, modify name if necessary.

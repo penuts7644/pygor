@@ -43,7 +43,7 @@ class EvaluateSeqs(object):
 
     Parameters
     ----------
-    subparsers : ArgumentParser
+    subparsers : argparse.ArgumentParser
         A subparser object for appending the tool's parser and options.
 
     Methods
@@ -71,8 +71,8 @@ class EvaluateSeqs(object):
 
         Notes
         -----
-            Uses the class's subparser object for appending the tool's parser
-            and options.
+            Uses the class constructor's subparser object for appending the
+            tool's parser and options.
 
         """
         # Create the description and options for the parser.
