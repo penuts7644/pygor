@@ -249,8 +249,10 @@ class GenerateSeqs(object):
                 sequence_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                     separator=';',
-                    index_col='seq_index')
+                    index_col='seq_index',
+                    cols=['nt_sequence'])
                 sequence_df.index.names = [self.col_names['I_COL']]
+                sequence_df.columns = [self.col_names['NT_COL']]
                 sequence_df[self.col_names['AA_COL']] = sequence_df[self.col_names['NT_COL']] \
                     .apply(nucleotides_to_aminoacids)
                 realizations_df = read_separated_to_dataframe(

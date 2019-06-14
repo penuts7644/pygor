@@ -60,7 +60,14 @@ def test_olga_container(option, expected):
     model.set_anchor(gene='V', file=v_anchors)
     model.set_anchor(gene='J', file=j_anchors)
     model.initialize_model()
-    olga_container = OlgaContainer(igor_model=model)
+    olga_container = OlgaContainer(
+        igor_model=model,
+        nt_col='nt_sequence',
+        nt_p_col='nt_pgen_estimate',
+        aa_col='aa_sequence',
+        aa_p_col='aa_pgen_estimate',
+        v_gene_col='gene_choice_v',
+        j_gene_col='gene_choice_j')
     if option == 'generate':
         result = olga_container.generate(num_seqs=1)
         for i in expected:
