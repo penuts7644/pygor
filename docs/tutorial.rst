@@ -88,7 +88,7 @@ We'll start by specifying the reference genomic template FASTA files (``-ref``) 
         -ref D /tutorial_data/IGHD.fasta \
         -ref J /tutorial_data/IGHJ.fasta \
         -seqs /tutorial_data/1000_sample_seqs.fasta \
-        -n-iter 20 \
+        -n-iter 10 \
         -type heavy
 
 Locate CDR3 anchors positions for CDR3 sequence generation and evaluation steps
