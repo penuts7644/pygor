@@ -123,10 +123,23 @@ class LocateCdr3Anchors(object):
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
-            if args.motif is not None:
-                anchors_df = locator.get_indices_motifs(*args.motif)
-            else:
-                anchors_df = locator.get_indices_motifs()
+            try:
+                if args.motif is not None:
+                    anchors_df = locator.get_indices_motifs(
+                        get_config_data('NUM_THREADS'), *args.motif)
+                else:
+                    if gene[0] == 'V':
+                        anchors_df = locator.get_indices_motifs(
+                            get_config_data('NUM_THREADS'),
+                            *get_config_data('V_MOTIFS').split(','))
+                    elif gene[0] == 'J':
+                        anchors_df = locator.get_indices_motifs(
+                            get_config_data('NUM_THREADS'),
+                            *get_config_data('J_MOTIFS').split(','))
+            except ValueError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
             # Modify the dataframe to make it OLGA compliant.
             anchors_df.insert(2, 'function', numpy.nan)

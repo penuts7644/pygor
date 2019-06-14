@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains custom exception classes used in immuno_probs."""
+"""Contains a collection of exceptions classes."""
 
 
 class AlignerException(Exception):

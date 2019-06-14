@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains global constant variables used in immuno_probs."""
+"""Contains a collection of global constant variables."""
 
 
 from ConfigParser import RawConfigParser
@@ -32,13 +32,13 @@ CONFIG_DATA = None
 
 
 def set_config_data(value=None):
-    """Updates the global CONFIG_DATA variable by parsing configfiles.
+    """Sets and updates the global CONFIG_DATA variable by parsing config files.
 
     Parameters
     ----------
-    value : str
-        An optional configuration file path for ImmunoProbs to parse next to
-        the default file.
+    value : str, optional
+        An optional ImmunoProbs configuration file path to parse besides the
+        default file.
 
     """
     # Parse default configuration file.
@@ -68,7 +68,7 @@ def set_config_data(value=None):
         set_out_name()
 
 def get_config_data(value):
-    """Returns the global CONFIG_DATA variable.
+    """Collects and returns the global CONFIG_DATA variable.
 
     Parameters
     ----------
@@ -84,11 +84,11 @@ def get_config_data(value):
     return CONFIG_DATA.get('ImmunoProbs', value)
 
 def set_num_threads(value=ph.cpu_count()):
-    """Updates the global NUM_THREADS variable.
+    """Sets and updates the global NUM_THREADS variable.
 
     Parameters
     ----------
-    value : int
+    value : int, optional
         The number of threads the program is allowed to use (default: max
         available threads).
 
@@ -107,13 +107,13 @@ def set_num_threads(value=ph.cpu_count()):
         CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
 
 def set_separator(value='\t'):
-    """Updates the global SEPARATOR variable.
+    """Sets and updates the global SEPARATOR variable.
 
     Parameters
     ----------
-    value : str
-        The separator character to be used when writing files (default:
-        tab character).
+    value : str, optional
+        The separator character to be used when writing files (default: tab
+        character).
 
     Raises
     ------
@@ -130,13 +130,13 @@ def set_separator(value='\t'):
         CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
 
 def set_working_dir(value=os.getcwd()):
-    """Updates the global WORKING_DIR variable.
+    """Sets and updates the global WORKING_DIR variable.
 
     Parameters
     ----------
-    value : str
-        The directory path to use when writing output files (default:
-        the current working directory).
+    value : str, optional
+        The directory path to use when writing output files (default: the
+        current working directory).
 
     Raises
     ------
@@ -153,13 +153,13 @@ def set_working_dir(value=os.getcwd()):
         CONFIG_DATA.set('ImmunoProbs', 'WORKING_DIR', value)
 
 def set_out_name(value=''):
-    """Updates the global OUT_NAME variable.
+    """Sets and updates the global OUT_NAME variable.
 
     Parameters
     ----------
-    value : str
+    value : str, optional
         The output file name string to use when writing output files or when
-        prefixing output files. (default: none).
+        prefixing output files (default: none).
 
     """
     updated_value = ''.join(char for char in value if char.isalnum())

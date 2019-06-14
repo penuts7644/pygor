@@ -222,7 +222,7 @@ class BuildIgorModel(object):
                     'file or separated data type\n', 'bg-red'))
                 return
             sys.stdout.write(make_colored('success\n', 'green'))
-        except IOError as err:
+        except (IOError, KeyError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
             return
@@ -235,7 +235,7 @@ class BuildIgorModel(object):
 
         # Execute IGoR through command line and catch error code.
         sys.stdout.write('Executing IGoR...')
-        igor_cline = IgorInterface(args=command_list)
+        igor_cline = IgorInterface(command=command_list)
         exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
             sys.stdout.write(make_colored('error\n', 'red'))

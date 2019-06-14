@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains processing functions used in immuno_probs."""
+"""Contains a multi-processing function."""
 
 
 import numpy
@@ -23,16 +23,17 @@ import pathos.pools as pp
 
 
 def multiprocess_array(ary, func, num_workers, **kwargs):
-    """Applies multiprocessing on a multi array using the given function.
+    """Applies multi-processing on a segemented array using the given function.
 
     Parameters
     ----------
     ary : list
         List 'like' object to be split for multiple workers.
     func : Object
-        A function object that the workers should apply.
+        A function object that the workers should apply on the input data array.
     num_workers : int
-        The number of threads the program is allowed to use.
+        The number of threads the program is allowed to use. This number is used
+        to split up the input array into various segments.
     **kwargs
         The remaining arguments to be given to the input function.
 

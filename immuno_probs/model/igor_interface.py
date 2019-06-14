@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""IgorInterface class for interfacing with IGoR's commandline tool."""
+"""Contains IgorInterface class for interfacing with IGoR's commandline tool."""
 
 
 import shlex
@@ -25,11 +25,11 @@ from immuno_probs.util.exception import SubprocessException
 
 
 class IgorInterface(object):
-    """Interface class for executing commandline processes for IGoR.
+    """Executes IGoR commands via new commandline subprocess.
 
     Parameters
     ----------
-    args : list
+    command : list
         A list with strings and nested lists that will be build into a
         subprocess command.
 
@@ -43,23 +43,24 @@ class IgorInterface(object):
         Set a new commandline string using a nested list.
 
     """
-    def __init__(self, args):
+    def __init__(self, command):
         super(IgorInterface, self).__init__()
-        self.command = self._subprocess_builder(options=args)
+        self.command = self._subprocess_builder(options=command)
 
     def _subprocess_builder(self, options, level=0):
-        """Creates a subprocess command string from ordered input list.
+        """Creates a subprocess command string from an sorted input list.
 
         Parameters
         ----------
         options : list
-            A Python nested ordered list with each value being a command/option.
-            White spaces will seperate the options. Note: the depth of the
-            nested lists will determine the number '-' characters to add in
-            front of the first element for each list.
+            A Python nested sorted list with each value being a
+            command/options/flag. Items within a list are separated by a white
+            space in the output string. The depth of the nested lists will
+            determine the number '-' characters to add in front of the first
+            element for each list.
         level : int, optional
-            The initial start depth level for indication the number of '-'
-            characters to add to the first item in the lists. (default: 0)
+            The initial start depth level indication the number of '-'
+            characters to append to the first item in the lists. (default: 0)
 
         Returns
         -------
@@ -79,22 +80,18 @@ class IgorInterface(object):
         return command_str.strip(' ')
 
     def call(self):
-        """Calls IGoR's commandline tool via subprocess.
+        """Calls IGoR via commandline via the subprocess command string.
 
         Returns
         -------
         tuple
             A tuple containing the exit code, standard out, standard error and
-            the executed command.
+            the executed command as string.
 
         Raises
         ------
         SubprocessException
             When the subprocess program execution returns an error.
-
-        Notes
-        -----
-            This function uses the generated commandline string.
 
         """
         # Execute the commandline process and return the results.
@@ -108,33 +105,24 @@ class IgorInterface(object):
             raise SubprocessException(err)
 
     def get_command(self):
-        """Getter function for collecting the IGoR command.
+        """Collect and returns the string formatted IGoR command.
 
         Returns
         -------
         str
-            A command string for executing IGoR's commandline tool.
+            A command formatted as string to be used by the call function.
 
         """
         return self.command
 
-    def set_command(self, args):
-        """Setter function for setting a IGoR command.
+    def set_command(self, command):
+        """Sets a new IGoR command by processing teh input lists into a string.
 
         Parameters
         ----------
-        args : list
+        command : list
             A list with strings and nested lists that will be build into a
             subprocess command.
 
         """
-        self.command = self._subprocess_builder(options=args)
-
-
-def main():
-    """Function to be called when file executed via terminal."""
-    print(__doc__)
-
-
-if __name__ == "__main__":
-    main()
+        self.command = self._subprocess_builder(options=command)

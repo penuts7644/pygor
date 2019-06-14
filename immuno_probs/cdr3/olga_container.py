@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""OlgaContainer class for generating and evaluating CDR3 sequences with OLGA."""
+"""Contains OlgaContainer class for generating and evaluating CDR3 sequences."""
 
 
 import olga.sequence_generation as olga_seq_gen
@@ -23,31 +23,52 @@ import olga.generation_probability as olga_pgen
 import pandas
 import numpy
 
-from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.exception import OlgaException
 from immuno_probs.util.processing import multiprocess_array
 
 
 class OlgaContainer(object):
-    """Class generating and evaluating CDR3 sequences using an IGoR model.
+    """Generates and/or evaluates CDR3 sequences using given an IGoR model.
 
     Parameters
     ----------
-    igor_model : IgorLoader object
+    igor_model : immuno_probs.model.igor_loader.IgorLoader
         IgorLoader object containing the loaded IGoR VJ or VDJ model.
+    nt_col : str
+        The name of the nucleotide sequence column to use.
+    nt_p_col : str
+        The name of the nucleotide Pgen column to use.
+    aa_col : str
+        The name of the aminoacid sequence column to use.
+    aa_p_col : str
+        The name of the aminoacid Pgen column to use.
+    v_gene_col : str
+        The name of the V gene column to use.
+    j_gene_col : str
+        The name of the J gene column to use.
+
 
     Methods
     -------
     generate(num_seqs)
-        Returns pandas.DataFrame with NT and AA CDR3 sequences.
-    evaluate(seq)
-        Returns the generation probability value for the given sequence.
+        Returns pandas.DataFrame with nucleotide and aminoacid CDR3 sequences.
+    evaluate(seq, num_threads, default_allele=None)
+        Returns the generation probability value for the given sequences.
 
     """
-    def __init__(self, igor_model):
+    def __init__(self, igor_model, nt_col, nt_p_col, aa_col, aa_p_col,
+                 v_gene_col, j_gene_col):
         super(OlgaContainer, self).__init__()
         self.igor_model = igor_model
+        self.col_names = {
+            'NT_COL': nt_col,
+            'NT_P_COL': nt_p_col,
+            'AA_COL': aa_col,
+            'AA_P_COL': aa_p_col,
+            'V_GENE_COL': v_gene_col,
+            'J_GENE_COL': j_gene_col,
+        }
 
     def generate(self, num_seqs):
         """Generate a given number of CDR3 sequences through OLGA.
@@ -67,8 +88,9 @@ class OlgaContainer(object):
         """
         # Create the dataframe and set the generation objects.
         generated_seqs = pandas.DataFrame(
-            columns=[get_config_data('NT_COL'), get_config_data('AA_COL'),
-                     get_config_data('V_GENE_COL'), get_config_data('J_GENE_COL')])
+            columns=[self.col_names['NT_COL'], self.col_names['AA_COL'],
+                     self.col_names['V_GENE_COL'],
+                     self.col_names['J_GENE_COL']])
         seq_gen_model = None
         if self.igor_model.get_type() == "VDJ":
             seq_gen_model = olga_seq_gen.SequenceGenerationVDJ(
@@ -79,24 +101,28 @@ class OlgaContainer(object):
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
         else:
-            raise OlgaException("OLGA could not create a SequenceGeneration object")
+            raise OlgaException(
+                "OLGA could not create a SequenceGeneration object")
 
         # Generate the sequences, add them to the dataframe and return.
         for _ in range(num_seqs):
             generated_seq = seq_gen_model.gen_rnd_prod_CDR3()
             generated_seqs = generated_seqs.append({
-                get_config_data('NT_COL'): generated_seq[0],
-                get_config_data('AA_COL'): generated_seq[1],
-                get_config_data('V_GENE_COL'): self.igor_model.get_genomic_data() \
-                    .genV[generated_seq[2]][0],
-                get_config_data('J_GENE_COL'): self.igor_model.get_genomic_data() \
-                    .genJ[generated_seq[3]][0]
+                self.col_names['NT_COL']: generated_seq[0],
+                self.col_names['AA_COL']: generated_seq[1],
+                self.col_names['V_GENE_COL']: self.igor_model. \
+                    get_genomic_data().genV[generated_seq[2]][0],
+                self.col_names['J_GENE_COL']: self.igor_model. \
+                    get_genomic_data().genJ[generated_seq[3]][0]
             }, ignore_index=True)
         return generated_seqs
 
     @staticmethod
     def _locate_genes(genes, ref_genes, default_allele=None):
-        """Locate the given gene strings in the reference list.
+        """Locates all the given gene values in the reference gene list.
+
+        If a gene family value is specified instead of the whole gene (family
+        + gene identifier), all possible genes within that family are located.
 
         Parameters
         ----------
@@ -105,20 +131,16 @@ class OlgaContainer(object):
         ref_genes : list
             Containing reference gene string values.
         default_allele : str, optional
-            An allele value to use when calculating the Pgen for each single
-            gene combination. If given, only the given allele is used
-            (default: use allele info from the gene if available).
+            A default allele value to use when locating the genes. If given,
+            the allele information from the input genes is discarded and
+            replaced by the given default allele (default: use allele info from
+            the gene if available).
 
         Returns
         -------
         list
             A list with the genes that where located in the reference genes
-            list. If no where found, an empty list is returned.
-
-        Notes
-        -----
-            If a gene family is specified instead of the gene, all possible
-            genes within that family are used.
+            list. If no genes where found, an empty list is returned.
 
         """
         # For each given gene, split up the name into family, gene and allele.
@@ -140,25 +162,29 @@ class OlgaContainer(object):
             if family and not gene:
                 if allele:
                     located_genes.update(
-                        [i for i in ref_genes if family in i and '*' + allele in i])
+                        [i for i in ref_genes
+                         if family in i and '*' + allele in i])
                 else:
                     located_genes.update([i for i in ref_genes if family in i])
             elif family and gene:
                 if allele:
                     located_genes.update(
-                        [i for i in ref_genes if family + '-' + gene in i and '*' + allele in i])
+                        [i for i in ref_genes
+                         if family + '-' + gene in i and '*' + allele in i])
                 else:
-                    located_genes.update([i for i in ref_genes if family + '-' + gene in i])
+                    located_genes.update(
+                        [i for i in ref_genes if family + '-' + gene in i])
         return list(located_genes)
 
     def _evaluate(self, args):
-        """Evaluate a given nucleotide CDR3 sequence through OLGA.
+        """Private function for evaluating a given nucleotide CDR3 sequence by
+        using OLGA.
 
         Parameters
         ----------
         args : list
-            The arguments from the multiprocess_array function. Consists of an
-            pandas.DataFrame and additional kwargs like the
+            The arguments from the 'multiprocess_array' function. Consists of an
+            pandas.DataFrame and additional kwargs like a
             GenerationProbability object, the column name containing the
             nucleotide sequences and value to use as allele information.
 
@@ -178,85 +204,86 @@ class OlgaContainer(object):
         ref_genes_j = [i[0] for i in self.igor_model.get_genomic_data().genJ]
         pgen_seqs = pandas.DataFrame(
             index=ary.index.tolist(),
-            columns=[get_config_data('NT_P_COL'), get_config_data('AA_P_COL')])
+            columns=[self.col_names['NT_P_COL'], self.col_names['AA_P_COL']])
 
         for i, row in ary.iterrows():
 
             # Evaluate the sequences with V/J gene columns.
-            if ((get_config_data('V_GENE_COL') in ary.columns
-                 and isinstance(row[get_config_data('V_GENE_COL')], str))
-                    and (get_config_data('J_GENE_COL') in ary.columns
-                         and isinstance(row[get_config_data('J_GENE_COL')], str))):
+            if ((self.col_names['V_GENE_COL'] in ary.columns
+                 and isinstance(row[self.col_names['V_GENE_COL']], str))
+                    and (self.col_names['J_GENE_COL'] in ary.columns
+                         and isinstance(row[self.col_names['J_GENE_COL']], str))):
 
                 # Create all V/J gene combinations for pgen calculation.
                 located_v = self._locate_genes(
-                    row[get_config_data('V_GENE_COL')].split('|'),
+                    row[self.col_names['V_GENE_COL']].split('|'),
                     ref_genes_v, default_allele)
                 located_j = self._locate_genes(
-                    row[get_config_data('J_GENE_COL')].split('|'),
+                    row[self.col_names['J_GENE_COL']].split('|'),
                     ref_genes_j, default_allele)
                 permutations = [(v, j) for v in located_v for j in located_j]
 
                 # For the nucleotide sequence if exists.
-                if (get_config_data('NT_COL') in ary.columns
-                        and isinstance(row[get_config_data('NT_COL')], str)):
+                if (self.col_names['NT_COL'] in ary.columns
+                        and isinstance(row[self.col_names['NT_COL']], str)):
                     sum_pgen = 0
                     for v_gene, j_gene in permutations:
                         sum_pgen += model.compute_nt_CDR3_pgen(
-                            row[get_config_data('NT_COL')], v_gene, j_gene)
-                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = sum_pgen
+                            row[self.col_names['NT_COL']], v_gene, j_gene)
+                    pgen_seqs.loc[i, :][self.col_names['NT_P_COL']] = sum_pgen
 
                 # For the amino acid sequence if exists.
-                if (get_config_data('AA_COL') in ary.columns
-                        and isinstance(row[get_config_data('AA_COL')], str)):
+                if (self.col_names['AA_COL'] in ary.columns
+                        and isinstance(row[self.col_names['AA_COL']], str)):
                     sum_pgen = 0
                     for v_gene, j_gene in permutations:
                         sum_pgen += model.compute_aa_CDR3_pgen(
-                            row[get_config_data('AA_COL')], v_gene, j_gene)
-                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = sum_pgen
+                            row[self.col_names['AA_COL']], v_gene, j_gene)
+                    pgen_seqs.loc[i, :][self.col_names['AA_P_COL']] = sum_pgen
 
             # If no V/J gene choice column, use less complicated method.
             else:
 
                 # For the nucleotide sequence if exists.
-                if (get_config_data('NT_COL') in ary.columns
-                        and isinstance(row[get_config_data('NT_COL')], str)):
-                    pgen_seqs.loc[i, :][get_config_data('NT_P_COL')] = \
-                        model.compute_nt_CDR3_pgen(row[get_config_data('NT_COL')])
+                if (self.col_names['NT_COL'] in ary.columns
+                        and isinstance(row[self.col_names['NT_COL']], str)):
+                    pgen_seqs.loc[i, :][self.col_names['NT_P_COL']] = \
+                        model.compute_nt_CDR3_pgen(row[self.col_names['NT_COL']])
 
                 # For the amino acid sequence if exists.
-                if (get_config_data('AA_COL') in ary.columns
-                        and isinstance(row[get_config_data('AA_COL')], str)):
-                    pgen_seqs.loc[i, :][get_config_data('AA_P_COL')] = \
-                        model.compute_aa_CDR3_pgen(row[get_config_data('AA_COL')])
+                if (self.col_names['AA_COL'] in ary.columns
+                        and isinstance(row[self.col_names['AA_COL']], str)):
+                    pgen_seqs.loc[i, :][self.col_names['AA_P_COL']] = \
+                        model.compute_aa_CDR3_pgen(row[self.col_names['AA_COL']])
         return pgen_seqs
 
-    def evaluate(self, seqs, default_allele=None):
-        """Evaluate a given nucleotide CDR3 sequence through OLGA.
+    def evaluate(self, seqs, num_threads, default_allele=None):
+        """Evaluate a given nucleotide CDR3 sequences using OLGA.
+
+        This function also checks if the given input sequence file contains the
+        gene index columns for the V and J gene. If so, then the V and J gene
+        masks in these columns are used to increase calculation accuracy of the
+        generation probabality values.
 
         Parameters
         ----------
         seqs : pandas.DataFrame
-            A pandas dataframe object containing column with nucleotide CDR3
+            A pandas dataframe object containing a column with nucleotide CDR3
             sequences and/or amino acid sequences.
+        num_threads : int
+            The number of threads to use when processing the sequences.
         default_allele : str, optional
-            An allele value to use when calculating the Pgen for each single
-            gene combination. If given, only the given allele is used
-            (default: use allele info from gene choice column if available).
+            A default allele value to use when locating the genes. If given,
+            the allele information from the input genes is discarded and
+            replaced by the given default allele (default: use allele info from
+            the gene if available).
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number, the generation probability
+            Containing the sequence index number, the generation probability
             of nucleotide sequence if given and the generation probability of
             aminoacid sequence if given.
-
-        Notes
-        -----
-        This function also checks if the given input sequence file contains the
-        gene index columns for the V and J gene. If so, then the V and J gene
-        masks in these columns are used to incease accuracy of the
-        generation probabality.
 
         """
         # Set the evaluation objects.
@@ -273,27 +300,18 @@ class OlgaContainer(object):
             raise OlgaException("OLGA could not create a GenerationProbability object")
 
         # Insert amino acid sequence column if not existent.
-        if (get_config_data('NT_COL') in seqs.columns
-                and not get_config_data('AA_COL') in seqs.columns):
-            seqs.insert(seqs.columns.get_loc(get_config_data('NT_COL')) + 1,
-                        get_config_data('AA_COL'), numpy.nan)
-            seqs[get_config_data('AA_COL')] = seqs[get_config_data('NT_COL')] \
+        if (self.col_names['NT_COL'] in seqs.columns
+                and not self.col_names['AA_COL'] in seqs.columns):
+            seqs.insert(seqs.columns.get_loc(self.col_names['NT_COL']) + 1,
+                        self.col_names['AA_COL'], numpy.nan)
+            seqs[self.col_names['AA_COL']] = seqs[self.col_names['NT_COL']] \
                 .apply(nucleotides_to_aminoacids)
 
         # Use multiprocessing to evaluate the sequences in chunks and return.
         result = multiprocess_array(ary=seqs,
                                     func=self._evaluate,
-                                    num_workers=get_config_data('NUM_THREADS'),
+                                    num_workers=num_threads,
                                     model=pgen_model,
                                     default_allele=default_allele)
         result = pandas.concat(result, axis=0, copy=False)
         return result
-
-
-def main():
-    """Function to be called when file executed via terminal."""
-    print(__doc__)
-
-
-if __name__ == "__main__":
-    main()

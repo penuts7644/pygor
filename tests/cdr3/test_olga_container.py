@@ -67,6 +67,6 @@ def test_olga_container(option, expected):
             assert isinstance(i[1](result.iloc[0][i[0]]), i[1])
     elif option == 'evaluate':
         pgen_seqs = expected.drop(['nt_pgen_estimate', 'aa_pgen_estimate'], axis=1)
-        result = olga_container.evaluate(seqs=pgen_seqs)
+        result = olga_container.evaluate(seqs=pgen_seqs, num_threads=1)
         for index, row in result.iterrows():
             assert (row['nt_pgen_estimate'] - expected['nt_pgen_estimate'][index]) < 0.0000001

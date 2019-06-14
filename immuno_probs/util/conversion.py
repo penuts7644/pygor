@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains conversion functions used in immuno_probs."""
+"""Contains a collection of conversion functions."""
 
 
 from immuno_probs.util.exception import CharacterNotFoundException
@@ -35,7 +35,7 @@ def nucleotides_to_integers(seq):
 
     Returns
     -------
-    string
+    str
         The interger representation string for the given nucleotide sequence.
 
     """
@@ -66,7 +66,7 @@ def integers_to_nucleotides(int_seq):
 
     Returns
     -------
-    string
+    str
         The nucleotide representation string for the given integer sequence.
 
     """
@@ -84,7 +84,8 @@ def integers_to_nucleotides(int_seq):
 
 
 def nucleotides_to_aminoacids(seq):
-    """Converts a nucleotide sequence to an aminoacid sequence.
+    """Converts a nucleotide sequence to an aminoacid sequence. Stop codons are
+    indicated as '*' characters.
 
     Parameters
     ----------
@@ -93,7 +94,7 @@ def nucleotides_to_aminoacids(seq):
 
     Returns
     -------
-    string
+    str
         A aminoacid sequence string.
 
     """
@@ -134,7 +135,7 @@ def reverse_complement(seq):
 
     Returns
     -------
-    string
+    str
         The reverse complemented nucleotide sequence.
 
     """
@@ -166,11 +167,11 @@ def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=',')
         The dtype to used for converting the individual the list elements. By
         default uses float.
     l_bound : str, optional
-        A string specifying the left boundary character(s). By default '('.
+        A string specifying the left boundary character(s) (default: '(').
     r_bound : str, optional
-        A string specifying the right boundary character(s). By default ')'.
+        A string specifying the right boundary character(s) (default: ')').
     sep : str, optional
-        The separator character used in the input string. By default ','.
+        The separator character used in the input string (default: ',').
 
     Returns
     -------
@@ -180,7 +181,7 @@ def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=',')
     Raises
     -------
     CharacterNotFoundException
-        When the given seperator or L/R bound characters are not found.
+        When the given seperator or left/right bound characters are not found.
 
     """
     if len(in_str) > (len(l_bound) + len(r_bound)):

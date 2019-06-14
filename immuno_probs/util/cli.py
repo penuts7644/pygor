@@ -15,27 +15,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains commandline functions used in immuno_probs."""
+"""Contains a collection of commandline processing functions."""
 
 
 def dynamic_cli_options(parser, options):
-    """Semi-dynamically adds options to the given parser.
+    """Semi-dynamically adds options to the given commandline parser.
 
     Parameters
     ----------
     parser : argparse.ArgumentParser
-        ArgumentParser to append options to.
+        ArgumentParser to use for appending options.
     options : dict
         A Python dict with key being the full name of the option. The value
         is a dict that corresponds to input arguments of the
-        ArgumentParser.add_argument function. Note: type argument values must
-        be surrounded by quotes.
+        ArgumentParser.add_argument function. Make sure surround the 'type'
+        argument value with quotes.
 
     Returns
     -------
-    ArgumentParser
-        Object containing the expected commandline arguments. Still needs to
-        parse the commandline arguments.
+    argparse.ArgumentParser
+        Containing the expected commandline arguments. Note that the commandline
+        arguments are not yet parsed.
 
     """
     # Semi-dynamically create the argparse arguments from given inputs.
@@ -52,25 +52,23 @@ def dynamic_cli_options(parser, options):
     return parser
 
 def make_colored(text, color):
-    """Turn a text string into a colored representation.
+    """Color a text string for displaying in the terminal.
+
+    As of now, you can select one of the following: 'black', 'red', 'green',
+    'white', 'bg-black', 'bg-red', 'bg-green' and 'bg-white'.
 
     Parameters
     ----------
     text : str
-        A text string to modify.
+        The text string to update.
     color : str
-        One of the predefined color options to use for transforming the input
-        string value.
+        One of the predefined color options for coloring the input string.
 
     Returns
     -------
     str
-        With the new colored values attached.
-
-    Notes
-    -----
-        As of now, you can select one of the following: black, red, green,
-        white, bg-black, bg-red, bg-green and bg-white.
+        The input string with the color values attached to start and end of the
+        string.
 
     """
     # Specify the colors in the dict.

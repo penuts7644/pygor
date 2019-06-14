@@ -56,6 +56,15 @@ class EvaluateSeqs(object):
         super(EvaluateSeqs, self).__init__()
         self.subparsers = subparsers
         self._add_options()
+        self.col_names = {
+            'I_COL': get_config_data('I_COL'),
+            'NT_COL': get_config_data('NT_COL'),
+            'NT_P_COL': get_config_data('NT_P_COL'),
+            'AA_COL': get_config_data('AA_COL'),
+            'AA_P_COL': get_config_data('AA_P_COL'),
+            'V_GENE_COL': get_config_data('V_GENE_COL'),
+            'J_GENE_COL': get_config_data('J_GENE_COL'),
+        }
 
     def _add_options(self):
         """Function for adding the parser and options to the given ArgumentParser.
@@ -144,8 +153,7 @@ class EvaluateSeqs(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    @staticmethod
-    def run(args, output_dir):
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -215,22 +223,15 @@ class EvaluateSeqs(object):
                     ])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
                     sys.stdout.write('(separated input file type detected)...')
-                    try:
-                        input_seqs = preprocess_separated_file(
-                            os.path.join(working_dir, 'input'),
-                            copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                            get_config_data('SEPARATOR'),
-                            ';',
-                            get_config_data('I_COL'),
-                            [get_config_data('NT_COL')]
-                        )
-                        command_list.append(['read_seqs', input_seqs])
-                    except KeyError as err:
-                        sys.stdout.write(make_colored('error\n', 'red'))
-                        sys.stderr.write(make_colored(
-                            "Given input sequence file does not have a '{}' " \
-                            "column\n".format(get_config_data('NT_COL')), 'bg-red'))
-                        return
+                    input_seqs = preprocess_separated_file(
+                        os.path.join(working_dir, 'input'),
+                        copy_to_dir(working_dir, str(args.seqs), 'csv'),
+                        get_config_data('SEPARATOR'),
+                        ';',
+                        self.col_names['I_COL'],
+                        [self.col_names['NT_COL']]
+                    )
+                    command_list.append(['read_seqs', input_seqs])
                 else:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
@@ -238,7 +239,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except IOError as err:
+            except (IOError, KeyError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -252,7 +253,7 @@ class EvaluateSeqs(object):
 
             # Execute IGoR through command line and catch error code.
             sys.stdout.write('Executing IGoR...')
-            igor_cline = IgorInterface(args=command_list)
+            igor_cline = IgorInterface(command=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
                 sys.stdout.write(make_colored('error\n', 'red'))
@@ -266,32 +267,34 @@ class EvaluateSeqs(object):
             sys.stdout.write('Processing generation probabilities...')
             try:
                 if is_fasta(args.seqs):
-                    seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      col=get_config_data('NT_COL'))
+                    seqs_df = read_fasta_as_dataframe(
+                        file=args.seqs, col=self.col_names['NT_COL'])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=get_config_data('I_COL'))
+                        index_col=self.col_names['I_COL'])
                 full_pgen_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';',
-                    index_col=get_config_data('I_COL'),
+                    index_col='seq_index',
                     cols=['Pgen_estimate'])
-                full_pgen_df.rename(columns={'Pgen_estimate': get_config_data('NT_P_COL')},
-                                    inplace=True)
-                full_pgen_df.loc[:, get_config_data('AA_P_COL')] = numpy.nan
-            except IOError as err:
+                full_pgen_df.index.names = [self.col_names['I_COL']]
+                full_pgen_df.rename(
+                    columns={'Pgen_estimate': self.col_names['NT_P_COL']},
+                    inplace=True)
+                full_pgen_df.loc[:, self.col_names['AA_P_COL']] = numpy.nan
+            except (IOError, KeyError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Insert amino acid sequence column if not existent.
-            if (get_config_data('NT_COL') in seqs_df.columns
-                    and not get_config_data('AA_COL') in seqs_df.columns):
+            if (self.col_names['NT_COL'] in seqs_df.columns
+                    and not self.col_names['AA_COL'] in seqs_df.columns):
                 seqs_df.insert(
-                    seqs_df.columns.get_loc(get_config_data('NT_COL')) + 1,
-                    get_config_data('AA_COL'), numpy.nan)
-                seqs_df[get_config_data('AA_COL')] = seqs_df[get_config_data('NT_COL')] \
+                    seqs_df.columns.get_loc(self.col_names['NT_COL']) + 1,
+                    self.col_names['AA_COL'], numpy.nan)
+                seqs_df[self.col_names['AA_COL']] = seqs_df[self.col_names['NT_COL']] \
                     .apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
@@ -309,7 +312,7 @@ class EvaluateSeqs(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=get_config_data('I_COL'))
+                    index_name=self.col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -355,7 +358,7 @@ class EvaluateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException, IOError) as err:
+            except (ModelLoaderException, GeneIdentifierException, IOError, KeyError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -365,13 +368,13 @@ class EvaluateSeqs(object):
             try:
                 if is_fasta(args.seqs):
                     sys.stdout.write('(FASTA input file extension detected)...')
-                    seqs_df = read_fasta_as_dataframe(file=args.seqs,
-                                                      col=get_config_data('NT_COL'))
+                    seqs_df = read_fasta_as_dataframe(
+                        file=args.seqs, col=self.col_names['NT_COL'])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
                     sys.stdout.write('(separated input file type detected)...')
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=get_config_data('I_COL'))
+                        index_col=self.col_names['I_COL'])
                 else:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
@@ -379,7 +382,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError) as err:
+            except (IOError, KeyError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -387,12 +390,21 @@ class EvaluateSeqs(object):
             # Evaluate the sequences.
             sys.stdout.write('Evaluating sequences...')
             try:
-                seq_evaluator = OlgaContainer(igor_model=model)
+                seq_evaluator = OlgaContainer(
+                    igor_model=model,
+                    nt_col=self.col_names['NT_COL'],
+                    nt_p_col=self.col_names['NT_P_COL'],
+                    aa_col=self.col_names['AA_COL'],
+                    aa_p_col=self.col_names['AA_P_COL'],
+                    v_gene_col=self.col_names['V_GENE_COL'],
+                    j_gene_col=self.col_names['J_GENE_COL'])
                 if args.use_cdr3_allele:
-                    cdr3_pgen_df = seq_evaluator.evaluate(seqs=seqs_df)
+                    cdr3_pgen_df = seq_evaluator.evaluate(
+                        seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'))
                 else:
                     cdr3_pgen_df = seq_evaluator.evaluate(
-                        seqs=seqs_df, default_allele=get_config_data('ALLELE'))
+                        seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'),
+                        default_allele=get_config_data('ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
@@ -413,7 +425,7 @@ class EvaluateSeqs(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=get_config_data('I_COL'))
+                    index_name=self.col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
