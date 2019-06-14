@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains function for loading and using build-in V(D)J models."""
+"""Contains function for loading in and using pre-trained V(D)J models."""
 
 
 import os
@@ -23,16 +23,19 @@ from pkg_resources import resource_filename
 
 
 def get_default_model_file_paths(name):
-    """Returns a directory with file paths for a given model name.
+    """Returns a directory with file paths for a given model identifier name.
 
+    Parameters
+    ----------
     name : str
-        A string value representing a model name in the dictionary.
+        A string value representing a model identifier name in the dictionary.
 
     Returns
     -------
     dict
-        Containing model marginals, model parameters, v_anchors and j_anchors
-        file paths. If model name does not exist in the dictionary, return None.
+        Containing model marginals, model parameters, anchors and reference
+        genome file paths. If model name does not exist in the dictionary,
+        returns None instead.
 
     """
     # Set the file paths for the models

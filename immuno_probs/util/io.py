@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains I/O related functions used in immuno_probs."""
+"""Contains a collection of I/O related processing functions."""
 
 
 import os
@@ -38,7 +38,7 @@ def create_directory_path(directory):
     Returns
     -------
     str
-        The (updated) output directory location path.
+        The updated output directory location path.
 
     """
     # Check if the directory name is unique, modify name if necessary.
@@ -58,7 +58,7 @@ def create_directory_path(directory):
 
 
 def is_fasta(file):
-    """Checks if the input file is valid fasta.
+    """Checks if the input file is valid FASTA.
 
     Parameters
     ----------
@@ -81,8 +81,8 @@ def is_separated(file, separator):
         A separator character used for separating the fields in the file.
 
     """
-    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0,
-                                nrows=100, engine='python')
+    dataframe = pandas.read_csv(
+        file, sep=separator, comment='#', header=0, nrows=100, engine='python')
     return not dataframe.empty
 
 
@@ -111,7 +111,10 @@ def read_fasta_as_dataframe(file, col):
 
 
 def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
-    """Read in a separated file as pandas.DataFrame.
+    """Read in a separated file as pandas.DataFrame object.
+
+    Comments ('#') in the file are skipped. If the given index column contains
+    NA values, the column is ignored.
 
     Parameters
     ----------
@@ -121,23 +124,12 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
         A separator character used for separating the fields in the file.
     index_col : str, optional
         The name of the index column to use. If specified and given column is
-        not found in the dataframe, the index values are generated. (default: No
-        index column)
+        not found in the dataframe, the index values are generated (default: no
+        index column).
     cols : list, optional
         Containing column names to keep in the output file. The order will
         change the output file column formatting (default: includes all
         columns in the output file).
-
-    Notes
-    -----
-        This function uses the global SEPARATOR variable to set the separator
-        string for the input file. Comments ('#') in the file are skipped.
-        If the given index column contains NA values, the column is ignored.
-
-    Raises
-    ------
-    KeyError
-        If a given column is not found in the input data file.
 
     """
     # Read in columns of the given file.
@@ -162,9 +154,9 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
 def write_dataframe_to_separated(dataframe, filename, directory, separator, index_name=None):
     """Writes a pandas.DataFrame to a separated formatted data file.
 
-    If the file already exists, a number will be appended to the filename.
-    The given output directory is created recursively if it does not exist.
-    The column names in the dataframe is used as first line in the file.
+    If the file already exists, a number will be appended to the filename. The
+    given output directory is created recursively if it does not exist. The
+    column names in the dataframe is used as first line in the file.
 
     Parameters
     ----------
@@ -205,13 +197,17 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     if index_name:
         enable_index = True
     dataframe.to_csv(
-        os.path.join(directory, updated_filename + extension),
+        path_or_buf=os.path.join(directory, updated_filename + extension),
         sep=separator, index=enable_index, index_label=index_name, na_rep='NA')
     return (directory, updated_filename + extension)
 
 
 def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
-    """Function for formatting the input sequence file for IGoR.
+    """Formats the input sequence file for IGoR.
+
+    Returns the input file path if no changes will be applied to the file. This
+    means, the input seperator and output seperator are equal to each other and
+    the 'cols' attribute has not been specified.
 
     Parameters
     ----------
@@ -225,7 +221,7 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
         The wanted output file seperator.
     index_col : str, optional
         The name of the index column to use. If specified and given column is
-        not found in the dataframe, the index values are generated. (default: No
+        not found in the dataframe, the index values are generated (default: no
         index column)
     cols : list, optional
         Containing column names to keep in the output file. The order will
@@ -236,17 +232,6 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
     -------
     str
         A string file path to the newly created file.
-
-    Notes
-    -----
-        Returns the input file path if no changes will be applied to the file.
-        This means, the input seperator and output seperator are equal and the
-        columns attribute has not been specified.
-
-    Raises
-    ------
-    KeyError
-        If a given column is not found in the input data file.
 
     """
     # If the seperators are the same and no columns are given, return the input.
@@ -275,7 +260,10 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
 
 
 def preprocess_reference_file(directory, file, index=None):
-    """Function for formatting the IMGT reference genome files for IGoR.
+    """Formats the IMGT reference genome files for IGoR.
+
+    The sequence is always formatted to uppercase and '.' characters are removed
+    from the sequence string. Make sure to use IMGT reference files.
 
     Parameters
     ----------
@@ -284,17 +272,12 @@ def preprocess_reference_file(directory, file, index=None):
     file : str
         A FASTA file path for a reference genomic template file.
     index : int, optional
-        Index of the header line to keep after splitting on '|'.
+        Index of the header line to keep after splitting on '|' (default: none).
 
     Returns
     -------
     str
         A string file path to the new reference FASTA file.
-
-    Notes
-    -----
-        The sequence is always formatted to uppercase and '.' characters are
-        removed from the sequence string.
 
     """
     # Create the output directory.
@@ -318,7 +301,7 @@ def preprocess_reference_file(directory, file, index=None):
 
 
 def copy_to_dir(directory, file, extension):
-    """Function for copying file to directory and modifying the extension.
+    """Copies a file to directory and modifies the extension name.
 
     Parameters
     ----------

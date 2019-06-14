@@ -15,21 +15,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""IgorLoader class for loading a IGoR model including the CDR3 anchor files."""
+"""Contains IgorLoader class for loading in a IGoR model files."""
 
 
 import olga.load_model as olga_load_model
 
-from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException
+from immuno_probs.util.exception import ModelLoaderException, \
+GeneIdentifierException
 
 
 class IgorLoader(object):
-    """Class loading in an IGoR model with CDR3 anchors.
+    """Loads in an IGoR model as well as corresponding with CDR3 anchor files.
 
     Parameters
     ----------
     model_type : str
-        The type of the input model, VJ or VDJ.
+        The type of the input model, either 'VJ' or 'VDJ'.
     model_params : str
         A file path location for the IGoR parameters model file.
     model_marginals : str
@@ -38,15 +39,15 @@ class IgorLoader(object):
     Methods
     -------
     set_anchor(gene, file)
-        Set the model's CDR3 V or J gene anchor file.
+        Set the model's CDR3 V or J gene anchors.
     initialize_model()
         Initializes the model including the anchor files.
     get_type()
-        Returns the type of the model (VDJ or VJ).
+        Returns the type of the model ('VDJ' or 'VJ').
     get_genomic_data()
-        Return the GenomicData OLGA object.
+        Return the OLGA's GenomicData object.
     get_generative_model()
-        Return the GenerativeModel OLGA object.
+        Return the OLGA's GenerativeModel object.
 
     """
     def __init__(self, model_type, model_params, model_marginals):
@@ -60,19 +61,26 @@ class IgorLoader(object):
 
     @staticmethod
     def _check_type(model_type, model_marginals):
-        """Private function to check the marginals file for D gene attributes.
+        """Private function to check the model marginals file for possible D
+        gene attributes. If these are found, the model classifies as VDJ else,
+        VJ.
 
         Parameters
         ----------
         model_type : str
             The type of the input model: alpha, beta, light or heavy.
         model_marginals : str
-            A file path location for the IGoR marginals model file.
+            A file path location for the IGoR model marginals file.
 
         Returns
         -------
-        string
-            Specifying if the model type is 'VJ' or 'VDJ' compliant.
+        str
+            Specifying the model type, either 'VJ' or 'VDJ'.
+
+        Raises
+        ------
+        ModelLoaderException
+            When the model marginals are not compliant to the given model type.
 
         """
         # Parse the marginals file and search for VDJ classifiers.
@@ -95,7 +103,8 @@ class IgorLoader(object):
             "type: '{}''".format(model_type))
 
     def _load_params(self, model_params):
-        """Private function for loading genomic parameter data for the IGoR model.
+        """Private function for loading in the genomic parameter data for the
+        IGoR model.
 
         Parameters
         ----------
@@ -135,7 +144,7 @@ class IgorLoader(object):
             raise ModelLoaderException(err)
 
     def _load_model(self, model_marginals):
-        """Private function for loading the IGoR model marginals.
+        """Private function for loading in the IGoR model marginals.
 
         Parameters
         ----------
@@ -173,24 +182,25 @@ class IgorLoader(object):
             raise ModelLoaderException(err)
 
     def set_anchor(self, gene, file):
-        """Function to set the anchor file for a given gene.
+        """Sets the CDR3 anchor file path for a given gene.
 
         Parameters
         ----------
         gene : str
-            A gene identifier, either V or J, specifying the alignement's origin.
+            A gene identifier, either 'V' or 'J', specifying the alignement's
+            origin gene.
         file : str
-            File path loaction for the CDR3 anchor positions for the given gene.
+            File path location for the CDR3 anchor positions for the given gene.
 
         Returns
         -------
-        string
-            The gene character if passing the validation tests.
+        str
+            The input gene character value after passing the validation test.
 
         Raises
         ------
         GeneIdentifierException
-            When gene character is not 'V' or 'J'.
+            When the given gene character does not equal 'V' or 'J'.
 
         """
         gene = gene.upper()
@@ -203,7 +213,7 @@ class IgorLoader(object):
                 "Gene identifier can be either 'V' or 'J'", gene)
 
     def initialize_model(self):
-        """Function for initializing the model data with anchor positions.
+        """Initializes the model data with CDR3 anchor position data files.
 
         Raises
         ------
@@ -213,8 +223,9 @@ class IgorLoader(object):
 
         Notes
         -----
-        This function uses the model that has already been loaded in and updates
-        the existing model object with the defined anchor files.
+        This function uses the model marginals and parameters data that has
+        already been loaded through trhe class constructor and updates this
+        model object with the CDR3 anchor files.
 
         """
 
@@ -239,18 +250,18 @@ class IgorLoader(object):
             raise ModelLoaderException(err)
 
     def get_type(self):
-        """Function returning the type of the model.
+        """Collects and returns the type of the model.
 
         Returns
         -------
-        string
-            Indicating if the model type, either 'VDJ' or 'VJ'.
+        str
+            Indicates the model type, either 'VDJ' or 'VJ'.
 
         """
         return self.type
 
     def get_genomic_data(self):
-        """Getter function for collecting the GenomicData OLGA object.
+        """Collects and returns the GenomicData OLGA object.
 
         Returns
         -------
@@ -261,7 +272,7 @@ class IgorLoader(object):
         return self.data
 
     def get_generative_model(self):
-        """Getter function for collecting the GenerativeModel OLGA object.
+        """Collects and returns the GenerativeModel OLGA object.
 
         Returns
         -------
@@ -270,12 +281,3 @@ class IgorLoader(object):
 
         """
         return self.model
-
-
-def main():
-    """Function to be called when file executed via terminal."""
-    print(__doc__)
-
-
-if __name__ == "__main__":
-    main()

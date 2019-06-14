@@ -37,7 +37,7 @@ class LocateCdr3Anchors(object):
 
     Parameters
     ----------
-    subparsers : ArgumentParser
+    subparsers : argparse.ArgumentParser
         A subparser object for appending the tool's parser and options.
 
     Methods
@@ -57,8 +57,8 @@ class LocateCdr3Anchors(object):
 
         Notes
         -----
-            Uses the class's subparser object for appending the tool's parser
-            and options.
+            Uses the class constructor's subparser object for appending the
+            tool's parser and options.
 
         """
         # Create the description and options for the parser.
@@ -123,10 +123,23 @@ class LocateCdr3Anchors(object):
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
-            if args.motif is not None:
-                anchors_df = locator.get_indices_motifs(*args.motif)
-            else:
-                anchors_df = locator.get_indices_motifs()
+            try:
+                if args.motif is not None:
+                    anchors_df = locator.get_indices_motifs(
+                        get_config_data('NUM_THREADS'), *args.motif)
+                else:
+                    if gene[0] == 'V':
+                        anchors_df = locator.get_indices_motifs(
+                            get_config_data('NUM_THREADS'),
+                            *get_config_data('V_MOTIFS').split(','))
+                    elif gene[0] == 'J':
+                        anchors_df = locator.get_indices_motifs(
+                            get_config_data('NUM_THREADS'),
+                            *get_config_data('J_MOTIFS').split(','))
+            except ValueError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
             # Modify the dataframe to make it OLGA compliant.
             anchors_df.insert(2, 'function', numpy.nan)
@@ -147,16 +160,21 @@ class LocateCdr3Anchors(object):
             anchors_df.reset_index(inplace=True, drop=True)
 
             # Write the pandas dataframe to a separated file with prefix.
-            output_prefix = get_config_data('OUT_NAME')
-            if not output_prefix:
-                output_prefix = 'gene_CDR3_anchors'
-            _, filename = write_dataframe_to_separated(
-                dataframe=anchors_df,
-                filename='{}_{}'.format(gene[0], output_prefix),
-                directory=output_dir,
-                separator=get_config_data('SEPARATOR'))
-            sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                output_prefix = get_config_data('OUT_NAME')
+                if not output_prefix:
+                    output_prefix = 'gene_CDR3_anchors'
+                _, filename = write_dataframe_to_separated(
+                    dataframe=anchors_df,
+                    filename='{}_{}'.format(gene[0], output_prefix),
+                    directory=output_dir,
+                    separator=get_config_data('SEPARATOR'))
+                sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
 
 def main():

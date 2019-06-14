@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""MuscleAligner class for performing MUSCLE alignments."""
+"""Contains MuscleAligner class to perform MUSCLE alignments."""
 
 
 from Bio.Align.Applications import MuscleCommandline
@@ -27,14 +27,17 @@ from immuno_probs.util.exception import AlignerException
 
 
 class MuscleAligner(object):
-    """Class to perform alignments with MUSCLE via biopython's commandline tool.
+    """Performs MUSCLE alignments via biopython's commandline tool.
 
     Parameters
     ----------
     infile : str
-        A file path to a FASTA file containining the genomic data to align.
+        A file path to a FASTA formatted file containining the genomic sequence
+        data that is to be aligned against eachother.
     **kwargs
-        Dict of optional arguments for MuscleCommandline biopython class.
+        Optional arguments used for the MuscleCommandline biopython class. Have
+        a look at biopython's documenation for more information on the input
+        parameters.
 
     Methods
     -------
@@ -49,27 +52,30 @@ class MuscleAligner(object):
         self.alignment = self._align_fasta()
 
     def get_muscle_alignment(self):
-        """Getter function for collecting the MUSCLE alignment.
+        """Collects and returns the computed MUSCLE alignment.
 
         Returns
         -------
         Bio.AlignIO
-            A biopython alignment object from the fasta file.
+            A biopython alignment object containing the alignment made from the
+            given input FASTA file.
 
         """
         return self.alignment
 
     def _align_fasta(self):
-        """Uses MUSCLE via commandline to create a multi-alignment from fasta.
+        """Executed MUSCLE via commandline to create a multi-alignment from the
+        input FASTA file.
 
         Raises
         ------
         AlignerException
-            When the Muscle commandline program returns an error.
+            When the MUSCLE commandline program returns an error.
 
         Notes
         -----
-            This function uses the given fasta file for creating an alignment.
+            This function uses the FASTA file set in the class constructor for
+            creating the alignment.
 
         """
         try:
@@ -78,12 +84,3 @@ class MuscleAligner(object):
             return AlignIO.read(StringIO(stdout), "fasta")
         except ApplicationError as err:
             raise AlignerException(err.stderr)
-
-
-def main():
-    """Function to be called when file executed via terminal."""
-    print(__doc__)
-
-
-if __name__ == "__main__":
-    main()

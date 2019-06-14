@@ -1,5 +1,5 @@
-Readme
-======
+ImmunoProbs
+===========
 
 |Build Status| |PyPI version| |PyPI pyversions| |PyPI license|
 

@@ -25,8 +25,8 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import preprocess_separated_file, preprocess_reference_file, \
-is_fasta, is_separated, copy_to_dir
+from immuno_probs.util.io import preprocess_separated_file, \
+preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -34,7 +34,7 @@ class BuildIgorModel(object):
 
     Parameters
     ----------
-    subparsers : ArgumentParser
+    subparsers : argparse.ArgumentParser
         A subparser object for appending the tool's parser and options.
 
     Methods
@@ -54,8 +54,8 @@ class BuildIgorModel(object):
 
         Notes
         -----
-            Uses the class's subparser object for appending the tool's parser
-            and options.
+            Uses the class constructor's subparser object for appending the
+            tool's parser and options.
 
         """
         # Create the description and options for the parser.
@@ -122,8 +122,8 @@ class BuildIgorModel(object):
         Returns
         -------
         tuple
-            Containing the output directory and the name of the file that has been
-            written to disk.
+            Containing the output directory and the name of the file that has
+            been written to disk.
 
         """
         # Check if the filename is unique, modify name if necessary.
@@ -222,7 +222,7 @@ class BuildIgorModel(object):
                     'file or separated data type\n', 'bg-red'))
                 return
             sys.stdout.write(make_colored('success\n', 'green'))
-        except IOError as err:
+        except (IOError, KeyError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
             return
@@ -235,7 +235,7 @@ class BuildIgorModel(object):
 
         # Execute IGoR through command line and catch error code.
         sys.stdout.write('Executing IGoR...')
-        igor_cline = IgorInterface(args=command_list)
+        igor_cline = IgorInterface(command=command_list)
         exit_code, _, stderr, _ = igor_cline.call()
         if exit_code != 0:
             sys.stdout.write(make_colored('error\n', 'red'))
@@ -247,19 +247,24 @@ class BuildIgorModel(object):
 
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
-        output_prefix = get_config_data('OUT_NAME')
-        if not output_prefix:
-            output_prefix = 'model'
-        _, filename_1 = self._copy_file_to_output(
-            file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-            filename='{}_marginals'.format(output_prefix),
-            directory=output_dir)
-        _, filename_2 = self._copy_file_to_output(
-            file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
-            filename='{}_params'.format(output_prefix),
-            directory=output_dir)
-        sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
-        sys.stdout.write(make_colored('success\n', 'green'))
+        try:
+            output_prefix = get_config_data('OUT_NAME')
+            if not output_prefix:
+                output_prefix = 'model'
+            _, filename_1 = self._copy_file_to_output(
+                file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
+                filename='{}_marginals'.format(output_prefix),
+                directory=output_dir)
+            _, filename_2 = self._copy_file_to_output(
+                file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
+                filename='{}_params'.format(output_prefix),
+                directory=output_dir)
+            sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
+            sys.stdout.write(make_colored('success\n', 'green'))
+        except IOError as err:
+            sys.stdout.write(make_colored('error\n', 'red'))
+            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            return
 
 
 def main():

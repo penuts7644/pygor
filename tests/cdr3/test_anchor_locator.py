@@ -66,7 +66,7 @@ def test_anchor_locator(gene, motif, expected):
     """
     locator = AnchorLocator(alignment=create_alignment(), gene=gene)
     if motif is not None:
-        result = locator.get_indices_motifs(motif).head()
+        result = locator.get_indices_motifs(1, motif).head()
     else:
-        result = locator.get_indices_motifs().head()
+        result = locator.get_indices_motifs(1).head()
     assert (result == expected).all().all()
