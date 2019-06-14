@@ -31,10 +31,11 @@ from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.exception import ModelLoaderException, GeneIdentifierException, OlgaException
-from immuno_probs.util.io import read_separated_to_dataframe, read_fasta_as_dataframe, \
-write_dataframe_to_separated, preprocess_separated_file, preprocess_reference_file, is_fasta, \
-is_separated, copy_to_dir
+from immuno_probs.util.exception import ModelLoaderException, \
+GeneIdentifierException, OlgaException
+from immuno_probs.util.io import read_separated_to_dataframe, \
+read_fasta_as_dataframe, write_dataframe_to_separated, preprocess_separated_file, \
+preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
 class EvaluateSeqs(object):
@@ -166,37 +167,42 @@ class EvaluateSeqs(object):
 
             # Add the model (build-in or custom) command depending on given.
             sys.stdout.write('Processing genomic reference templates...')
-            if args.model:
-                files = get_default_model_file_paths(name=args.model)
-                model_type = files['type']
-                command_list.append([
-                    'set_custom_model',
-                    files['parameters'],
-                    files['marginals']
-                ])
-                ref_list = ['set_genomic']
-                for gene, filename in files['reference'].items():
-                    ref_list.append([gene, filename])
-                command_list.append(ref_list)
-                if args.model == 'tutorial-model':
-                    args.seqs = files['seqs']
-            elif args.custom_model:
-                model_type = args.type
-                command_list.append([
-                    'set_custom_model',
-                    copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
-                    copy_to_dir(working_dir, str(args.custom_model[1]), 'txt'),
-                ])
-                ref_list = ['set_genomic']
-                for i in args.ref:
-                    filename = preprocess_reference_file(
-                        os.path.join(working_dir, 'genomic_templates'),
-                        copy_to_dir(working_dir, i[1], 'fasta'),
-                        1
-                    )
-                    ref_list.append([i[0], filename])
-                command_list.append(ref_list)
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                if args.model:
+                    files = get_default_model_file_paths(name=args.model)
+                    model_type = files['type']
+                    command_list.append([
+                        'set_custom_model',
+                        files['parameters'],
+                        files['marginals']
+                    ])
+                    ref_list = ['set_genomic']
+                    for gene, filename in files['reference'].items():
+                        ref_list.append([gene, filename])
+                    command_list.append(ref_list)
+                    if args.model == 'tutorial-model':
+                        args.seqs = files['seqs']
+                elif args.custom_model:
+                    model_type = args.type
+                    command_list.append([
+                        'set_custom_model',
+                        copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
+                        copy_to_dir(working_dir, str(args.custom_model[1]), 'txt'),
+                    ])
+                    ref_list = ['set_genomic']
+                    for i in args.ref:
+                        filename = preprocess_reference_file(
+                            os.path.join(working_dir, 'genomic_templates'),
+                            copy_to_dir(working_dir, i[1], 'fasta'),
+                            1
+                        )
+                        ref_list.append([i[0], filename])
+                    command_list.append(ref_list)
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
             # Add the sequence command after pre-processing of the input file.
             sys.stdout.write('Pre-processing input sequence file...')
@@ -294,17 +300,22 @@ class EvaluateSeqs(object):
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
-            output_filename = get_config_data('OUT_NAME')
-            if not output_filename:
-                output_filename = 'pgen_estimate_{}'.format(model_type)
-            _, filename = write_dataframe_to_separated(
-                dataframe=full_pgen_df,
-                filename=output_filename,
-                directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
-            sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                output_filename = get_config_data('OUT_NAME')
+                if not output_filename:
+                    output_filename = 'pgen_estimate_{}'.format(model_type)
+                _, filename = write_dataframe_to_separated(
+                    dataframe=full_pgen_df,
+                    filename=output_filename,
+                    directory=output_dir,
+                    separator=get_config_data('SEPARATOR'),
+                    index_name=get_config_data('I_COL'))
+                sys.stdout.write("(written '{}')...".format(filename))
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
         elif args.cdr3:
@@ -344,7 +355,7 @@ class EvaluateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException) as err:
+            except (ModelLoaderException, GeneIdentifierException, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -386,24 +397,29 @@ class EvaluateSeqs(object):
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (OlgaException) as err:
+            except (OlgaException, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
-            output_filename = get_config_data('OUT_NAME')
-            if not output_filename:
-                output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
-            _, filename = write_dataframe_to_separated(
-                dataframe=cdr3_pgen_df,
-                filename=output_filename,
-                directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
-            sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                output_filename = get_config_data('OUT_NAME')
+                if not output_filename:
+                    output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
+                _, filename = write_dataframe_to_separated(
+                    dataframe=cdr3_pgen_df,
+                    filename=output_filename,
+                    directory=output_dir,
+                    separator=get_config_data('SEPARATOR'),
+                    index_name=get_config_data('I_COL'))
+                sys.stdout.write("(written '{}')...".format(filename))
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
 
 def main():

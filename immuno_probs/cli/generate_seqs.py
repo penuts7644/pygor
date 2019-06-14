@@ -199,20 +199,25 @@ class GenerateSeqs(object):
 
             # Add the model (build-in or custom) command.
             sys.stdout.write('Processing IGoR model files...')
-            if args.model:
-                files = get_default_model_file_paths(name=args.model)
-                command_list.append([
-                    'set_custom_model',
-                    files['parameters'],
-                    files['marginals']
-                ])
-            elif args.custom_model:
-                command_list.append([
-                    'set_custom_model',
-                    copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
-                    copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
-                ])
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                if args.model:
+                    files = get_default_model_file_paths(name=args.model)
+                    command_list.append([
+                        'set_custom_model',
+                        files['parameters'],
+                        files['marginals']
+                    ])
+                elif args.custom_model:
+                    command_list.append([
+                        'set_custom_model',
+                        copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
+                        copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
+                    ])
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
             # Add generate command.
             command_list.append(['generate', str(args.generate), ['noerr']])
@@ -231,45 +236,55 @@ class GenerateSeqs(object):
 
             # Merge the generated output files together (translated).
             sys.stdout.write('Processing sequence realizations...')
-            sequence_df = read_separated_to_dataframe(
-                file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
-                separator=';',
-                index_col=get_config_data('I_COL'))
-            sequence_df[get_config_data('AA_COL')] = sequence_df[get_config_data('NT_COL')] \
-                .apply(nucleotides_to_aminoacids)
-            realizations_df = read_separated_to_dataframe(
-                file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
-                separator=';',
-                index_col=get_config_data('I_COL'))
-            if args.model:
-                files = get_default_model_file_paths(name=args.model)
-                model_type = files['type']
-                model = IgorLoader(model_type=model_type,
-                                   model_params=files['parameters'],
-                                   model_marginals=files['marginals'])
-            elif args.custom_model:
-                model_type = args.type
-                model = IgorLoader(model_type=model_type,
-                                   model_params=args.custom_model[0],
-                                   model_marginals=args.custom_model[1])
-            realizations_df = self._process_realizations(data=realizations_df,
-                                                         model=model)
-            full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                sequence_df = read_separated_to_dataframe(
+                    file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
+                    separator=';',
+                    index_col=get_config_data('I_COL'))
+                sequence_df[get_config_data('AA_COL')] = sequence_df[get_config_data('NT_COL')] \
+                    .apply(nucleotides_to_aminoacids)
+                realizations_df = read_separated_to_dataframe(
+                    file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
+                    separator=';',
+                    index_col=get_config_data('I_COL'))
+                if args.model:
+                    files = get_default_model_file_paths(name=args.model)
+                    model_type = files['type']
+                    model = IgorLoader(model_type=model_type,
+                                       model_params=files['parameters'],
+                                       model_marginals=files['marginals'])
+                elif args.custom_model:
+                    model_type = args.type
+                    model = IgorLoader(model_type=model_type,
+                                       model_params=args.custom_model[0],
+                                       model_marginals=args.custom_model[1])
+                realizations_df = self._process_realizations(data=realizations_df,
+                                                             model=model)
+                full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
-            output_filename = get_config_data('OUT_NAME')
-            if not output_filename:
-                output_filename = 'generated_seqs_{}'.format(model_type)
-            _, filename = write_dataframe_to_separated(
-                dataframe=full_seqs_df,
-                filename=output_filename,
-                directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
-            sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                output_filename = get_config_data('OUT_NAME')
+                if not output_filename:
+                    output_filename = 'generated_seqs_{}'.format(model_type)
+                _, filename = write_dataframe_to_separated(
+                    dataframe=full_seqs_df,
+                    filename=output_filename,
+                    directory=output_dir,
+                    separator=get_config_data('SEPARATOR'),
+                    index_name=get_config_data('I_COL'))
+                sys.stdout.write("(written '{}')...".format(filename))
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
         # If the given type of sequences generation is CDR3, use OLGA.
         elif args.cdr3:
@@ -305,7 +320,7 @@ class GenerateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException) as err:
+            except (ModelLoaderException, GeneIdentifierException, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -316,24 +331,29 @@ class GenerateSeqs(object):
                 seq_generator = OlgaContainer(igor_model=model)
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except OlgaException as err:
+            except (OlgaException, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Write the pandas dataframe to a separated file with.
             sys.stdout.write('Writting file...')
-            output_filename = get_config_data('OUT_NAME')
-            if not output_filename:
-                output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
-            _, filename = write_dataframe_to_separated(
-                dataframe=cdr3_seqs_df,
-                filename=output_filename,
-                directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
-            sys.stdout.write("(written '{}')...".format(filename))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            try:
+                output_filename = get_config_data('OUT_NAME')
+                if not output_filename:
+                    output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
+                _, filename = write_dataframe_to_separated(
+                    dataframe=cdr3_seqs_df,
+                    filename=output_filename,
+                    directory=output_dir,
+                    separator=get_config_data('SEPARATOR'),
+                    index_name=get_config_data('I_COL'))
+                sys.stdout.write("(written '{}')...".format(filename))
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except IOError as err:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                return
 
 
 def main():

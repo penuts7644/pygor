@@ -20,13 +20,14 @@
 
 import argparse
 import os
+import sys
 from shutil import rmtree
 
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_seqs import GenerateSeqs
 from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
-from immuno_probs.util.cli import dynamic_cli_options
+from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import set_num_threads, set_separator, \
 set_working_dir, set_out_name, set_config_data, get_config_data
 from immuno_probs.util.io import create_directory_path
@@ -98,10 +99,17 @@ def main():
         set_out_name(parsed_arguments.out_name)
 
     # Create the directory paths for temporary files.
-    working_dir = get_config_data('WORKING_DIR')
-    temp_dir = create_directory_path(
-        os.path.join(working_dir, get_config_data('TEMP_DIR')))
-    set_working_dir(temp_dir)
+    try:
+        working_dir = get_config_data('WORKING_DIR')
+        temp_dir = create_directory_path(
+            os.path.join(working_dir, get_config_data('TEMP_DIR')))
+        set_working_dir(temp_dir)
+    except IOError as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(
+            'Cannot create ImmunoProbs working directory ({})\n'.format(err),
+            'bg-red'))
+        return
 
     # Execute the correct tool based on given subparser name.
     if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
@@ -113,10 +121,15 @@ def main():
     elif parsed_arguments.subparser_name == 'evaluate-seqs':
         evs.run(args=parsed_arguments, output_dir=working_dir)
     else:
-        print("No option selected, run 'immuno-probs -h' to show all options.")
+        sys.stdout.write("No option selected, run 'immuno-probs -h' to show all options.\n")
 
     # Finally, delete the temporary directory.
-    rmtree(temp_dir)
+    try:
+        rmtree(temp_dir)
+    except IOError as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        return
 
 
 if __name__ == '__main__':

@@ -25,8 +25,8 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import preprocess_separated_file, preprocess_reference_file, \
-is_fasta, is_separated, copy_to_dir
+from immuno_probs.util.io import preprocess_separated_file, \
+preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -247,19 +247,24 @@ class BuildIgorModel(object):
 
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
-        output_prefix = get_config_data('OUT_NAME')
-        if not output_prefix:
-            output_prefix = 'model'
-        _, filename_1 = self._copy_file_to_output(
-            file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
-            filename='{}_marginals'.format(output_prefix),
-            directory=output_dir)
-        _, filename_2 = self._copy_file_to_output(
-            file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
-            filename='{}_params'.format(output_prefix),
-            directory=output_dir)
-        sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
-        sys.stdout.write(make_colored('success\n', 'green'))
+        try:
+            output_prefix = get_config_data('OUT_NAME')
+            if not output_prefix:
+                output_prefix = 'model'
+            _, filename_1 = self._copy_file_to_output(
+                file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
+                filename='{}_marginals'.format(output_prefix),
+                directory=output_dir)
+            _, filename_2 = self._copy_file_to_output(
+                file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
+                filename='{}_params'.format(output_prefix),
+                directory=output_dir)
+            sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
+            sys.stdout.write(make_colored('success\n', 'green'))
+        except IOError as err:
+            sys.stdout.write(make_colored('error\n', 'red'))
+            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            return
 
 
 def main():
