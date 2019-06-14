@@ -39,8 +39,13 @@ clean:
 ##			well as the documentation.
 ##
 build: test clean
-	python setup.py bdist_wheel && cd docs && make html
+	python setup.py bdist_wheel
 
+##		make docs
+##			Build the documentation for ImmunoProbs.
+##
+docs: test clean
+	cd docs && make html
 
 ##		make build-docker
 ##			Perfoms tests, a dir clean, builds the new distribution package for
