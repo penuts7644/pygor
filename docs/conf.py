@@ -24,9 +24,9 @@ copyright = u'2019, Wout van Helvoirt'
 author = u'Wout van Helvoirt'
 
 # The short X.Y version
-version = u'0.1.15'
+version = u'0.1.16'
 # The full version, including alpha/beta/rc tags
-release = u'0.1.15'
+release = u'0.1.16'
 
 
 # -- General configuration ---------------------------------------------------
