@@ -10,7 +10,6 @@
         immuno-probs
 
             ## general immuno-probs parameters
-            -separator '\t'
             -threads \$GALAXY_SLOTS
 
             ## tool command
@@ -61,7 +60,7 @@
 
         Create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences.
 
-        For documentation have a look at the ImmunoProbs wiki "https://github.com/penuts7644/ImmunoProbs/wiki".
+        For documentation have a look at the ImmunoProbs github page "https://penuts7644.github.io/ImmunoProbs/".
 
     </help>
 </tool>
