@@ -52,7 +52,7 @@ docs: test clean
 ##			ImmunoProbs and finally builds a docker image of all executables.
 ##
 build-docker: test clean build
-	docker build -t penuts7644/immuno-probs:0.1.15 . && docker tag penuts7644/immuno-probs:0.1.15 penuts7644/immuno-probs:latest
+	docker build -t penuts7644/immuno-probs:0.1.16 . && docker tag penuts7644/immuno-probs:0.1.16 penuts7644/immuno-probs:latest
 
 ##		make test-deploy
 ##			Tests, cleans, builds and uploads all distribution files to PyPI test server.
