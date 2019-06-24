@@ -1,9 +1,6 @@
 immuno\_probs.util package
 ==========================
 
-Submodules
-----------
-
 immuno\_probs.util.cli module
 -----------------------------
 
@@ -48,15 +45,6 @@ immuno\_probs.util.processing module
 ------------------------------------
 
 .. automodule:: immuno_probs.util.processing
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: immuno_probs.util
     :members:
     :undoc-members:
     :show-inheritance:

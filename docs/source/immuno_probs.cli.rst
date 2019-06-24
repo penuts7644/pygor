@@ -1,9 +1,6 @@
 immuno\_probs.cli package
 =========================
 
-Submodules
-----------
-
 immuno\_probs.cli.build\_igor\_model module
 -------------------------------------------
 
@@ -32,15 +29,6 @@ immuno\_probs.cli.locate\_cdr3\_anchors module
 ----------------------------------------------
 
 .. automodule:: immuno_probs.cli.locate_cdr3_anchors
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: immuno_probs.cli
     :members:
     :undoc-members:
     :show-inheritance:

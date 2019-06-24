@@ -17,9 +17,13 @@ Welcome to the ImmunoProbs documentation!
    use_cases
    models
 
+.. toctree::
+   :maxdepth: 3
+   :caption: Modules
+
+   source/modules
+
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
