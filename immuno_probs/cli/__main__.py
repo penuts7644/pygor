@@ -21,6 +21,7 @@
 import argparse
 import os
 import sys
+import tempfile
 from shutil import rmtree
 
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
@@ -100,9 +101,9 @@ def main():
 
     # Create the directory paths for temporary files.
     try:
-        working_dir = get_config_data('WORKING_DIR')
+        output_dir = get_config_data('WORKING_DIR')
         temp_dir = create_directory_path(
-            os.path.join(working_dir, get_config_data('TEMP_DIR')))
+            os.path.join(tempfile.gettempdir(), get_config_data('TEMP_DIR')))
         set_working_dir(temp_dir)
     except IOError as err:
         sys.stdout.write(make_colored('error\n', 'red'))
@@ -113,23 +114,18 @@ def main():
 
     # Execute the correct tool based on given subparser name.
     if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
-        lca.run(args=parsed_arguments, output_dir=working_dir)
+        lca.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'build-igor-model':
-        bim.run(args=parsed_arguments, output_dir=working_dir)
+        bim.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'generate-seqs':
-        ges.run(args=parsed_arguments, output_dir=working_dir)
+        ges.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'evaluate-seqs':
-        evs.run(args=parsed_arguments, output_dir=working_dir)
+        evs.run(args=parsed_arguments, output_dir=output_dir)
     else:
         sys.stdout.write("No option selected, run 'immuno-probs -h' to show all options.\n")
 
     # Finally, delete the temporary directory.
-    try:
-        rmtree(temp_dir)
-    except IOError as err:
-        sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
-        return
+    rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == '__main__':
