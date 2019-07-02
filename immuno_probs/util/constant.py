@@ -18,8 +18,9 @@
 """Contains a collection of global constant variables."""
 
 
-from ConfigParser import RawConfigParser
 import os
+import re
+from ConfigParser import RawConfigParser
 from pkg_resources import resource_filename
 
 import pathos.helpers as ph
@@ -162,7 +163,7 @@ def set_out_name(value=''):
         prefixing output files (default: none).
 
     """
-    updated_value = ''.join(char for char in value if char.isalnum())
+    updated_value = re.sub(r'\s+', '', value)
     CONFIG_DATA.set('ImmunoProbs', 'OUT_NAME', updated_value)
 
 # Set the default config data object.
