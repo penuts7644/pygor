@@ -209,7 +209,7 @@ class BuildIgorModel(object):
                         [get_config_data('NT_COL')]
                     )
                     command_list.append(['read_seqs', input_seqs])
-                except KeyError as err:
+                except (KeyError, ValueError) as err:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
                         "Given input sequence file does not have a '{}' column\n" \

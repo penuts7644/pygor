@@ -239,7 +239,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -283,7 +283,7 @@ class EvaluateSeqs(object):
                     columns={'Pgen_estimate': self.col_names['NT_P_COL']},
                     inplace=True)
                 full_pgen_df.loc[:, self.col_names['AA_P_COL']] = numpy.nan
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -358,7 +358,8 @@ class EvaluateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException, IOError, KeyError) as err:
+            except (ModelLoaderException, GeneIdentifierException, IOError,
+                    KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -382,7 +383,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return

@@ -275,7 +275,7 @@ class GenerateSeqs(object):
                                                              model=model)
                 full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -333,7 +333,8 @@ class GenerateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException, IOError, KeyError) as err:
+            except (ModelLoaderException, GeneIdentifierException, IOError,
+                    KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return

@@ -131,6 +131,12 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
         change the output file column formatting (default: includes all
         columns in the output file).
 
+    Raises
+    -------
+    KeyError
+        If DataFrame is empty or the specified columns were not found in the
+        input file.
+
     """
     # Read in columns of the given file.
     if cols:
@@ -139,9 +145,14 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
                                        usecols=lambda value: value in cols,
                                        engine='python')
+        if separated_df.empty:
+            raise KeyError(
+                "DataFrame is empty, columns '{}' where not found".format(cols))
     else:
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
                                        engine='python')
+        if separated_df.empty:
+            raise ValueError('The input DataFrame is empty')
 
     # Set the index column, only use if no NA values.
     if index_col and index_col in separated_df.columns:
