@@ -57,15 +57,15 @@ def set_config_data(value=None):
     globals().update(CONFIG_DATA=conf_parser)
 
     # Overwrite default values if not given.
-    if not conf_parser.get('ImmunoProbs', 'NUM_THREADS'):
+    if not conf_parser.get('BASIC', 'NUM_THREADS'):
         set_num_threads()
-    if not conf_parser.get('ImmunoProbs', 'SEPARATOR'):
+    if not conf_parser.get('BASIC', 'SEPARATOR'):
         set_separator()
-    if conf_parser.get('ImmunoProbs', 'SEPARATOR') == '|':
+    if conf_parser.get('BASIC', 'SEPARATOR') == '|':
         set_separator('|')
-    if not conf_parser.get('ImmunoProbs', 'WORKING_DIR'):
+    if not conf_parser.get('BASIC', 'WORKING_DIR'):
         set_working_dir()
-    if not conf_parser.get('ImmunoProbs', 'OUT_NAME'):
+    if not conf_parser.get('BASIC', 'OUT_NAME'):
         set_out_name()
 
 def get_config_data(value):
@@ -82,7 +82,9 @@ def get_config_data(value):
         The value of the option within the configuration file.
 
     """
-    return CONFIG_DATA.get('ImmunoProbs', value)
+    for section in CONFIG_DATA.sections():
+        if CONFIG_DATA.has_option(section, value):
+            return CONFIG_DATA.get(section, value)
 
 def set_num_threads(value=ph.cpu_count()):
     """Sets and updates the global NUM_THREADS variable.
@@ -105,7 +107,7 @@ def set_num_threads(value=ph.cpu_count()):
             "The NUM_THREADS variable needs to be of type integer and higher " \
             "than zero", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
+        CONFIG_DATA.set('BASIC', 'NUM_THREADS', str(value))
 
 def set_separator(value='\t'):
     """Sets and updates the global SEPARATOR variable.
@@ -128,7 +130,7 @@ def set_separator(value='\t'):
             "The SEPARATOR variable needs to be of type string and cannot " \
             "be '|' character", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
+        CONFIG_DATA.set('BASIC', 'SEPARATOR', value)
 
 def set_working_dir(value=os.getcwd()):
     """Sets and updates the global WORKING_DIR variable.
@@ -151,7 +153,7 @@ def set_working_dir(value=os.getcwd()):
             "The WORKING_DIR variable needs to be of type string and exist " \
             "on the system", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'WORKING_DIR', value)
+        CONFIG_DATA.set('BASIC', 'WORKING_DIR', value)
 
 def set_out_name(value=''):
     """Sets and updates the global OUT_NAME variable.
@@ -164,7 +166,7 @@ def set_out_name(value=''):
 
     """
     updated_value = re.sub(r'\s+', '', value)
-    CONFIG_DATA.set('ImmunoProbs', 'OUT_NAME', updated_value)
+    CONFIG_DATA.set('BASIC', 'OUT_NAME', updated_value)
 
 # Set the default config data object.
 set_config_data()
