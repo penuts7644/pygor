@@ -20,9 +20,6 @@
 
 import olga.load_model as olga_load_model
 
-from immuno_probs.util.exception import ModelLoaderException, \
-GeneIdentifierException
-
 
 class IgorLoader(object):
     """Loads in an IGoR model as well as corresponding with CDR3 anchor files.
@@ -79,7 +76,7 @@ class IgorLoader(object):
 
         Raises
         ------
-        ModelLoaderException
+        TypeError
             When the model marginals are not compliant to the given model type.
 
         """
@@ -99,8 +96,8 @@ class IgorLoader(object):
             return 'VDJ'
         if (v_choice and j_choice and not d_gene) and (model_type in ['alpha', 'light']):
             return 'VJ'
-        raise ModelLoaderException("Model is not compliant to the given " \
-            "type: '{}''".format(model_type))
+        raise TypeError(
+            "Model is not compliant to the given type: '{}''".format(model_type))
 
     def _load_params(self, model_params):
         """Private function for loading in the genomic parameter data for the
@@ -118,9 +115,11 @@ class IgorLoader(object):
 
         Raises
         ------
-        ModelLoaderException
+        TypeError
             When the model input data cannot be loaded in as either a VJ or
             VDJ model.
+        OSError
+            When OLGA produces and system error with the input data.
 
         """
         # Try to load the genomic data model for VDJ.
@@ -132,16 +131,16 @@ class IgorLoader(object):
             elif self.type == 'VJ':
                 genomic_data = olga_load_model.GenomicDataVJ()
             else:
-                raise ModelLoaderException("Model genomic data could not be loaded")
+                raise TypeError(
+                    "Model genomic data could not be loaded as 'VDJ' or 'VJ' type")
 
             # Load the remainder of the data for the VJ model and return.
             genomic_data.genV = olga_load_model.read_igor_V_gene_parameters(model_params)
             genomic_data.genJ = olga_load_model.read_igor_J_gene_parameters(model_params)
             return genomic_data
 
-        # If both VDJ, VJ loaders gave an exception, raise custom exception.
         except Exception as err:
-            raise ModelLoaderException(err)
+            raise OSError(err)
 
     def _load_model(self, model_marginals):
         """Private function for loading in the IGoR model marginals.
@@ -158,9 +157,11 @@ class IgorLoader(object):
 
         Raises
         ------
-        ModelLoaderException
+        TypeError
             When the model input data cannot be loaded in as either a VJ or
             VDJ model.
+        OSError
+            When OLGA produces and system error with the input data.
 
         """
         # Try to create the GenerativeModel object for VDJ or VJ.
@@ -171,15 +172,15 @@ class IgorLoader(object):
             elif self.type == "VJ":
                 generative_model = olga_load_model.GenerativeModelVJ()
             else:
-                raise ModelLoaderException("Generative model could not be loaded")
+                raise TypeError(
+                    "Generative model could not be loaded as 'VDJ' or 'VJ' type")
 
             # Load the generative VDJ or VJ model marginals and return.
             generative_model.load_and_process_igor_model(model_marginals)
             return generative_model
 
-        # If both VDJ, VJ loaders gave an exception, raise custom exception.
         except Exception as err:
-            raise ModelLoaderException(err)
+            raise OSError(err)
 
     def set_anchor(self, gene, file):
         """Sets the CDR3 anchor file path for a given gene.
@@ -199,7 +200,7 @@ class IgorLoader(object):
 
         Raises
         ------
-        GeneIdentifierException
+        ValueError
             When the given gene character does not equal 'V' or 'J'.
 
         """
@@ -209,17 +210,19 @@ class IgorLoader(object):
         elif gene == "J":
             self.j_anchors = file
         else:
-            raise GeneIdentifierException(
-                "Gene identifier can be either 'V' or 'J'", gene)
+            raise ValueError(
+                "Gene identifier should be either 'V' or 'J'", gene)
 
     def initialize_model(self):
         """Initializes the model data with CDR3 anchor position data files.
 
         Raises
         ------
-        ModelLoaderException
+        TypeError
             When the model input data cannot be loaded in as either a VJ or
             VDJ model.
+        OSError
+            When OLGA produces and system error with the input data.
 
         Notes
         -----
@@ -238,16 +241,15 @@ class IgorLoader(object):
             elif self.type == "VJ":
                 self.data.read_igor_VJ_palindrome_parameters(self.params)
             else:
-                raise ModelLoaderException("Anchors could not be loaded, " \
-                    "make sure to set both 'V' and 'J' gene anchors")
+                raise TypeError(
+                    "Model type could not be identified as 'VDJ' or 'VJ'")
 
             # Load the remainder of the data model
             self.data.generate_cutV_genomic_CDR3_segs()
             self.data.generate_cutJ_genomic_CDR3_segs()
 
-        # If both VDJ, VJ loaders gave an exception, raise custom exception.
         except Exception as err:
-            raise ModelLoaderException(err)
+            raise OSError(err)
 
     def get_type(self):
         """Collects and returns the type of the model.

@@ -27,7 +27,6 @@ from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.exception import AlignerException, GeneIdentifierException
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
 write_dataframe_to_separated
 
@@ -118,7 +117,7 @@ class LocateCdr3Anchors(object):
                 aligner = MuscleAligner(infile=filename)
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
-            except (AlignerException, GeneIdentifierException, IOError) as err:
+            except (OSError, ValueError, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return

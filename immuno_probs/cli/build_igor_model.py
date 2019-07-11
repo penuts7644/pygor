@@ -235,15 +235,20 @@ class BuildIgorModel(object):
 
         # Execute IGoR through command line and catch error code.
         sys.stdout.write('Executing IGoR...')
-        igor_cline = IgorInterface(command=command_list)
-        exit_code, _, stderr, _ = igor_cline.call()
-        if exit_code != 0:
+        try:
+            igor_cline = IgorInterface(command=command_list)
+            exit_code, _, stderr, _ = igor_cline.call()
+            if exit_code != 0:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(
+                    "An error occurred during execution of IGoR command (exit " \
+                    "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+                return
+            sys.stdout.write(make_colored('success\n', 'green'))
+        except OSError as err:
             sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(
-                "An error occurred during execution of IGoR command (exit " \
-                "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+            sys.stderr.write(make_colored(str(err), 'bg-red'))
             return
-        sys.stdout.write(make_colored('success\n', 'green'))
 
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')

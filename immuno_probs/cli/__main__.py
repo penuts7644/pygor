@@ -88,16 +88,21 @@ def main():
 
     # Parse the commandline arguments and set variables.
     parsed_arguments = parser.parse_args()
-    if parsed_arguments.config_file is not None:
-        set_config_data(parsed_arguments.config_file)
-    if parsed_arguments.separator is not None:
-        set_separator(parsed_arguments.separator)
-    if parsed_arguments.threads is not None:
-        set_num_threads(parsed_arguments.threads)
-    if parsed_arguments.set_wd is not None:
-        set_working_dir(parsed_arguments.set_wd)
-    if parsed_arguments.out_name is not None:
-        set_out_name(parsed_arguments.out_name)
+    try:
+        if parsed_arguments.config_file is not None:
+            set_config_data(parsed_arguments.config_file)
+        if parsed_arguments.separator is not None:
+            set_separator(parsed_arguments.separator)
+        if parsed_arguments.threads is not None:
+            set_num_threads(parsed_arguments.threads)
+        if parsed_arguments.set_wd is not None:
+            set_working_dir(parsed_arguments.set_wd)
+        if parsed_arguments.out_name is not None:
+            set_out_name(parsed_arguments.out_name)
+    except (TypeError, ValueError, IOError) as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(str(err), 'bg-red'))
+        return
 
     # Create the directory paths for temporary files.
     try:

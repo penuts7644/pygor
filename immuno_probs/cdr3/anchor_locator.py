@@ -21,7 +21,6 @@
 import pandas
 import numpy
 
-from immuno_probs.util.exception import GeneIdentifierException
 from immuno_probs.util.processing import multiprocess_array
 
 
@@ -72,14 +71,14 @@ class AnchorLocator(object):
 
         Raises
         ------
-        GeneIdentifierException
+        ValueError
             When the given gene character does not equal 'V' or 'J'.
 
         """
         gene = gene.upper()
         if gene not in ["V", "J"]:
-            raise GeneIdentifierException(
-                "Gene identifier can be either 'V' or 'J'", gene)
+            raise ValueError(
+                "Gene identifier should be either 'V' or 'J'", gene)
         return gene
 
     @staticmethod

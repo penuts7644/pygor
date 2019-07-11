@@ -25,9 +25,6 @@ from pkg_resources import resource_filename
 
 import pathos.helpers as ph
 
-from immuno_probs.util.exception import SeparatorNotValidException, \
-NumThreadsValueException, DirectoryNonExistingException
-
 
 CONFIG_DATA = None
 
@@ -97,15 +94,18 @@ def set_num_threads(value=ph.cpu_count()):
 
     Raises
     ------
-    NumThreadsValueException
-        When the NUM_THREADS global variable is not an integer or is smaller
-        then 1.
+    TypeError
+        When the NUM_THREADS global variable is not an integer.
+    ValueError
+        When the NUM_THREADS global variable is smaller then 1.
 
     """
-    if not isinstance(value, int) or value < 1:
-        raise NumThreadsValueException(
-            "The NUM_THREADS variable needs to be of type integer and higher " \
-            "than zero", value)
+    if not isinstance(value, int):
+        raise TypeError(
+            "The NUM_THREADS variable needs to be of type integer", value)
+    if value < 1:
+        raise ValueError(
+            "The NUM_THREADS variable needs to be higher than zero", value)
     else:
         CONFIG_DATA.set('BASIC', 'NUM_THREADS', str(value))
 
@@ -120,15 +120,18 @@ def set_separator(value='\t'):
 
     Raises
     ------
-    SeparatorNotValidException
-        When the SEPARATOR global variable is not of type string or is a single
-        '|' character.
+    TypeError
+        When the SEPARATOR global variable is not of type string.
+    ValueError
+        When the SEPARATOR global variable is a single '|' character.
 
     """
-    if not isinstance(value, str) or value == '|':
-        raise SeparatorNotValidException(
-            "The SEPARATOR variable needs to be of type string and cannot " \
-            "be '|' character", value)
+    if not isinstance(value, str):
+        raise TypeError(
+            "The SEPARATOR variable needs to be of type string", value)
+    if value == '|':
+        raise ValueError(
+            "The SEPARATOR variable cannot be a '|' character", value)
     else:
         CONFIG_DATA.set('BASIC', 'SEPARATOR', value)
 
@@ -143,15 +146,19 @@ def set_working_dir(value=os.getcwd()):
 
     Raises
     ------
-    DirectoryNonExistingException
-        When the WORKING_DIR global variable is not of type string and does not
-        exist.
+    TypeError
+        When the WORKING_DIR global variable is not of type string.
+    IOError
+        When the WORKING_DIR global variable directory does not exist on the
+        system.
 
     """
-    if not isinstance(value, str) or not os.path.isdir(value):
-        raise DirectoryNonExistingException(
-            "The WORKING_DIR variable needs to be of type string and exist " \
-            "on the system", value)
+    if not isinstance(value, str):
+        raise TypeError(
+            "The WORKING_DIR variable needs to be of type string", value)
+    if not os.path.isdir(value):
+        raise IOError(
+            "The WORKING_DIR variable needs to be an existing directory", value)
     else:
         CONFIG_DATA.set('BASIC', 'WORKING_DIR', value)
 

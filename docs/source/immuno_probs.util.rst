@@ -25,14 +25,6 @@ immuno\_probs.util.conversion module
     :undoc-members:
     :show-inheritance:
 
-immuno\_probs.util.exception module
------------------------------------
-
-.. automodule:: immuno_probs.util.exception
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 immuno\_probs.util.io module
 ----------------------------
 
