@@ -65,13 +65,17 @@ def set_config_data(value=None):
     if not conf_parser.get('BASIC', 'OUT_NAME'):
         set_out_name()
 
-def get_config_data(value):
+def get_config_data(value, option_type=None):
     """Collects and returns the global CONFIG_DATA variable.
 
     Parameters
     ----------
     value : str
         The option to return its value from.
+    option_type : str, optional
+        The type of the option to return its value from, by default returns a
+        string. Currently supported values are 'bool' for boolean, 'int' for
+        integer and 'float' for float.
 
     Returns
     -------
@@ -81,6 +85,12 @@ def get_config_data(value):
     """
     for section in CONFIG_DATA.sections():
         if CONFIG_DATA.has_option(section, value):
+            if option_type == 'bool':
+                return CONFIG_DATA.getboolean(section, value)
+            if option_type == 'int':
+                return CONFIG_DATA.getint(section, value)
+            if option_type == 'float':
+                return CONFIG_DATA.getfloat(section, value)
             return CONFIG_DATA.get(section, value)
 
 def set_num_threads(value=ph.cpu_count()):
