@@ -107,7 +107,7 @@ def main():
     # Create the directory paths for temporary files.
     try:
         output_dir = get_config_data('WORKING_DIR')
-        if get_config_data('USE_SYSTEM_TEMP', type='bool'):
+        if get_config_data('USE_SYSTEM_TEMP', option_type='bool'):
             temp_dir = create_directory_path(
                 os.path.join(tempfile.gettempdir(), get_config_data('TEMP_DIR')))
         else:
