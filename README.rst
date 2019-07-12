@@ -14,11 +14,7 @@ Development of ImmunoProbs is in an active state. If you would like to see new f
 
 It is also possible to help out ImmunoProbs development by forking this project and creating a `pull request <https://github.com/penuts7644/ImmunoProbs/compare>`__ to submit new features.
 
-When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements using the make command:
-
-.. code-block:: none
-
-    make setup
+When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements using the ``make setup`` command.
 
 .. |Build Status| image:: https://img.shields.io/travis/penuts7644/ImmunoProbs.svg?branch=master&longCache=true&style=for-the-badge
    :target: https://travis-ci.org/penuts7644/ImmunoProbs
