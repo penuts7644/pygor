@@ -24,7 +24,6 @@ import pandas
 import numpy
 
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
-from immuno_probs.util.exception import OlgaException
 from immuno_probs.util.processing import multiprocess_array
 
 
@@ -85,6 +84,11 @@ class OlgaContainer(object):
             ammino acid CDR3 sequence, the index of the chosen V gene and the
             index of the chosen J gene.
 
+        Raises
+        ------
+        TypeError
+            When the model type does not equal 'VDJ' or 'VJ'.
+
         """
         # Create the dataframe and set the generation objects.
         generated_seqs = pandas.DataFrame(
@@ -101,8 +105,9 @@ class OlgaContainer(object):
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
         else:
-            raise OlgaException(
-                "OLGA could not create a SequenceGeneration object")
+            raise TypeError(
+                "OLGA could not create a SequenceGeneration object since " \
+                "model is not of type 'VDJ' or 'VJ'")
 
         # Generate the sequences, add them to the dataframe and return.
         for _ in range(num_seqs):
@@ -285,6 +290,11 @@ class OlgaContainer(object):
             of nucleotide sequence if given and the generation probability of
             aminoacid sequence if given.
 
+        Raises
+        ------
+        TypeError
+            When the model type does not equal 'VDJ' or 'VJ'.
+
         """
         # Set the evaluation objects.
         pgen_model = None
@@ -297,7 +307,9 @@ class OlgaContainer(object):
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
         else:
-            raise OlgaException("OLGA could not create a GenerationProbability object")
+            raise TypeError(
+                "OLGA could not create a GenerationProbability object since " \
+                "model is not of type 'VDJ' or 'VJ'")
 
         # Insert amino acid sequence column if not existent.
         if (self.col_names['NT_COL'] in seqs.columns

@@ -25,9 +25,6 @@ from pkg_resources import resource_filename
 
 import pathos.helpers as ph
 
-from immuno_probs.util.exception import SeparatorNotValidException, \
-NumThreadsValueException, DirectoryNonExistingException
-
 
 CONFIG_DATA = None
 
@@ -57,24 +54,28 @@ def set_config_data(value=None):
     globals().update(CONFIG_DATA=conf_parser)
 
     # Overwrite default values if not given.
-    if not conf_parser.get('ImmunoProbs', 'NUM_THREADS'):
+    if not conf_parser.get('BASIC', 'NUM_THREADS'):
         set_num_threads()
-    if not conf_parser.get('ImmunoProbs', 'SEPARATOR'):
+    if not conf_parser.get('BASIC', 'SEPARATOR'):
         set_separator()
-    if conf_parser.get('ImmunoProbs', 'SEPARATOR') == '|':
+    if conf_parser.get('BASIC', 'SEPARATOR') == '|':
         set_separator('|')
-    if not conf_parser.get('ImmunoProbs', 'WORKING_DIR'):
+    if not conf_parser.get('BASIC', 'WORKING_DIR'):
         set_working_dir()
-    if not conf_parser.get('ImmunoProbs', 'OUT_NAME'):
+    if not conf_parser.get('BASIC', 'OUT_NAME'):
         set_out_name()
 
-def get_config_data(value):
+def get_config_data(value, option_type=None):
     """Collects and returns the global CONFIG_DATA variable.
 
     Parameters
     ----------
     value : str
         The option to return its value from.
+    option_type : str, optional
+        The type of the option to return its value from, by default returns a
+        string. Currently supported values are 'bool' for boolean, 'int' for
+        integer and 'float' for float.
 
     Returns
     -------
@@ -82,7 +83,15 @@ def get_config_data(value):
         The value of the option within the configuration file.
 
     """
-    return CONFIG_DATA.get('ImmunoProbs', value)
+    for section in CONFIG_DATA.sections():
+        if CONFIG_DATA.has_option(section, value):
+            if option_type == 'bool':
+                return CONFIG_DATA.getboolean(section, value)
+            if option_type == 'int':
+                return CONFIG_DATA.getint(section, value)
+            if option_type == 'float':
+                return CONFIG_DATA.getfloat(section, value)
+            return CONFIG_DATA.get(section, value)
 
 def set_num_threads(value=ph.cpu_count()):
     """Sets and updates the global NUM_THREADS variable.
@@ -95,17 +104,20 @@ def set_num_threads(value=ph.cpu_count()):
 
     Raises
     ------
-    NumThreadsValueException
-        When the NUM_THREADS global variable is not an integer or is smaller
-        then 1.
+    TypeError
+        When the NUM_THREADS global variable is not an integer.
+    ValueError
+        When the NUM_THREADS global variable is smaller then 1.
 
     """
-    if not isinstance(value, int) or value < 1:
-        raise NumThreadsValueException(
-            "The NUM_THREADS variable needs to be of type integer and higher " \
-            "than zero", value)
+    if not isinstance(value, int):
+        raise TypeError(
+            "The NUM_THREADS variable needs to be of type integer", value)
+    if value < 1:
+        raise ValueError(
+            "The NUM_THREADS variable needs to be higher than zero", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'NUM_THREADS', str(value))
+        CONFIG_DATA.set('BASIC', 'NUM_THREADS', str(value))
 
 def set_separator(value='\t'):
     """Sets and updates the global SEPARATOR variable.
@@ -118,17 +130,20 @@ def set_separator(value='\t'):
 
     Raises
     ------
-    SeparatorNotValidException
-        When the SEPARATOR global variable is not of type string or is a single
-        '|' character.
+    TypeError
+        When the SEPARATOR global variable is not of type string.
+    ValueError
+        When the SEPARATOR global variable is a single '|' character.
 
     """
-    if not isinstance(value, str) or value == '|':
-        raise SeparatorNotValidException(
-            "The SEPARATOR variable needs to be of type string and cannot " \
-            "be '|' character", value)
+    if not isinstance(value, str):
+        raise TypeError(
+            "The SEPARATOR variable needs to be of type string", value)
+    if value == '|':
+        raise ValueError(
+            "The SEPARATOR variable cannot be a '|' character", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'SEPARATOR', value)
+        CONFIG_DATA.set('BASIC', 'SEPARATOR', value)
 
 def set_working_dir(value=os.getcwd()):
     """Sets and updates the global WORKING_DIR variable.
@@ -141,17 +156,21 @@ def set_working_dir(value=os.getcwd()):
 
     Raises
     ------
-    DirectoryNonExistingException
-        When the WORKING_DIR global variable is not of type string and does not
-        exist.
+    TypeError
+        When the WORKING_DIR global variable is not of type string.
+    IOError
+        When the WORKING_DIR global variable directory does not exist on the
+        system.
 
     """
-    if not isinstance(value, str) or not os.path.isdir(value):
-        raise DirectoryNonExistingException(
-            "The WORKING_DIR variable needs to be of type string and exist " \
-            "on the system", value)
+    if not isinstance(value, str):
+        raise TypeError(
+            "The WORKING_DIR variable needs to be of type string", value)
+    if not os.path.isdir(value):
+        raise IOError(
+            "The WORKING_DIR variable needs to be an existing directory", value)
     else:
-        CONFIG_DATA.set('ImmunoProbs', 'WORKING_DIR', value)
+        CONFIG_DATA.set('BASIC', 'WORKING_DIR', value)
 
 def set_out_name(value=''):
     """Sets and updates the global OUT_NAME variable.
@@ -164,7 +183,7 @@ def set_out_name(value=''):
 
     """
     updated_value = re.sub(r'\s+', '', value)
-    CONFIG_DATA.set('ImmunoProbs', 'OUT_NAME', updated_value)
+    CONFIG_DATA.set('BASIC', 'OUT_NAME', updated_value)
 
 # Set the default config data object.
 set_config_data()

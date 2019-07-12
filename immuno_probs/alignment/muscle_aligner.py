@@ -23,8 +23,6 @@ from StringIO import StringIO
 from Bio import AlignIO
 from Bio.Application import ApplicationError
 
-from immuno_probs.util.exception import AlignerException
-
 
 class MuscleAligner(object):
     """Performs MUSCLE alignments via biopython's commandline tool.
@@ -69,7 +67,7 @@ class MuscleAligner(object):
 
         Raises
         ------
-        AlignerException
+        OSError
             When the MUSCLE commandline program returns an error.
 
         Notes
@@ -83,4 +81,4 @@ class MuscleAligner(object):
             stdout, _ = muscle_cline()
             return AlignIO.read(StringIO(stdout), "fasta")
         except ApplicationError as err:
-            raise AlignerException(err.stderr)
+            raise OSError(err.stderr)

@@ -88,22 +88,31 @@ def main():
 
     # Parse the commandline arguments and set variables.
     parsed_arguments = parser.parse_args()
-    if parsed_arguments.config_file is not None:
-        set_config_data(parsed_arguments.config_file)
-    if parsed_arguments.separator is not None:
-        set_separator(parsed_arguments.separator)
-    if parsed_arguments.threads is not None:
-        set_num_threads(parsed_arguments.threads)
-    if parsed_arguments.set_wd is not None:
-        set_working_dir(parsed_arguments.set_wd)
-    if parsed_arguments.out_name is not None:
-        set_out_name(parsed_arguments.out_name)
+    try:
+        if parsed_arguments.config_file is not None:
+            set_config_data(parsed_arguments.config_file)
+        if parsed_arguments.separator is not None:
+            set_separator(parsed_arguments.separator)
+        if parsed_arguments.threads is not None:
+            set_num_threads(parsed_arguments.threads)
+        if parsed_arguments.set_wd is not None:
+            set_working_dir(parsed_arguments.set_wd)
+        if parsed_arguments.out_name is not None:
+            set_out_name(parsed_arguments.out_name)
+    except (TypeError, ValueError, IOError) as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(str(err), 'bg-red'))
+        return
 
     # Create the directory paths for temporary files.
     try:
         output_dir = get_config_data('WORKING_DIR')
-        temp_dir = create_directory_path(
-            os.path.join(tempfile.gettempdir(), get_config_data('TEMP_DIR')))
+        if get_config_data('USE_SYSTEM_TEMP', option_type='bool'):
+            temp_dir = create_directory_path(
+                os.path.join(tempfile.gettempdir(), get_config_data('TEMP_DIR')))
+        else:
+            temp_dir = create_directory_path(
+                os.path.join(output_dir, get_config_data('TEMP_DIR')))
         set_working_dir(temp_dir)
     except IOError as err:
         sys.stdout.write(make_colored('error\n', 'red'))

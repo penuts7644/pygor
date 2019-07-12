@@ -18,8 +18,6 @@
 """Contains a collection of conversion functions."""
 
 
-from immuno_probs.util.exception import CharacterNotFoundException
-
 
 def nucleotides_to_integers(seq):
     """Converts a nucleotide sequence to an interger representation.
@@ -180,7 +178,7 @@ def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=',')
 
     Raises
     -------
-    CharacterNotFoundException
+    ValueError
         When the given seperator or left/right bound characters are not found.
 
     """
@@ -188,11 +186,14 @@ def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=',')
 
         # Check if start and end of the string match the boundary characters.
         if in_str[: len(l_bound)] != l_bound:
-            raise CharacterNotFoundException('Start character not found', l_bound)
+            raise ValueError(
+                "Start character not found: '{}'".format(l_bound))
         elif in_str[len(in_str) - len(r_bound) :] != r_bound:
-            raise CharacterNotFoundException('End character not found', r_bound)
+            raise ValueError(
+                "End character not found: '{}'".format(r_bound))
         elif in_str.find(sep) == -1:
-            raise CharacterNotFoundException('Seperator character not found', sep)
+            raise ValueError(
+                "Seperator character not found: '{}'".format(sep))
 
         # Strip the boundary characters, split on seperator and small cleanup.
         converted_str = [dtype(i.strip(' \"\''))

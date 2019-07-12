@@ -31,8 +31,6 @@ from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.exception import ModelLoaderException, \
-GeneIdentifierException, OlgaException
 from immuno_probs.util.io import read_separated_to_dataframe, \
 read_fasta_as_dataframe, write_dataframe_to_separated, preprocess_separated_file, \
 preprocess_reference_file, is_fasta, is_separated, copy_to_dir
@@ -239,7 +237,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -253,15 +251,20 @@ class EvaluateSeqs(object):
 
             # Execute IGoR through command line and catch error code.
             sys.stdout.write('Executing IGoR...')
-            igor_cline = IgorInterface(command=command_list)
-            exit_code, _, stderr, _ = igor_cline.call()
-            if exit_code != 0:
+            try:
+                igor_cline = IgorInterface(command=command_list)
+                exit_code, _, stderr, _ = igor_cline.call()
+                if exit_code != 0:
+                    sys.stdout.write(make_colored('error\n', 'red'))
+                    sys.stderr.write(make_colored(
+                        "An error occurred during execution of IGoR command (exit " \
+                        "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+                    return
+                sys.stdout.write(make_colored('success\n', 'green'))
+            except OSError as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(
-                    "An error occurred during execution of IGoR command (exit " \
-                    "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+                sys.stderr.write(make_colored(str(err), 'bg-red'))
                 return
-            sys.stdout.write(make_colored('success\n', 'green'))
 
             # Read in all data frame files, based on input file type.
             sys.stdout.write('Processing generation probabilities...')
@@ -283,7 +286,7 @@ class EvaluateSeqs(object):
                     columns={'Pgen_estimate': self.col_names['NT_P_COL']},
                     inplace=True)
                 full_pgen_df.loc[:, self.col_names['AA_P_COL']] = numpy.nan
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -358,7 +361,7 @@ class EvaluateSeqs(object):
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (ModelLoaderException, GeneIdentifierException, IOError, KeyError) as err:
+            except (TypeError, OSError, IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -382,7 +385,7 @@ class EvaluateSeqs(object):
                         'FASTA file or separated data type\n', 'bg-red'))
                     return
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (IOError, KeyError) as err:
+            except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
@@ -409,7 +412,7 @@ class EvaluateSeqs(object):
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
-            except (OlgaException, IOError) as err:
+            except (TypeError, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return

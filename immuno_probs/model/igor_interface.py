@@ -21,8 +21,6 @@
 import shlex
 from subprocess import Popen, PIPE
 
-from immuno_probs.util.exception import SubprocessException
-
 
 class IgorInterface(object):
     """Executes IGoR commands via new commandline subprocess.
@@ -88,21 +86,13 @@ class IgorInterface(object):
             A tuple containing the exit code, standard out, standard error and
             the executed command as string.
 
-        Raises
-        ------
-        SubprocessException
-            When the subprocess program execution returns an error.
-
         """
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
-        try:
-            process = Popen(shlex.split(updated_command),
-                            stderr=PIPE, stdout=PIPE)
-            (stdout, stderr) = process.communicate()
-            return (process.returncode, stdout, stderr, updated_command)
-        except OSError as err:
-            raise SubprocessException(err)
+        process = Popen(shlex.split(updated_command),
+                        stderr=PIPE, stdout=PIPE)
+        (stdout, stderr) = process.communicate()
+        return (process.returncode, stdout, stderr, updated_command)
 
     def get_command(self):
         """Collect and returns the string formatted IGoR command.
