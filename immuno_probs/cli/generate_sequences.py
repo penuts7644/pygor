@@ -34,7 +34,7 @@ from immuno_probs.util.io import read_separated_to_dataframe, \
 write_dataframe_to_separated, preprocess_separated_file, copy_to_dir
 
 
-class GenerateSeqs(object):
+class GenerateSequences(object):
     """Commandline tool for generating sequences from and IGoR model.
 
     Parameters
@@ -49,7 +49,7 @@ class GenerateSeqs(object):
 
     """
     def __init__(self, subparsers):
-        super(GenerateSeqs, self).__init__()
+        super(GenerateSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
         self.col_names = {
@@ -75,7 +75,8 @@ class GenerateSeqs(object):
         # Create the description and options for the parser.
         description = "Generate VDJ or VJ sequences given a custom IGoR " \
             "model (or build-in) by executing IGoR's commandline tool via " \
-            "python subprocess. Or generate CDR3 sequences by using the OLGA."
+            "python subprocess. Or generate CDR3 sequences from the model by " \
+            "using OLGA."
         parser_options = {
             '-model': {
                 'type': 'str.lower',
@@ -111,7 +112,7 @@ class GenerateSeqs(object):
                 'help': 'A IGoR parameters file followed by an IGoR ' \
                         'marginals file.'
             },
-            '-generate': {
+            '-n-gen': {
                 'type': 'int',
                 'nargs': '?',
                 'default': 1,
@@ -127,7 +128,7 @@ class GenerateSeqs(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'generate-seqs', help=description, description=description)
+            'generate', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -227,7 +228,7 @@ class GenerateSeqs(object):
                 return
 
             # Add generate command.
-            command_list.append(['generate', str(args.generate), ['noerr']])
+            command_list.append(['generate', str(args.n_gen), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             sys.stdout.write('Executing IGoR...')
@@ -352,7 +353,7 @@ class GenerateSeqs(object):
                     aa_p_col=self.col_names['AA_P_COL'],
                     v_gene_col=self.col_names['V_GENE_COL'],
                     j_gene_col=self.col_names['J_GENE_COL'])
-                cdr3_seqs_df = seq_generator.generate(num_seqs=args.generate)
+                cdr3_seqs_df = seq_generator.generate(num_seqs=args.n_gen)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))

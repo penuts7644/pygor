@@ -29,13 +29,13 @@ Requirements
 
 All Python dependencies that are used by this package are installed through pip upon installation of ImmunoProbs. However, some software (not available via pip) needs to installed manually when planning on using certain commandline tools from ImmunoProbs:
 
-+------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Command                                                    | Requirement                                                                                                                                                                                                                                                                                                               |
-+============================================================+===========================================================================================================================================================================================================================================================================================================================+
-| ``locate-cdr3-anchors``                                    | This requires `MUSCLE <http://www.drive5.com/muscle/>`__ to be installed. For linux, MUSCLE can be installed via ``apt-get install muscle``. For macOS with HomeBrew, tap into ``brewsci/bio`` and install MUSCLE via ``brew install muscle``                                                                             |
-+------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``build-igor-model`` ``generate_seqs`` ``evaluate_seqs``   | This will use Python's subprocess package to pass the user arguments to `IGoR <https://github.com/qmarcou/IGoR>`__. For these tools to work properly, make sure that you have at least compiled and installed IGoR version 1.3.0 using the guide in `IGoR's documentation <https://qmarcou.github.io/IGoR/#install>`__.   |
-+------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Command                                       | Requirement                                                                                                                                                                                                                                                                                                               |
++===============================================+===========================================================================================================================================================================================================================================================================================================================+
+| ``locate``                                    | This requires `MUSCLE <http://www.drive5.com/muscle/>`__ to be installed. For linux, MUSCLE can be installed via ``apt-get install muscle``. For macOS with HomeBrew, tap into ``brewsci/bio`` and install MUSCLE via ``brew install muscle``                                                                             |
++-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``build`` ``generate`` ``evaluate``           | This will use Python's subprocess package to pass the user arguments to `IGoR <https://github.com/qmarcou/IGoR>`__. For these tools to work properly, make sure that you have at least compiled and installed IGoR version 1.3.0 using the guide in `IGoR's documentation <https://qmarcou.github.io/IGoR/#install>`__.   |
++-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 Docker
 ^^^^^^
@@ -74,8 +74,8 @@ The ImmunoProbs docker image can be integrated as a galaxy tool by modifying the
 
     wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/build_igor_model.xml" & \
     wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/locate_cdr3_anchors.xml" & \
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/generate_seqs.xml" & \
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/evaluate_seqs.xml"
+    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/generate_sequences.xml" & \
+    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/evaluate_sequences.xml"
 
 Finally, add the section with the ImmunoProbs tools to the ``tool_conf.xml``. Replace ``<LOCATION>`` to the location of each ImmunoProbs tool within you galaxy tools directory.
 
@@ -84,8 +84,8 @@ Finally, add the section with the ImmunoProbs tools to the ``tool_conf.xml``. Re
     <section id="immuno_probs" name="ImmunoProbs">
         <tool file="<LOCATION>/build_igor_model.xml" />
         <tool file="<LOCATION>/locate_cdr3_anchors.xml" />
-        <tool file="<LOCATION>/generate_seqs.xml" />
-        <tool file="<LOCATION>/evaluate_seqs.xml" />
+        <tool file="<LOCATION>/generate_sequences.xml" />
+        <tool file="<LOCATION>/evaluate_sequences.xml" />
     </section>
 
 Make sure to have setup you galaxy server to be able to use docker images. This can be done inside the ``job_conf.xml`` file by adding the following:

@@ -32,7 +32,7 @@ test:
 ##			Removes the old distribution directories and files.
 ##
 clean:
-	rm -rf ./dist && rm -rf ./build && rm -rf ./docs/_build && rm -rf ./.pytest_cache && rm -rf ./immuno_probs.egg-info && find . -name '*.pyc' -type f -delete
+	rm -rf ./dist && rm -rf ./build && rm -rf ./docs/_build && rm -rf ./.pytest_cache && find . -name '*.pyc' -type f -delete
 
 ##		make build
 ##			Perfoms tests, a dir clean, builds the new distribution package as

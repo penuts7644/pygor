@@ -60,7 +60,7 @@ class BuildIgorModel(object):
         """
         # Create the description and options for the parser.
         description = "Create a VDJ or VJ model by executing IGoR's " \
-            "commandline tool via a python subprocess and initial model " \
+            "commandline tool via a python subprocess using default model " \
             "parameters."
         parser_options = {
             '-seqs': {
@@ -99,7 +99,7 @@ class BuildIgorModel(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'build-igor-model', help=description, description=description)
+            'build', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 

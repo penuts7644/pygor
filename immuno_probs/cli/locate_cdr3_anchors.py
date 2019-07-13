@@ -62,8 +62,8 @@ class LocateCdr3Anchors(object):
         """
         # Create the description and options for the parser.
         description = "Create an alignment for the given reference genome " \
-            "FASTA file and seach the given alignment for conserved motif " \
-            "regions."
+            "FASTA files and seach the given alignment for conserved motif " \
+            "regions. The located CDR3 anchors can be used for the other tools."
         parser_options = {
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -87,7 +87,7 @@ class LocateCdr3Anchors(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'locate-cdr3-anchors', help=description, description=description)
+            'locate', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 

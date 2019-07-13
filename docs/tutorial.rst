@@ -23,14 +23,14 @@ The included IGoR models can be used to generate and evaluate V(D)J or CDR3 sequ
 Generate V(D)J sequences
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generating sequences with a predefined IGoR model can be done by specifying the model you would like to use (``-model``) and the number of sequences to generate (``-generate``).
+Generating sequences with a predefined IGoR model can be done by specifying the model you would like to use (``-model``) and the number of sequences to generate (``-n-gen``).
 
 .. code-block:: none
 
     immuno-probs \
-      generate-seqs \
+      generate \
         -model tutorial-model \
-        -generate 100
+        -n-gen 100
 
 Calculate the generation probabilities for V(D)J sequences
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +40,7 @@ We can calculate the generation probability of our VDJ sequences by specifying t
 .. code-block:: none
 
     immuno-probs \
-      evaluate-seqs \
+      evaluate \
         -model tutorial-model \
         -seqs VDJ_sequences.tsv
 
@@ -52,9 +52,9 @@ Since the CDR3 sequences generation and evaluation requires additional V and J a
 .. code-block:: none
 
     immuno-probs \
-      generate-seqs \
+      generate \
         -model tutorial-model \
-        -generate 100 \
+        -n-gen 100 \
         -cdr3
 
 Calculate the generation probabilities for CDR3 sequences
@@ -65,7 +65,7 @@ Similar to step **b**, but now we are using CDR3 input sequences so we’ll have
 .. code-block:: none
 
     immuno-probs \
-      evaluate-seqs \
+      evaluate \
         -model tutorial-model \
         -seqs CDR3_sequences.tsv \
         -cdr3
@@ -83,7 +83,7 @@ We'll start by specifying the reference genomic template FASTA files (``-ref``) 
 .. code-block:: none
 
     immuno-probs \
-      build-igor-model \
+      build \
         -ref V /tutorial_data/TRBV.fasta \
         -ref D /tutorial_data/TRBD.fasta \
         -ref J /tutorial_data/TRBJ.fasta \
@@ -99,7 +99,7 @@ CDR3 anchor positions are required in order to accurately generate and evaluate 
 .. code-block:: none
 
     immuno-probs \
-      locate-cdr3-anchors \
+      locate \
         -ref V /tutorial_data/TRBV.fasta \
         -ref J /tutorial_data/TRBJ.fasta
 
@@ -111,9 +111,9 @@ We need to specify our model marginals and parameters files as well as the model
 .. code-block:: none
 
     immuno-probs \
-      generate-seqs \
+      generate \
         -custom-model /tutorial_data/model_params.txt /tutorial_data/model_marginals.txt \
-        -generate 100 \
+        -n-gen 100 \
         -type beta
 
 To generate some CDR3 sequences, we'll add the ``-cdr3`` flag at the end of the command and specify the anchor position files created in section **b** with ``-anchor``.
@@ -121,9 +121,9 @@ To generate some CDR3 sequences, we'll add the ``-cdr3`` flag at the end of the 
 .. code-block:: none
 
     immuno-probs \
-      generate-seqs \
+      generate \
         -custom-model /tutorial_data/model_params.txt /tutorial_data/model_marginals.txt \
-        -generate 100 \
+        -n-gen 100 \
         -type beta \
         -cdr3 \
         -anchor V /tutorial_data/V_gene_CDR3_anchors.tsv \
@@ -137,7 +137,7 @@ We are selecting the sequences generated in the previous step (``-seqs``), the m
 .. code-block:: none
 
     immuno-probs \
-      evaluate-seqs \
+      evaluate \
         -custom-model /tutorial_data/model_params.txt /tutorial_data/model_marginals.txt \
         -seqs /tutorial_data/generated_seqs_beta.tsv \
         -type beta \
@@ -150,7 +150,7 @@ To evaluate CDR3 sequences generated in the previous section, we'll add the ``-c
 .. code-block:: none
 
     immuno-probs \
-      evaluate-seqs \
+      evaluate \
         -custom-model /tutorial_data/model_params.txt /tutorial_data/model_marginals.txt \
         -seqs /tutorial_data/generated_seqs_beta_CDR3.tsv \
         -type beta \
