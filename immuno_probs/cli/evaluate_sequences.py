@@ -36,7 +36,7 @@ read_fasta_as_dataframe, write_dataframe_to_separated, preprocess_separated_file
 preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
-class EvaluateSeqs(object):
+class EvaluateSequences(object):
     """Commandline tool for evaluating sequences using an IGoR model.
 
     Parameters
@@ -51,7 +51,7 @@ class EvaluateSeqs(object):
 
     """
     def __init__(self, subparsers):
-        super(EvaluateSeqs, self).__init__()
+        super(EvaluateSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
         self.col_names = {
@@ -76,7 +76,8 @@ class EvaluateSeqs(object):
         # Create the description and options for the parser.
         description = "Evaluate VDJ or VJ sequences given a custom IGoR " \
             "model (or build-in) through IGoR's commandline tool via python " \
-            "subprocess. Or evaluate CDR3 sequences through OLGA."
+            "subprocess. Or evaluate CDR3 sequences with the model by using " \
+            "OLGA."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/separated>',
@@ -147,7 +148,7 @@ class EvaluateSeqs(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'evaluate-seqs', help=description, description=description)
+            'evaluate', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
