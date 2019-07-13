@@ -205,14 +205,14 @@ Additionally to the general sections, there are sections for each tool (e.g ``LO
     ; Name of the column containing the J gene choice string.
     J_GENE_COL = gene_choice_j
 
-    ; Parameters specific for the 'locate_cdr3_anchors' tool.
-    [LOCATE_CDR3_ANCHORS]
+    ; Parameters specific for the 'locate' tool.
+    [LOCATE]
     ; The default search motifs for the V gene.
     V_MOTIFS = TGT,TGC
     ; The default search motifs for the J gene.
     J_MOTIFS = TGG,TTC,TTT
 
-    ; Parameters specific for the 'evaluate_sequences' tool.
-    [EVALUATE_SEQUENCES]
+    ; Parameters specific for the 'evaluate' tool.
+    [EVALUATE]
     ; The allele value to use when allele information from the input date should not be used.
     ALLELE = 01
