@@ -13,7 +13,7 @@
             -threads \$GALAXY_SLOTS
 
             ## tool command
-            evaluate-seqs
+            evaluate
 
                 ## specify the model and possibly the type
                 #if $cond_category.category == "default":

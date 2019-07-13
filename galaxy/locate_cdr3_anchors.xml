@@ -13,7 +13,7 @@
             -threads \$GALAXY_SLOTS
 
             ## tool command
-            locate-cdr3-anchors
+            locate
 
                 ## reference genomic templates
                 -ref '$cond_gene.gene' '$cond_gene.file'

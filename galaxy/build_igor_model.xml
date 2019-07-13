@@ -13,7 +13,7 @@
             -threads \$GALAXY_SLOTS
 
             ## tool command
-            build-igor-model
+            build
 
                 ## sequence input
                 -seqs '$sequences'
