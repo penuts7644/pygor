@@ -26,8 +26,8 @@ from shutil import rmtree
 
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.cli.build_igor_model import BuildIgorModel
-from immuno_probs.cli.generate_seqs import GenerateSeqs
-from immuno_probs.cli.evaluate_seqs import EvaluateSeqs
+from immuno_probs.cli.generate_sequences import GenerateSequences
+from immuno_probs.cli.evaluate_sequences import EvaluateSequences
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import set_num_threads, set_separator, \
 set_working_dir, set_out_name, set_config_data, get_config_data
@@ -83,8 +83,8 @@ def main():
     # Add main- and suboptions to the subparser.
     lca = LocateCdr3Anchors(subparsers=subparsers)
     bim = BuildIgorModel(subparsers=subparsers)
-    ges = GenerateSeqs(subparsers=subparsers)
-    evs = EvaluateSeqs(subparsers=subparsers)
+    ges = GenerateSequences(subparsers=subparsers)
+    evs = EvaluateSequences(subparsers=subparsers)
 
     # Parse the commandline arguments and set variables.
     parsed_arguments = parser.parse_args()
@@ -122,13 +122,13 @@ def main():
         return
 
     # Execute the correct tool based on given subparser name.
-    if parsed_arguments.subparser_name == 'locate-cdr3-anchors':
+    if parsed_arguments.subparser_name == 'locate':
         lca.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'build-igor-model':
+    elif parsed_arguments.subparser_name == 'build':
         bim.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'generate-seqs':
+    elif parsed_arguments.subparser_name == 'generate':
         ges.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'evaluate-seqs':
+    elif parsed_arguments.subparser_name == 'evaluate':
         evs.run(args=parsed_arguments, output_dir=output_dir)
     else:
         sys.stdout.write("No option selected, run 'immuno-probs -h' to show all options.\n")
