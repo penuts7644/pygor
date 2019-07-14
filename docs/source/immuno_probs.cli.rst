@@ -10,15 +10,23 @@ immuno\_probs.cli.build\_igor\_model module
     :show-inheritance:
 
 immuno\_probs.cli.evaluate\_sequences module
----------------------------------------
+--------------------------------------------
 
 .. automodule:: immuno_probs.cli.evaluate_sequences
     :members:
     :undoc-members:
     :show-inheritance:
 
+immuno\_probs.cli.extract\_file\_sequences module
+-------------------------------------------------
+
+.. automodule:: immuno_probs.cli.extract_file_sequences
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 immuno\_probs.cli.generate\_sequences module
----------------------------------------
+--------------------------------------------
 
 .. automodule:: immuno_probs.cli.generate_sequences
     :members:
