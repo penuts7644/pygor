@@ -60,8 +60,8 @@ class EvaluateSequences(object):
             'NT_P_COL': get_config_data('NT_P_COL'),
             'AA_COL': get_config_data('AA_COL'),
             'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_COL': get_config_data('V_GENE_COL'),
-            'J_GENE_COL': get_config_data('J_GENE_COL'),
+            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
+            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
         }
 
     def _add_options(self):
@@ -84,7 +84,7 @@ class EvaluateSequences(object):
                 'required': 'True',
                 'type': 'str',
                 'help': "An input FASTA or separated data file with " \
-                        "sequences for training the model."
+                        "sequences to evaluate."
             },
             '-model': {
                 'type': 'str.lower',
@@ -400,8 +400,8 @@ class EvaluateSequences(object):
                     nt_p_col=self.col_names['NT_P_COL'],
                     aa_col=self.col_names['AA_COL'],
                     aa_p_col=self.col_names['AA_P_COL'],
-                    v_gene_col=self.col_names['V_GENE_COL'],
-                    j_gene_col=self.col_names['J_GENE_COL'])
+                    v_gene_choice_col=self.col_names['V_GENE_CHOICE_COL'],
+                    j_gene_choice_col=self.col_names['J_GENE_CHOICE_COL'])
                 if args.use_cdr3_allele:
                     cdr3_pgen_df = seq_evaluator.evaluate(
                         seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'))

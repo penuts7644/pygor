@@ -67,8 +67,8 @@ class BuildIgorModel(object):
                 'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or separated data file with sequences for " \
-                        "training the model."
+                'help': "An input FASTA or separated data file with " \
+                        "sequences for training the model."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),

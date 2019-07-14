@@ -58,9 +58,9 @@ class GenerateSequences(object):
             'NT_P_COL': get_config_data('NT_P_COL'),
             'AA_COL': get_config_data('AA_COL'),
             'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_COL': get_config_data('V_GENE_COL'),
-            'D_GENE_COL': get_config_data('D_GENE_COL'),
-            'J_GENE_COL': get_config_data('J_GENE_COL'),
+            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
+            'D_GENE_CHOICE_COL': get_config_data('D_GENE_CHOICE_COL'),
+            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
         }
 
     def _add_options(self):
@@ -155,18 +155,19 @@ class GenerateSequences(object):
                                      data.filter(regex=("GeneChoice_J_gene_.*")),
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
                                     axis=1, sort=False)
-            real_df.columns = [self.col_names['V_GENE_COL'], self.col_names['J_GENE_COL'],
-                               self.col_names['D_GENE_COL']]
-            real_df[self.col_names['V_GENE_COL']], \
-            real_df[self.col_names['J_GENE_COL']], \
-            real_df[self.col_names['D_GENE_COL']] = zip(
+            real_df.columns = [self.col_names['V_GENE_CHOICE_COL'],
+                               self.col_names['J_GENE_CHOICE_COL'],
+                               self.col_names['D_GENE_CHOICE_COL']]
+            real_df[self.col_names['V_GENE_CHOICE_COL']], \
+            real_df[self.col_names['J_GENE_CHOICE_COL']], \
+            real_df[self.col_names['D_GENE_CHOICE_COL']] = zip(
                 *real_df.apply(lambda row: (
                     model.get_genomic_data() \
-                        .genV[int(row[self.col_names['V_GENE_COL']].strip('()'))][0],
+                        .genV[int(row[self.col_names['V_GENE_CHOICE_COL']].strip('()'))][0],
                     model.get_genomic_data() \
-                        .genJ[int(row[self.col_names['J_GENE_COL']].strip('()'))][0],
+                        .genJ[int(row[self.col_names['J_GENE_CHOICE_COL']].strip('()'))][0],
                     model.get_genomic_data() \
-                        .genD[int(row[self.col_names['D_GENE_COL']].strip('()'))][0]
+                        .genD[int(row[self.col_names['D_GENE_CHOICE_COL']].strip('()'))][0]
                 ), axis=1))
 
         # Or do the same if the model is VJ.
@@ -174,14 +175,15 @@ class GenerateSequences(object):
             real_df = pandas.concat([data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
                                     axis=1, sort=False)
-            real_df.columns = [self.col_names['V_GENE_COL'], self.col_names['J_GENE_COL']]
-            real_df[self.col_names['V_GENE_COL']], \
-            real_df[self.col_names['J_GENE_COL']] = zip(
+            real_df.columns = [self.col_names['V_GENE_CHOICE_COL'],
+                               self.col_names['J_GENE_CHOICE_COL']]
+            real_df[self.col_names['V_GENE_CHOICE_COL']], \
+            real_df[self.col_names['J_GENE_CHOICE_COL']] = zip(
                 *real_df.apply(lambda row: (
                     model.get_genomic_data() \
-                        .genV[int(row[self.col_names['V_GENE_COL']].strip('()'))][0],
+                        .genV[int(row[self.col_names['V_GENE_CHOICE_COL']].strip('()'))][0],
                     model.get_genomic_data() \
-                        .genJ[int(row[self.col_names['J_GENE_COL']].strip('()'))][0]
+                        .genJ[int(row[self.col_names['J_GENE_CHOICE_COL']].strip('()'))][0]
                 ), axis=1))
         return real_df
 
@@ -351,8 +353,8 @@ class GenerateSequences(object):
                     nt_p_col=self.col_names['NT_P_COL'],
                     aa_col=self.col_names['AA_COL'],
                     aa_p_col=self.col_names['AA_P_COL'],
-                    v_gene_col=self.col_names['V_GENE_COL'],
-                    j_gene_col=self.col_names['J_GENE_COL'])
+                    v_gene_choice_col=self.col_names['V_GENE_CHOICE_COL'],
+                    j_gene_choice_col=self.col_names['J_GENE_CHOICE_COL'])
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.n_gen)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:

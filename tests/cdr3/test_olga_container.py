@@ -66,8 +66,8 @@ def test_olga_container(option, expected):
         nt_p_col='nt_pgen_estimate',
         aa_col='aa_sequence',
         aa_p_col='aa_pgen_estimate',
-        v_gene_col='gene_choice_v',
-        j_gene_col='gene_choice_j')
+        v_gene_choice_col='gene_choice_v',
+        j_gene_choice_col='gene_choice_j')
     if option == 'generate':
         result = olga_container.generate(num_seqs=1)
         for i in expected:
