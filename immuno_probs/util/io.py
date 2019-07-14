@@ -86,7 +86,7 @@ def is_separated(file, separator):
     return not dataframe.empty
 
 
-def read_fasta_as_dataframe(file, col):
+def read_fasta_as_dataframe(file, col, header=None):
     """Creates a pandas.DataFrame from the FASTA file.
 
     The dataframe contains header name and sequence columns containing the
@@ -98,15 +98,29 @@ def read_fasta_as_dataframe(file, col):
         Location of the FASTA file to be read in.
     col : str
         The name of the FASTA sequence column.
+    header : str, optional
+        The name of the FASTA header column. If not given, the header is not
+        included in the dataframe.
 
     """
+    # Setup the column names.
+    columns = [col]
+    if header:
+        columns.insert(0, header)
+
     # Create a dataframe and read in the fasta file.
-    fasta_df = pandas.DataFrame(columns=[col])
+    fasta_df = pandas.DataFrame(columns=columns)
     with open(file, 'r') as fasta_file:
-        for _, sequence in SimpleFastaParser(fasta_file):
-            fasta_df = fasta_df.append({
-                col: sequence.upper()
-            }, ignore_index=True)
+        for title, sequence in SimpleFastaParser(fasta_file):
+            if header:
+                fasta_df = fasta_df.append({
+                    header: title,
+                    col: sequence.upper()
+                }, ignore_index=True)
+            else:
+                fasta_df = fasta_df.append({
+                    col: sequence.upper()
+                }, ignore_index=True)
     return fasta_df
 
 
@@ -144,12 +158,14 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
             cols.insert(0, index_col)
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
                                        usecols=lambda value: value in cols,
+                                       na_values=['na', 'unknown', 'unresolved', 'no data'],
                                        engine='python')
         if separated_df.empty:
             raise KeyError(
                 "DataFrame is empty, columns '{}' where not found".format(cols))
     else:
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
+                                       na_values=['na', 'unknown', 'unresolved', 'no data'],
                                        engine='python')
         if separated_df.empty:
             raise ValueError('The input DataFrame is empty')
