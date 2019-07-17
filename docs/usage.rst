@@ -5,7 +5,7 @@ Usage
 Tools
 ^^^^^
 
-ImmunoProbs has four tools: for building IGoR models, locating the CDR3 anchor positions in sequences, generating and evaluating sequences. For the generate and evaluate options, ImmunoProbs can be used with one of the four pre-trained IGoR models that are included in the package. These models are described in the :ref:`models:Pre-trained` models section. Have a look at the :ref:`tutorial:Using pre-trained models` tutorial for some in-depth usage on ImmunoProbs with one of the included models or the :ref:`tutorial:Building your own model` tutorial for building your own model IGoR model.
+ImmunoProbs has four tools: for converting adaptive sequence files, building IGoR models, locating the CDR3 anchor positions in sequences, generating and evaluating sequences. For the generate and evaluate options, ImmunoProbs can be used with one of the four pre-trained IGoR models that are included in the package. These models are described in the :ref:`models:Pre-trained` models section. Have a look at the :ref:`tutorial:Using pre-trained models` tutorial for some in-depth usage on ImmunoProbs with one of the included models or the :ref:`tutorial:Building your own model` tutorial for building your own model IGoR model.
 
 ImmunoProbs has a number of global options that are used throughout the other ImmunoProbs tools. The command is followed by the tool name and its respective options.
 
@@ -19,6 +19,22 @@ ImmunoProbs has a number of global options that are used throughout the other Im
       -config-file <CONFIG FILE>
         [TOOL NAME] \
           <TOOL OPTIONS>
+
+Converting adaptive file format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can convert adaptive sequence data to ImmunoProbs's standard by specifying the reference genomic template FASTA files (``ref``) for the V and J gene as well as the adaptive input sequence data to be converted (``seqs``). The template files can be downloaded from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__.
+There are 4 output data files for 1 run of the tool: full length productive VDJ sequences, full length unproductive VDJ sequences, the total full length VDJ sequences and finally one with CDR3 sequences. The full length sequences can be used for training of new models and the CDR3 extract can be evaluated.
+Some assumptions are made when converting the resolved genes. If ``use-allele`` is True, the allele from the input value is used, if this can't be found, the default allele in the config is used instead. The resolved column always requires a family to be found. If there is no gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition if that gene value equals 1, an extra pattern is attached with only the family and allele.
+
+.. code-block:: none
+
+    immuno-probs \
+      convert \
+        -ref <GENE> <FASTA> \
+        -seqs <SEPARATED>
+
+You can convert a random subset of sequences from the given input file. Just specify the ``n-random`` flag, followed by a number. You can also use ``use-allele`` flag to use the allele information from the input data file during conversion. You might want to have a look at the :ref:`usage:Configuration file setup` for ImmunoProbs in order to specify you own file column names.
 
 Building a model
 ~~~~~~~~~~~~~~~~
@@ -115,6 +131,14 @@ Parameters
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 |              | ``config-file``       | An optional configuration file path for ImmunoProbs. This file is combined with the default configuration to make up missing values.                                              |                                                                                          |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
+| ``convert``  | ``ref``               | A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).      |                                                                                          | Yes                                              |
++--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
+| ``convert``  | ``seqs``              | An input FASTA or separated data file with sequences for training the model.                                                                                                      |                                                                                          | Yes                                              |
++--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
+| ``convert``  | ``n-random``          | The number of random sequences to convert from the input adaptive data file.                                                                                                      |                                                                                          |                                                  |
++--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
+| ``convert``  | ``use-allele``        | If specified, the allele information from the gene resolved fields is used into the converted output file.                                                                        | Allele ``*01`` is used for each gene.                                                    |                                                  |
++--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``build``    | ``ref``               | A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).   |                                                                                          | Yes                                              |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``build``    | ``seqs``              | An input FASTA or separated data file with sequences for training the model.                                                                                                      |                                                                                          | Yes                                              |
@@ -153,7 +177,7 @@ Parameters
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``evaluate`` | ``anchor``            | A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the first column, anchor index in the second and gene function in the third.         |                                                                                          | If ``cdr3`` and ``custom-model`` specified       |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
-| ``evaluate`` | ``use-allele``        | If specified in combination with the ``cdr3`` flag, the allele information from the gene choice fields is used to calculate the generation probability.                           | Allele ``*01`` is used for each gene.                                                    |                                                  |
+| ``evaluate`` | ``use-allele``        | If specified in combination with the ``cdr3`` flag, the allele information from the gene resolved fields is used to calculate the generation probability.                         | Allele ``*01`` is used for each gene.                                                    |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 
 Configuration file setup
@@ -165,7 +189,7 @@ ImmunoProbs supports user specified run configurations to modify additional sett
 * ``EXPERT`` - Parameters that will likely never get modified. These could can solve some system depending (e.g a compute cluster) issues when executing ImmunoProbs.
 * ``COMMON`` - Parameters that are not available for commandline and are used throughout ImmunoProbs.
 
-Additionally to the general sections, there are sections for each tool (e.g ``LOCATE_CDR3_ANCHORS``) where relevant. These contain variables that are only used within that specific tool. The complete default configuration file of ImmunoProbs is shown in the code block below. Remember that the user does not have to specify each section and variable in their own configuration file. Only the variables with corresponding section that are of interest.
+Additionally to the general sections, there are sections for each tool (e.g ``LOCATE``) where relevant. These contain variables that are only used within that specific tool. The complete default configuration file of ImmunoProbs is shown in the code block below. Remember that the user does not have to specify each section and variable in their own configuration file. Only the variables with corresponding section that are of interest.
 
 .. code-block:: ini
 
