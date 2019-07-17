@@ -82,8 +82,8 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    lca = LocateCdr3Anchors(subparsers=subparsers)
     efs = ExtractFileSequences(subparsers=subparsers)
+    lca = LocateCdr3Anchors(subparsers=subparsers)
     bim = BuildIgorModel(subparsers=subparsers)
     ges = GenerateSequences(subparsers=subparsers)
     evs = EvaluateSequences(subparsers=subparsers)

@@ -52,7 +52,7 @@ class OlgaContainer(object):
     -------
     generate(num_seqs)
         Returns pandas.DataFrame with nucleotide and aminoacid CDR3 sequences.
-    evaluate(seq, num_threads, default_allele=None)
+    evaluate(seq, num_threads, use_allele=True, default_allele=None)
         Returns the generation probability value for the given sequences.
 
     """
@@ -123,7 +123,7 @@ class OlgaContainer(object):
         return generated_seqs
 
     @staticmethod
-    def _locate_genes(genes, ref_genes, default_allele=None):
+    def _locate_genes(genes, ref_genes, use_allele, default_allele):
         """Locates all the given gene values in the reference gene list.
 
         If a gene family value is specified instead of the whole gene (family
@@ -135,11 +135,12 @@ class OlgaContainer(object):
             Containing gene string values that need to be located.
         ref_genes : list
             Containing reference gene string values.
-        default_allele : str, optional
-            A default allele value to use when locating the genes. If given,
-            the allele information from the input genes is discarded and
-            replaced by the given default allele (default: use allele info from
-            the gene if available).
+        use_allele : bool
+            If True, the allele information from the input genes is used instead
+            of the 'default_allele' value.
+        default_allele : str
+            A default allele value to use when spliting gene choices, and
+            'use_allele' option is False.
 
         Returns
         -------
@@ -150,6 +151,7 @@ class OlgaContainer(object):
         """
         # For each given gene, split up the name into family, gene and allele.
         located_genes = set()
+        allele = default_allele
         for name in genes:
             name = name.split('*')
             name[0] = name[0].split('-')
@@ -158,10 +160,8 @@ class OlgaContainer(object):
                 family, gene = name[0][0], name[0][1]
             else:
                 family = name[0][0]
-            if len(name) == 2:
+            if len(name) == 2 and use_allele:
                 allele = name[1]
-                if default_allele:
-                    allele = default_allele
 
             # Collect the subsection of the genes using the reference genes.
             if family and not gene:
@@ -204,6 +204,7 @@ class OlgaContainer(object):
         # Set the arguments and pandas.DataFrame.
         ary, kwargs = args
         model = kwargs["model"]
+        use_allele = kwargs["use_allele"]
         default_allele = kwargs["default_allele"]
         ref_genes_v = [i[0] for i in self.igor_model.get_genomic_data().genV]
         ref_genes_j = [i[0] for i in self.igor_model.get_genomic_data().genJ]
@@ -221,11 +222,13 @@ class OlgaContainer(object):
 
                 # Create all V/J gene combinations for pgen calculation.
                 located_v = self._locate_genes(
-                    row[self.col_names['V_GENE_CHOICE_COL']].split('|'),
-                    ref_genes_v, default_allele)
+                    genes=row[self.col_names['V_GENE_CHOICE_COL']].split('|'),
+                    ref_genes=ref_genes_v, use_allele=use_allele,
+                    default_allele=default_allele)
                 located_j = self._locate_genes(
-                    row[self.col_names['J_GENE_CHOICE_COL']].split('|'),
-                    ref_genes_j, default_allele)
+                    genes=row[self.col_names['J_GENE_CHOICE_COL']].split('|'),
+                    ref_genes=ref_genes_j, use_allele=use_allele,
+                    default_allele=default_allele)
                 permutations = [(v, j) for v in located_v for j in located_j]
 
                 # For the nucleotide sequence if exists.
@@ -262,7 +265,7 @@ class OlgaContainer(object):
                         model.compute_aa_CDR3_pgen(row[self.col_names['AA_COL']])
         return pgen_seqs
 
-    def evaluate(self, seqs, num_threads, default_allele=None):
+    def evaluate(self, seqs, num_threads, use_allele=True, default_allele=None):
         """Evaluate a given nucleotide CDR3 sequences using OLGA.
 
         This function also checks if the given input sequence file contains the
@@ -277,11 +280,12 @@ class OlgaContainer(object):
             sequences and/or amino acid sequences.
         num_threads : int
             The number of threads to use when processing the sequences.
+        use_allele : bool, optional
+            If True, the allele information from the input genes is used instead
+            of the 'default_allele' value (default: True).
         default_allele : str, optional
-            A default allele value to use when locating the genes. If given,
-            the allele information from the input genes is discarded and
-            replaced by the given default allele (default: use allele info from
-            the gene if available).
+            A default allele value to use when spliting gene choices, and
+            'use_allele' option is False (default: None).
 
         Returns
         -------
@@ -324,6 +328,7 @@ class OlgaContainer(object):
                                     func=self._evaluate,
                                     num_workers=num_threads,
                                     model=pgen_model,
+                                    use_allele=use_allele,
                                     default_allele=default_allele)
         result = pandas.concat(result, axis=0, copy=False)
         return result

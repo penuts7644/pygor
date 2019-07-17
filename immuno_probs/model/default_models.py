@@ -22,13 +22,15 @@ import os
 from pkg_resources import resource_filename
 
 
-def get_default_model_file_paths(name):
+def get_default_model_file_paths(name=None):
     """Returns a directory with file paths for a given model identifier name.
 
     Parameters
     ----------
-    name : str
+    name : str, optional
         A string value representing a model identifier name in the dictionary.
+        If name is not specified, returns a list containing all the available
+        model options.
 
     Returns
     -------
@@ -139,8 +141,11 @@ def get_default_model_file_paths(name):
             },
         },
     }
-    # For the species and chain return dict with file paths
-    for model, file_paths in default_models.items():
-        if model == name:
-            return file_paths
-    return None
+
+    # If name given, for the species and chain return dict with file paths
+    if name:
+        for model, file_paths in default_models.items():
+            if model == name:
+                return file_paths
+    else:
+        return list(default_models)
