@@ -108,12 +108,12 @@ class ExtractFileSequences(object):
 
     @staticmethod
     def _process_gene_df(filename, nt_col, resolved_col):
-        """Private function for processing the given gene seperated file.
+        """Private function for processing the given gene FASTA file.
 
         Parameters
         ----------
         filename : str
-            File path name of the gene to process.
+            File path FASTA of the gene to process.
         nt_col : str
             The column name containing the sequences.
         resolved_col : str
@@ -202,7 +202,10 @@ class ExtractFileSequences(object):
             full_prod_df = pandas.DataFrame()
             full_unprod_df = pandas.DataFrame()
             full_df = pandas.DataFrame()
-            extractor = SequenceExtractor(
+            extractor = SequenceExtractor()
+            results = extractor.extract(
+                num_threads=get_config_data('NUM_THREADS'),
+                seqs=seqs_df,
                 ref_v_genes=v_gene_df,
                 ref_j_genes=j_gene_df,
                 row_id_col=get_config_data('ROW_ID_COL'),
@@ -213,10 +216,9 @@ class ExtractFileSequences(object):
                 v_resolved_col=get_config_data('V_RESOLVED_COL'),
                 v_gene_choice_col=get_config_data('V_GENE_CHOICE_COL'),
                 j_resolved_col=get_config_data('J_RESOLVED_COL'),
-                j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'))
-            results = extractor.extract(
-                num_threads=get_config_data('NUM_THREADS'), seqs=seqs_df,
-                use_allele=args.use_allele, default_allele=get_config_data('ALLELE'))
+                j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'),
+                use_allele=args.use_allele,
+                default_allele=get_config_data('ALLELE'))
             for processed in results:
                 processed[0].insert(0, get_config_data('FILE_NAME_ID_COL'),
                                     os.path.splitext(os.path.basename(args.seqs))[0])

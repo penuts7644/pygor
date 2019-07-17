@@ -30,62 +30,24 @@ class SequenceExtractor(object):
     """Extracts the full length (VDJ for productive, unproductive and the total)
     and CDR3 sequences from a given sequence data file.
 
-    Parameters
-    ----------
-    ref_v_genes : pandas.DataFrame
-        A dataframe containing the reference V gene sequences from IMGT as well
-        as V family and V gene names.
-    ref_j_genes : pandas.DataFrame
-        A dataframe containing the reference J gene sequences from IMGT as well
-        as J family and J gene names.
-    row_id_col : str
-        The name of the column containing the row identiefiers.
-    nt_col : str
-        The name of the nucleotide sequence column to use.
-    aa_col : str
-        The name of the aminoacid sequence column to use.
-    frame_type_col : str
-        The name of the column containing the frame type of the sequence.
-    cdr3_length_col : str
-        The name of the column specifying the length of the CDR3 sequence.
-    v_resolved_col : str
-        The name of the column containing the resolved V gene name.
-    v_gene_choice_col : str
-        The name of the V gene choice column to use.
-    j_resolved_col : str
-        The name of the column containing the resolved J gene name.
-    j_gene_choice_col : str
-        The name of the J gene choice column to use.
-
     Methods
     -------
+    build_resolved_pattern(value, use_allele, default_allele)
+        Splits the resolved gene value in an IMGT formated regex pattern.
+    find_longest_substring(full, partial)
+        Finds the longest overlap between a full length sequences and a
+        partial length sequence.
     extract(num_threads, seqs, use_allele=True, default_allele=None)
         Extract and reconstruct sequences and formats them to ImmunoProbs
         compatible.
 
     """
-    def __init__(self, ref_v_genes, ref_j_genes, row_id_col, nt_col, aa_col,
-                 frame_type_col, cdr3_length_col, v_resolved_col,
-                 v_gene_choice_col, j_resolved_col, j_gene_choice_col):
+    def __init__(self):
         super(SequenceExtractor, self).__init__()
-        self.ref_v_genes = ref_v_genes
-        self.ref_j_genes = ref_j_genes
-        self.col_names = {
-            'ROW_ID_COL': row_id_col,
-            'NT_COL': nt_col,
-            'AA_COL': aa_col,
-            'FRAME_TYPE_COL': frame_type_col,
-            'CDR3_LENGTH_COL': cdr3_length_col,
-            'V_RESOLVED_COL': v_resolved_col,
-            'V_GENE_CHOICE_COL': v_gene_choice_col,
-            'J_RESOLVED_COL': j_resolved_col,
-            'J_GENE_CHOICE_COL': j_gene_choice_col,
-        }
 
     @staticmethod
-    def _build_resolved_pattern(value, use_allele, default_allele):
-        """Private function to split the resolved gene value in an IMGT formated
-        regex pattern.
+    def build_resolved_pattern(value, use_allele, default_allele):
+        """Splits the resolved gene value in an IMGT formated regex pattern.
 
         Parameters
         ----------
@@ -156,16 +118,17 @@ class SequenceExtractor(object):
         return resolved_list
 
     @staticmethod
-    def _find_longest_substring(full, partial):
+    def find_longest_substring(full, partial):
         """Finds the longest overlap between a full length sequences and a
-        partial length one.
+        partial length sequence.
 
         Parameters
         ----------
         full : str
             A full length sequence string.
         partial : str
-            A partial length sequence string to compare to the full length one.
+            A partial length sequence string to compare against the full length
+            sequence.
 
         Returns
         -------
@@ -186,15 +149,16 @@ class SequenceExtractor(object):
                     t[x][y] = 0
         return full[xl - l: xl]
 
-    def _reassemble_data(self, args):
-        """Reassembles the dataframe data by striping the CDR3's and creating the
-        full length VDJ sequences using recombination.
+    def _extract(self, args):
+        """Private function for reassembling the dataframe data by striping the
+        CDR3's and creating the full length VDJ sequences using recombination.
 
         Parameters
         ----------
         args : list
             A collection of arguments containing the dataframe to process for
-            the thread and default allele value.
+            the thread, reference V and J gene dataframes, column names and
+            default allele value.
 
         Returns
         -------
@@ -206,18 +170,21 @@ class SequenceExtractor(object):
         """
         # Setup the initial dataframe.
         ary, kwargs = args
+        ref_v_genes = kwargs['ref_v_genes']
+        ref_j_genes = kwargs['ref_j_genes']
+        col_names = kwargs['col_names']
         use_allele = kwargs['use_allele']
         default_allele = kwargs['default_allele']
         reassembled_df = pandas.DataFrame(columns=[
-            self.col_names['ROW_ID_COL'], self.col_names['NT_COL'], self.col_names['AA_COL'],
-            self.col_names['V_GENE_CHOICE_COL'], self.col_names['J_GENE_CHOICE_COL']
+            col_names['ROW_ID_COL'], col_names['NT_COL'], col_names['AA_COL'],
+            col_names['V_GENE_CHOICE_COL'], col_names['J_GENE_CHOICE_COL']
         ])
         full_length_prod_df = pandas.DataFrame(
-            columns=[self.col_names['ROW_ID_COL'], self.col_names['NT_COL']])
+            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
         full_length_unprod_df = pandas.DataFrame(
-            columns=[self.col_names['ROW_ID_COL'], self.col_names['NT_COL']])
+            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
         full_length_df = pandas.DataFrame(
-            columns=[self.col_names['ROW_ID_COL'], self.col_names['NT_COL']])
+            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
 
         # Iterate over the rows with index value.
         for i, row in ary.iterrows():
@@ -225,18 +192,18 @@ class SequenceExtractor(object):
             # Pre-process the resolved V genes.
             v_gene_choices = []
             imgt_v_gene = pandas.DataFrame()
-            if isinstance(row[self.col_names['V_RESOLVED_COL']], str):
-                v_resolved = self._build_resolved_pattern(
-                    value=row[self.col_names['V_RESOLVED_COL']],
+            if isinstance(row[col_names['V_RESOLVED_COL']], str):
+                v_resolved = self.build_resolved_pattern(
+                    value=row[col_names['V_RESOLVED_COL']],
                     use_allele=use_allele, default_allele=default_allele)
                 for resolved in v_resolved:
-                    imgt_v_gene = self.ref_v_genes.loc[self.ref_v_genes[
-                        self.col_names['V_RESOLVED_COL']].str.contains(resolved), :]
+                    imgt_v_gene = ref_v_genes.loc[ref_v_genes[
+                        col_names['V_RESOLVED_COL']].str.contains(resolved), :]
 
                     # Assemble the output dataframe gene choices for the V genes.
                     if not imgt_v_gene.empty:
                         v_gene_choices.append(
-                            imgt_v_gene[self.col_names['V_RESOLVED_COL']].values[0])
+                            imgt_v_gene[col_names['V_RESOLVED_COL']].values[0])
             if v_gene_choices:
                 v_gene_choices = '|'.join(v_gene_choices)
             else:
@@ -245,44 +212,44 @@ class SequenceExtractor(object):
             # Pre-process the resolved J genes.
             j_gene_choices = []
             imgt_j_gene = pandas.DataFrame()
-            if isinstance(row[self.col_names['J_RESOLVED_COL']], str):
-                j_resolved = self._build_resolved_pattern(
-                    value=row[self.col_names['J_RESOLVED_COL']],
+            if isinstance(row[col_names['J_RESOLVED_COL']], str):
+                j_resolved = self.build_resolved_pattern(
+                    value=row[col_names['J_RESOLVED_COL']],
                     use_allele=use_allele, default_allele=default_allele)
                 for resolved in j_resolved:
-                    imgt_j_gene = self.ref_j_genes.loc[self.ref_j_genes[
-                        self.col_names['J_RESOLVED_COL']].str.contains(resolved), :]
+                    imgt_j_gene = ref_j_genes.loc[ref_j_genes[
+                        col_names['J_RESOLVED_COL']].str.contains(resolved), :]
 
                     # Assemble the output dataframe gene choices for the J genes.
                     if not imgt_j_gene.empty:
                         j_gene_choices.append(
-                            imgt_j_gene[self.col_names['J_RESOLVED_COL']].values[0])
+                            imgt_j_gene[col_names['J_RESOLVED_COL']].values[0])
             if j_gene_choices:
                 j_gene_choices = '|'.join(j_gene_choices)
             else:
                 j_gene_choices = numpy.nan
 
             # Create the trimmed NT sequence (removing primers).
-            trimmed_nt_seq = row[self.col_names['NT_COL']][
-                (81 - int(row[self.col_names['CDR3_LENGTH_COL']])): 81]
+            trimmed_nt_seq = row[col_names['NT_COL']][
+                (81 - int(row[col_names['CDR3_LENGTH_COL']])): 81]
 
             # Add data row of reassembled data to the dataframe.
             reassembled_df = reassembled_df.append({
-                self.col_names['ROW_ID_COL']: i,
-                self.col_names['NT_COL']: trimmed_nt_seq,
-                self.col_names['AA_COL']: row[self.col_names['AA_COL']],
-                self.col_names['V_GENE_CHOICE_COL']: v_gene_choices,
-                self.col_names['J_GENE_CHOICE_COL']: j_gene_choices,
+                col_names['ROW_ID_COL']: i,
+                col_names['NT_COL']: trimmed_nt_seq,
+                col_names['AA_COL']: row[col_names['AA_COL']],
+                col_names['V_GENE_CHOICE_COL']: v_gene_choices,
+                col_names['J_GENE_CHOICE_COL']: j_gene_choices,
             }, ignore_index=True)
 
             # Create the VDJ full length sequence
             if (not imgt_v_gene.empty and not imgt_j_gene.empty):
-                vd_segment = self._find_longest_substring(
-                    imgt_v_gene[self.col_names['NT_COL']].values[0], trimmed_nt_seq)
-                dj_segment = self._find_longest_substring(
-                    imgt_j_gene[self.col_names['NT_COL']].values[0], trimmed_nt_seq)
-                split_v = imgt_v_gene[self.col_names['NT_COL']].values[0].rsplit(vd_segment, 1)
-                split_j = imgt_j_gene[self.col_names['NT_COL']].values[0].split(dj_segment, 1)
+                vd_segment = self.find_longest_substring(
+                    imgt_v_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
+                dj_segment = self.find_longest_substring(
+                    imgt_j_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
+                split_v = imgt_v_gene[col_names['NT_COL']].values[0].rsplit(vd_segment, 1)
+                split_j = imgt_j_gene[col_names['NT_COL']].values[0].split(dj_segment, 1)
                 if (len(split_v[1]) >= len(split_v[0])) or (len(split_j[0]) >= len(split_j[1])):
                     continue
                 vdj_sequence = split_v[0] + trimmed_nt_seq + split_j[1]
@@ -291,24 +258,27 @@ class SequenceExtractor(object):
 
             # Add data row of full length data to the dataframe for productive and
             # unproductive sequences.
-            if row[self.col_names['FRAME_TYPE_COL']].lower() == 'in':
+            if row[col_names['FRAME_TYPE_COL']].lower() == 'in':
                 full_length_prod_df = full_length_prod_df.append({
-                    self.col_names['ROW_ID_COL']: i,
-                    self.col_names['NT_COL']: vdj_sequence
+                    col_names['ROW_ID_COL']: i,
+                    col_names['NT_COL']: vdj_sequence
                 }, ignore_index=True)
-            elif (row[self.col_names['FRAME_TYPE_COL']].lower() == 'out'
-                  or row[self.col_names['FRAME_TYPE_COL']].lower() == 'stop'):
+            elif (row[col_names['FRAME_TYPE_COL']].lower() == 'out'
+                  or row[col_names['FRAME_TYPE_COL']].lower() == 'stop'):
                 full_length_unprod_df = full_length_unprod_df.append({
-                    self.col_names['ROW_ID_COL']: i,
-                    self.col_names['NT_COL']: vdj_sequence
+                    col_names['ROW_ID_COL']: i,
+                    col_names['NT_COL']: vdj_sequence
                 }, ignore_index=True)
             full_length_df = full_length_df.append({
-                self.col_names['ROW_ID_COL']: i,
-                self.col_names['NT_COL']: vdj_sequence
+                col_names['ROW_ID_COL']: i,
+                col_names['NT_COL']: vdj_sequence
             }, ignore_index=True)
         return reassembled_df, full_length_prod_df, full_length_unprod_df, full_length_df
 
-    def extract(self, num_threads, seqs, use_allele=True, default_allele=None):
+    def extract(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col,
+                nt_col, aa_col, frame_type_col, cdr3_length_col, v_resolved_col,
+                v_gene_choice_col, j_resolved_col, j_gene_choice_col,
+                default_allele, use_allele=True):
         """Restore and extract the full length VDJ and CDR3 sequences from the
         given dataframe.
 
@@ -321,12 +291,36 @@ class SequenceExtractor(object):
             The number of threads to use when processing the data.
         seqs : pandas.DataFrame
             Dataframe containing the sequences that need to be extracted.
+        ref_v_genes : pandas.DataFrame
+            A dataframe containing the reference V gene sequences from IMGT as well
+            as V family and V gene names.
+        ref_j_genes : pandas.DataFrame
+            A dataframe containing the reference J gene sequences from IMGT as well
+            as J family and J gene names.
+        row_id_col : str
+            The name of the column containing the row identiefiers.
+        nt_col : str
+            The name of the nucleotide sequence column to use.
+        aa_col : str
+            The name of the aminoacid sequence column to use.
+        frame_type_col : str
+            The name of the column containing the frame type of the sequence.
+        cdr3_length_col : str
+            The name of the column specifying the length of the CDR3 sequence.
+        v_resolved_col : str
+            The name of the column containing the resolved V gene name.
+        v_gene_choice_col : str
+            The name of the V gene choice column to use.
+        j_resolved_col : str
+            The name of the column containing the resolved J gene name.
+        j_gene_choice_col : str
+            The name of the J gene choice column to use.
+        default_allele : str
+            A default allele value to use when spliting gene choices, and
+            'use_allele' option is False or when allele is not found.
         use_allele : bool, optional
             If True, the allele information from the input genes is used instead
             of the 'default_allele' value (default: True).
-        default_allele : str, optional
-            A default allele value to use when spliting gene choices, and
-            'use_allele' option is False (default: None).
 
         Returns
         -------
@@ -336,10 +330,26 @@ class SequenceExtractor(object):
             one with the total full length VDJ sequences.
 
         """
+        # Setuop the column names.
+        col_names = {
+            'ROW_ID_COL': row_id_col,
+            'NT_COL': nt_col,
+            'AA_COL': aa_col,
+            'FRAME_TYPE_COL': frame_type_col,
+            'CDR3_LENGTH_COL': cdr3_length_col,
+            'V_RESOLVED_COL': v_resolved_col,
+            'V_GENE_CHOICE_COL': v_gene_choice_col,
+            'J_RESOLVED_COL': j_resolved_col,
+            'J_GENE_CHOICE_COL': j_gene_choice_col,
+        }
+
         # Set and perform the multiprocessing task.
         results = multiprocess_array(ary=seqs,
-                                     func=self._reassemble_data,
+                                     func=self._extract,
                                      num_workers=num_threads,
+                                     ref_v_genes=ref_v_genes,
+                                     ref_j_genes=ref_j_genes,
+                                     col_names=col_names,
                                      use_allele=use_allele,
                                      default_allele=default_allele)
         return results
