@@ -34,15 +34,19 @@ def create_alignment():
 
 @pytest.mark.parametrize('gene, motif, expected', [
     ('J', 'TTT', pandas.DataFrame(
-        [['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 44, 'TTT']],
+        [['M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |', 19, 'TTT'],
+         ['M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |', 20, 'TTT'],
+         ['M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |', 19, 'TTT'],
+         ['X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |', 20, 'TTT'],
+         ['K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |', 17, 'TTT']],
         columns=['name', 'anchor_index', 'motif'])
     ),
     pytest.param('J', 'TGG', pandas.DataFrame(
-        [['V00770|IGHJ3*01|Mus musculus|F|J-REGION|766..813|48 nt|3| | | | |48+0=48| | |', 14, 'TGG'],
-         ['S73821|IGHJ3*02|Mus musculus|P|J-REGION|650..697|48 nt|3| | | | |48+0=48| | |', 14, 'TGG'],
-         ['V00770|IGHJ1*02|Mus musculus|F|J-REGION|65..117|53 nt|2| | | | |53+0=53| | |', 19, 'TGG'],
-         ['X63164|IGHJ1*03|Mus musculus_A/J|F|J-REGION|12..64|53 nt|2| | | | |53+0=53| | |', 19, 'TGG'],
-         ['V00762|IGHJ1*01|Mus musculus_BALB/c|F|J-REGION|444..496|53 nt|2| | | | |53+0=53| | |', 19, 'TGG']],
+        [['M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |', 21, 'TGG'],
+         ['M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |', 22, 'TGG'],
+         ['M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |', 21, 'TGG'],
+         ['X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |', 22, 'TGG'],
+         ['K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |', 19, 'TGG']],
         columns=['name', 'anchor_index', 'motif'])),
     pytest.param('X', None, None, marks=pytest.mark.xfail)
 ])
@@ -69,4 +73,6 @@ def test_anchor_locator(gene, motif, expected):
         result = locator.get_indices_motifs(1, motif).head()
     else:
         result = locator.get_indices_motifs(1).head()
+    print(result)
+    print(expected)
     assert (result == expected).all().all()
