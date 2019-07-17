@@ -25,7 +25,6 @@ import pandas
 import numpy
 
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
-from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
 write_dataframe_to_separated, read_fasta_as_dataframe, read_separated_to_dataframe
@@ -44,7 +43,7 @@ class ExtractFileSequences(object):
     -------
     run(args)
         Uses the given Namespace commandline arguments to extract the full
-        length (VDJ for productive, unproductive and combined) and CDR3
+        length ( VDJ for productive, unproductive and the total) and CDR3
         sequences from a given data file.
 
     """
@@ -52,19 +51,6 @@ class ExtractFileSequences(object):
         super(ExtractFileSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
-        self.col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'FRAME_TYPE_COL': get_config_data('FRAME_TYPE_COL'),
-            'CDR3_LENGTH_COL': get_config_data('CDR3_LENGTH_COL'),
-            'V_FAMILY_COL': get_config_data('V_FAMILY_COL'),
-            'V_GENE_COL': get_config_data('V_GENE_COL'),
-            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
-            'J_FAMILY_COL': get_config_data('J_FAMILY_COL'),
-            'J_GENE_COL': get_config_data('J_GENE_COL'),
-            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
-        }
 
     def _add_options(self):
         """Function for adding the parser/options to the input ArgumentParser.
@@ -77,9 +63,9 @@ class ExtractFileSequences(object):
         """
         # Create the description and options for the parser.
         description = "Extract the full length (VDJ for productive, " \
-            "unproductive and combined) and CDR3 sequences from a given data " \
-            "file. The VDJ sequences can be used to build a new IGoR model " \
-            "and the CDR3 sequences can be evaluated."
+            "unproductive and the total) and CDR3 sequences from a given " \
+            "data file. The VDJ sequences can be used to build a new IGoR " \
+            "model and the CDR3 sequences can be evaluated."
         parser_options = {
             '-seqs': {
                 'metavar': '<separated>',
@@ -88,20 +74,30 @@ class ExtractFileSequences(object):
                 'help': "An input separated data file with sequences to " \
                         "extract using the defined column names."
             },
-            '-origin': {
-                'type': 'str.lower',
-                'choices': ['human-t-alpha', 'human-t-beta', 'human-b-heavy',
-                            'mouse-t-beta'],
+            '-ref': {
+                'metavar': ('<gene>', '<fasta>'),
+                'type': 'str',
+                'action': 'append',
+                'nargs': 2,
                 'required': 'True',
-                'help': "Specify the origin of the input sequences. " \
-                        "(select one: %(choices)s)."
+                'help': "A gene (V or J) followed by a reference genome " \
+                        "FASTA file. Note: the FASTA reference genome files " \
+                        "needs to conform to IGMT annotation (separated by " \
+                        "'|' character)."
             },
-            "-n-random": {
+            '-n-random': {
                 'type': 'int',
                 'nargs': '?',
                 'help': "Number of random sequences to use from the given " \
                         "file as subset (default: all sequences)."
-            }
+            },
+            '-use-allele': {
+                'action': 'store_true',
+                'help': "If specified, the allele information from the " \
+                        "resolved gene fields are used to when reconstructing " \
+                        "the gene choices (default: allele from config is " \
+                        "used for each gene)."
+            },
         }
 
         # Add the options to the parser and return the updated parser.
@@ -110,27 +106,28 @@ class ExtractFileSequences(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    def _process_gene_df(self, filename, family_col, gene_col):
+    @staticmethod
+    def _process_gene_df(filename, nt_col, resolved_col):
         """Private function for processing the given gene seperated file.
 
         Parameters
         ----------
         filename : str
             File path name of the gene to process.
-        family_col : str
-            The column name containing the family identifier.
-        gene_col : str
-            The column name containing the gene identifier.
+        nt_col : str
+            The column name containing the sequences.
+        resolved_col : str
+            The column name containing the resolved values.
 
         """
         # Read in the seperated file as dataframe.
         gene_df = read_fasta_as_dataframe(
-            file=filename, col=self.col_names['NT_COL'], header='info')
+            file=filename, col=nt_col, header='info')
 
-        # Modify teh datfarme to have family and gene name columns, remove the
-        # old info column and return.
-        gene_df[[family_col, gene_col]] = pandas.DataFrame(
-            list(gene_df['info'].apply(lambda x: x.split('|')[1].split('*')[0].split('-'))))
+        # Modify the dataframe to have gene resolved column, remove the old
+        # info column and return.
+        gene_df[resolved_col] = pandas.DataFrame(
+            list(gene_df['info'].apply(lambda x: x.split('|')[1])))
         gene_df.drop('info', axis=1, inplace=True)
         return gene_df
 
@@ -149,23 +146,22 @@ class ExtractFileSequences(object):
         working_dir = get_config_data('WORKING_DIR')
 
         # Collect and read in the corresponding reference genomic templates.
-        sys.stdout.write('Pre-processing V and J reference genomic templates...')
+        sys.stdout.write('Processing genomic reference templates...')
         try:
-            files = get_default_model_file_paths(name=args.origin)
-            v_gene_filename = preprocess_reference_file(
-                os.path.join(working_dir, 'genomic_templates'),
-                copy_to_dir(working_dir, files['reference']['V'], 'fasta')
-            )
-            v_gene_df = self._process_gene_df(
-                filename=v_gene_filename, family_col=self.col_names['V_FAMILY_COL'],
-                gene_col=self.col_names['V_GENE_COL'])
-            j_gene_filename = preprocess_reference_file(
-                os.path.join(working_dir, 'genomic_templates'),
-                copy_to_dir(working_dir, files['reference']['J'], 'fasta')
-            )
-            j_gene_df = self._process_gene_df(
-                filename=j_gene_filename, family_col=self.col_names['J_FAMILY_COL'],
-                gene_col=self.col_names['J_GENE_COL'])
+            for gene in args.ref:
+                print(gene)
+                filename = preprocess_reference_file(
+                    os.path.join(working_dir, 'genomic_templates'),
+                    copy_to_dir(working_dir, gene[1], 'fasta'),
+                )
+                if gene[0] == 'V':
+                    v_gene_df = self._process_gene_df(
+                        filename=filename, nt_col=get_config_data('NT_COL'),
+                        resolved_col=get_config_data('V_RESOLVED_COL'))
+                if gene[0] == 'J':
+                    j_gene_df = self._process_gene_df(
+                        filename=filename, nt_col=get_config_data('NT_COL'),
+                        resolved_col=get_config_data('J_RESOLVED_COL'))
         except (IOError, KeyError, ValueError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
@@ -176,7 +172,12 @@ class ExtractFileSequences(object):
         try:
             seqs_df = read_separated_to_dataframe(
                 file=args.seqs, separator=get_config_data('SEPARATOR'),
-                index_col=self.col_names['I_COL'], cols=list(self.col_names.values()))
+                cols=[get_config_data('NT_COL'),
+                      get_config_data('AA_COL'),
+                      get_config_data('FRAME_TYPE_COL'),
+                      get_config_data('CDR3_LENGTH_COL'),
+                      get_config_data('V_RESOLVED_COL'),
+                      get_config_data('J_RESOLVED_COL')])
 
             # Take a random subsample of sequences in the file.
             if args.n_random is not None:
@@ -197,22 +198,38 @@ class ExtractFileSequences(object):
         # Setup the data extractor class and extract data.
         sys.stdout.write('Extracting and reassembling sequences...')
         try:
+            cdr3_df = pandas.DataFrame()
+            full_prod_df = pandas.DataFrame()
+            full_unprod_df = pandas.DataFrame()
+            full_df = pandas.DataFrame()
             extractor = SequenceExtractor(
                 ref_v_genes=v_gene_df,
                 ref_j_genes=j_gene_df,
-                i_col=self.col_names['I_COL'],
-                nt_col=self.col_names['NT_COL'],
-                aa_col=self.col_names['AA_COL'],
-                frame_type_col=self.col_names['FRAME_TYPE_COL'],
-                cdr3_length_col=self.col_names['CDR3_LENGTH_COL'],
-                v_family_col=self.col_names['V_FAMILY_COL'],
-                v_gene_col=self.col_names['V_GENE_COL'],
-                v_gene_choice_col=self.col_names['V_GENE_CHOICE_COL'],
-                j_family_col=self.col_names['J_FAMILY_COL'],
-                j_gene_col=self.col_names['J_GENE_COL'],
-                j_gene_choice_col=self.col_names['J_GENE_CHOICE_COL'])
-            results = extractor.extract(num_threads=get_config_data('NUM_THREADS'),
-                                        data_df=seqs_df)
+                row_id_col=get_config_data('ROW_ID_COL'),
+                nt_col=get_config_data('NT_COL'),
+                aa_col=get_config_data('AA_COL'),
+                frame_type_col=get_config_data('FRAME_TYPE_COL'),
+                cdr3_length_col=get_config_data('CDR3_LENGTH_COL'),
+                v_resolved_col=get_config_data('V_RESOLVED_COL'),
+                v_gene_choice_col=get_config_data('V_GENE_CHOICE_COL'),
+                j_resolved_col=get_config_data('J_RESOLVED_COL'),
+                j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'))
+            results = extractor.extract(
+                num_threads=get_config_data('NUM_THREADS'), seqs=seqs_df,
+                use_allele=args.use_allele, default_allele=get_config_data('ALLELE'))
+            for processed in results:
+                processed[0].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                                    os.path.splitext(os.path.basename(args.seqs))[0])
+                processed[1].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                                    os.path.splitext(os.path.basename(args.seqs))[0])
+                processed[2].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                                    os.path.splitext(os.path.basename(args.seqs))[0])
+                processed[3].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                                    os.path.splitext(os.path.basename(args.seqs))[0])
+                cdr3_df = cdr3_df.append(processed[0], ignore_index=True)
+                full_prod_df = full_prod_df.append(processed[1], ignore_index=True)
+                full_unprod_df = full_unprod_df.append(processed[2], ignore_index=True)
+                full_df = full_df.append(processed[3], ignore_index=True)
             sys.stdout.write(make_colored('success\n', 'green'))
         except KeyError as err:
             sys.stdout.write(make_colored('error\n', 'red'))
@@ -226,29 +243,29 @@ class ExtractFileSequences(object):
             if not output_prefix:
                 output_prefix = 'sequence_extract'
             _, filename_1 = write_dataframe_to_separated(
-                dataframe=results[0],
+                dataframe=cdr3_df,
                 filename='{}_CDR3'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
-                index_name=self.col_names['I_COL'])
+                index_name=get_config_data('I_COL'))
             _, filename_2 = write_dataframe_to_separated(
-                dataframe=results[1],
-                filename='{}_productive'.format(output_prefix),
+                dataframe=full_prod_df,
+                filename='{}_full_length_productive'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
-                index_name=self.col_names['I_COL'])
+                index_name=get_config_data('I_COL'))
             _, filename_3 = write_dataframe_to_separated(
-                dataframe=results[2],
-                filename='{}_unproductive'.format(output_prefix),
+                dataframe=full_unprod_df,
+                filename='{}_full_length_unproductive'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
-                index_name=self.col_names['I_COL'])
+                index_name=get_config_data('I_COL'))
             _, filename_4 = write_dataframe_to_separated(
-                dataframe=results[3],
-                filename='{}_all'.format(output_prefix),
+                dataframe=full_df,
+                filename='{}_full_length'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('SEPARATOR'),
-                index_name=self.col_names['I_COL'])
+                index_name=get_config_data('I_COL'))
             sys.stdout.write("(written '{}', '{}', '{}' and '{}')...".format(
                 filename_1, filename_2, filename_3, filename_4))
             sys.stdout.write(make_colored('success\n', 'green'))
