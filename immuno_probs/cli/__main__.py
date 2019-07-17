@@ -26,7 +26,7 @@ from shutil import rmtree
 
 from immuno_probs.cli.build_igor_model import BuildIgorModel
 from immuno_probs.cli.generate_sequences import GenerateSequences
-from immuno_probs.cli.extract_file_sequences import ExtractFileSequences
+from immuno_probs.cli.convert_adaptive_sequences import ConvertAdaptiveSequences
 from immuno_probs.cli.evaluate_sequences import EvaluateSequences
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
@@ -82,7 +82,7 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    efs = ExtractFileSequences(subparsers=subparsers)
+    cas = ConvertAdaptiveSequences(subparsers=subparsers)
     lca = LocateCdr3Anchors(subparsers=subparsers)
     bim = BuildIgorModel(subparsers=subparsers)
     ges = GenerateSequences(subparsers=subparsers)
@@ -124,10 +124,10 @@ def main():
         return
 
     # Execute the correct tool based on given subparser name.
-    if parsed_arguments.subparser_name == 'locate':
+    if parsed_arguments.subparser_name == 'convert':
+        cas.run(args=parsed_arguments, output_dir=output_dir)
+    elif parsed_arguments.subparser_name == 'locate':
         lca.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'extract':
-        efs.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'build':
         bim.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'generate':

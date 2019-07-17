@@ -1,3 +1,4 @@
+
 Usage
 =====
 
@@ -212,8 +213,8 @@ Additionally to the general sections, there are sections for each tool (e.g ``LO
     ; The default search motifs for the J gene.
     J_MOTIFS = TGG,TTC,TTT
 
-    ; Parameters specific for the 'extract' tool.
-    [EXTRACT]
+    ; Parameters specific for the 'convert' tool.
+    [CONVERT]
     ; The name of the column to use that identifies the each row in the input file.
     ROW_ID_COL = row_id
     ; The column name to use for the sequence filename idetifier.

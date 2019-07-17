@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Commandline tool for extracting sequences (and CDR3) from given file."""
+"""Commandline tool for converting VDJ sequences (and CDR3) from adaptive format."""
 
 
 import os
@@ -24,15 +24,16 @@ import sys
 import pandas
 import numpy
 
+from immuno_probs.convert.adaptive_sequence_convertor import AdaptiveSequenceConvertor
 from immuno_probs.util.cli import dynamic_cli_options, make_colored
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
 write_dataframe_to_separated, read_fasta_as_dataframe, read_separated_to_dataframe
-from immuno_probs.vdj.sequence_extractor import SequenceExtractor
 
 
-class ExtractFileSequences(object):
-    """Commandline tool for extracting full and CDR3 sequences from given input.
+class ConvertAdaptiveSequences(object):
+    """Commandline tool for converting full and CDR3 sequences from a given
+    adaptive input sequence file.
 
     Parameters
     ----------
@@ -42,13 +43,13 @@ class ExtractFileSequences(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to extract the full
-        length ( VDJ for productive, unproductive and the total) and CDR3
-        sequences from a given data file.
+        Uses the given Namespace commandline arguments to convert the full
+        length (VDJ for productive, unproductive and the total) and CDR3
+        sequences from a given adaptive input sequence file.
 
     """
     def __init__(self, subparsers):
-        super(ExtractFileSequences, self).__init__()
+        super(ConvertAdaptiveSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
 
@@ -62,17 +63,17 @@ class ExtractFileSequences(object):
 
         """
         # Create the description and options for the parser.
-        description = "Extract the full length (VDJ for productive, " \
+        description = "Converts the full length (VDJ for productive, " \
             "unproductive and the total) and CDR3 sequences from a given " \
-            "data file. The VDJ sequences can be used to build a new IGoR " \
-            "model and the CDR3 sequences can be evaluated."
+            "adaptive input sequence file. The VDJ sequences can be used to " \
+            "build a new IGoR model and the CDR3 sequences can be evaluated."
         parser_options = {
             '-seqs': {
                 'metavar': '<separated>',
                 'required': 'True',
                 'type': 'str',
                 'help': "An input separated data file with sequences to " \
-                        "extract using the defined column names."
+                        "convert using the defined column names."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -102,7 +103,7 @@ class ExtractFileSequences(object):
 
         # Add the options to the parser and return the updated parser.
         parser_tool = self.subparsers.add_parser(
-            'extract', help=description, description=description)
+            'convert', help=description, description=description)
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
@@ -149,7 +150,6 @@ class ExtractFileSequences(object):
         sys.stdout.write('Processing genomic reference templates...')
         try:
             for gene in args.ref:
-                print(gene)
                 filename = preprocess_reference_file(
                     os.path.join(working_dir, 'genomic_templates'),
                     copy_to_dir(working_dir, gene[1], 'fasta'),
@@ -195,15 +195,15 @@ class ExtractFileSequences(object):
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
             return
 
-        # Setup the data extractor class and extract data.
-        sys.stdout.write('Extracting and reassembling sequences...')
+        # Setup the data convertor class and convert data.
+        sys.stdout.write('Converting adaptive format...')
         try:
             cdr3_df = pandas.DataFrame()
             full_prod_df = pandas.DataFrame()
             full_unprod_df = pandas.DataFrame()
             full_df = pandas.DataFrame()
-            extractor = SequenceExtractor()
-            results = extractor.extract(
+            asc = AdaptiveSequenceConvertor()
+            results = asc.convert(
                 num_threads=get_config_data('NUM_THREADS'),
                 seqs=seqs_df,
                 ref_v_genes=v_gene_df,
@@ -243,7 +243,7 @@ class ExtractFileSequences(object):
         try:
             output_prefix = get_config_data('OUT_NAME')
             if not output_prefix:
-                output_prefix = 'sequence_extract'
+                output_prefix = 'converted'
             _, filename_1 = write_dataframe_to_separated(
                 dataframe=cdr3_df,
                 filename='{}_CDR3'.format(output_prefix),

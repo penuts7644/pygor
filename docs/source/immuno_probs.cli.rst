@@ -17,10 +17,10 @@ immuno\_probs.cli.evaluate\_sequences module
     :undoc-members:
     :show-inheritance:
 
-immuno\_probs.cli.extract\_file\_sequences module
--------------------------------------------------
+immuno\_probs.cli.convert\_adaptive\_sequences module
+-----------------------------------------------------
 
-.. automodule:: immuno_probs.cli.extract_file_sequences
+.. automodule:: immuno_probs.cli.convert_adaptive_sequences
     :members:
     :undoc-members:
     :show-inheritance:

@@ -73,6 +73,4 @@ def test_anchor_locator(gene, motif, expected):
         result = locator.get_indices_motifs(1, motif).head()
     else:
         result = locator.get_indices_motifs(1).head()
-    print(result)
-    print(expected)
     assert (result == expected).all().all()

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Contains SequenceExtractor class for extracting sequences from given DataFrame."""
+"""Contains AdaptiveSequenceConvertor class for converting adaptive data sequences."""
 
 
 import re
@@ -26,9 +26,9 @@ import numpy
 from immuno_probs.util.processing import multiprocess_array
 
 
-class SequenceExtractor(object):
-    """Extracts the full length (VDJ for productive, unproductive and the total)
-    and CDR3 sequences from a given sequence data file.
+class AdaptiveSequenceConvertor(object):
+    """Converts the full length (VDJ for productive, unproductive and the total)
+    and CDR3 sequences from a given adaptive sequence input file.
 
     Methods
     -------
@@ -37,13 +37,12 @@ class SequenceExtractor(object):
     find_longest_substring(full, partial)
         Finds the longest overlap between a full length sequences and a
         partial length sequence.
-    extract(num_threads, seqs, use_allele=True, default_allele=None)
-        Extract and reconstruct sequences and formats them to ImmunoProbs
-        compatible.
+    convert(num_threads, seqs, use_allele=True, default_allele=None)
+        Convert sequence data to an ImmunoProbs compatible format.
 
     """
     def __init__(self):
-        super(SequenceExtractor, self).__init__()
+        super(AdaptiveSequenceConvertor, self).__init__()
 
     @staticmethod
     def build_resolved_pattern(value, use_allele, default_allele):
@@ -70,11 +69,11 @@ class SequenceExtractor(object):
         -----
         This function assumes the following: If 'use_allele' is True, the allele
         from the input value is used, if this can't be found, 'default_allele'
-        is used for that value anyway. It function always requires a family to
-        be found. If there is no gene, only the allele is inserted. If there is
-        a gene, family, gene and allele are combined. In addition if that gene
-        is number 1 and extra pattern is attached with only the family and
-        allele.
+        is used for that value. The function always requires a family to be
+        found. If there is no gene, only the allele is inserted. If there is
+        a gene, the family, gene and allele values are recombined. In addition
+        if that gene value equals 1, an extra pattern is attached with only the
+        family and allele.
 
         """
         # Setup output list, match correct group and split from allele.
@@ -149,9 +148,10 @@ class SequenceExtractor(object):
                     t[x][y] = 0
         return full[xl - l: xl]
 
-    def _extract(self, args):
-        """Private function for reassembling the dataframe data by striping the
-        CDR3's and creating the full length VDJ sequences using recombination.
+    def _convert(self, args):
+        """Private function for converting the adaptive dataframe data by
+        striping the CDR3's as well as creating full length VDJ sequences using
+        recombination.
 
         Parameters
         ----------
@@ -275,12 +275,12 @@ class SequenceExtractor(object):
             }, ignore_index=True)
         return reassembled_df, full_length_prod_df, full_length_unprod_df, full_length_df
 
-    def extract(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col,
+    def convert(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col,
                 nt_col, aa_col, frame_type_col, cdr3_length_col, v_resolved_col,
                 v_gene_choice_col, j_resolved_col, j_gene_choice_col,
                 default_allele, use_allele=True):
-        """Restore and extract the full length VDJ and CDR3 sequences from the
-        given dataframe.
+        """Convert the full length VDJ and CDR3 sequences from the given
+        adaptive dataframe to ImmunoProbs format.
 
         The function needs to reassemble the full length VDJ sequences with the
         given reference V and J gene sequences first.
@@ -290,7 +290,7 @@ class SequenceExtractor(object):
         num_threads : int
             The number of threads to use when processing the data.
         seqs : pandas.DataFrame
-            Dataframe containing the sequences that need to be extracted.
+            Dataframe containing the sequences that need to be converted.
         ref_v_genes : pandas.DataFrame
             A dataframe containing the reference V gene sequences from IMGT as well
             as V family and V gene names.
@@ -345,7 +345,7 @@ class SequenceExtractor(object):
 
         # Set and perform the multiprocessing task.
         results = multiprocess_array(ary=seqs,
-                                     func=self._extract,
+                                     func=self._convert,
                                      num_workers=num_threads,
                                      ref_v_genes=ref_v_genes,
                                      ref_j_genes=ref_j_genes,

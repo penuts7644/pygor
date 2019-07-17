@@ -15,14 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Test file for testing immuno_probs.vdj.sequence_extractor file."""
+"""Test file for testing immuno_probs.convert.adaptive_sequence_convertor file."""
 
 
 import pandas
 import pytest
 
+from immuno_probs.convert.adaptive_sequence_convertor import AdaptiveSequenceConvertor
 from immuno_probs.util.io import read_fasta_as_dataframe, read_separated_to_dataframe
-from immuno_probs.vdj.sequence_extractor import SequenceExtractor
 
 
 def _process_gene_df(file, nt_col, resolved_col):
@@ -66,8 +66,8 @@ def test_build_resolved_pattern(value, use_allele, default_allele, expected):
         If the performed test failed.
 
     """
-    extractor = SequenceExtractor()
-    patterns = extractor.build_resolved_pattern(value, use_allele, default_allele)
+    asc = AdaptiveSequenceConvertor()
+    patterns = asc.build_resolved_pattern(value, use_allele, default_allele)
     for pat in expected:
         assert pat in patterns
 
@@ -95,8 +95,8 @@ def test_find_longest_substring(full, partial, expected):
         If the performed test failed.
 
     """
-    extractor = SequenceExtractor()
-    substring = extractor.find_longest_substring(full, partial)
+    asc = AdaptiveSequenceConvertor()
+    substring = asc.find_longest_substring(full, partial)
     assert substring == expected
 
 
@@ -136,8 +136,8 @@ def test_find_longest_substring(full, partial, expected):
           columns=['row_id', 'nt_sequence']
       )]),
 ])
-def test_extract(seqs, v_genes, j_genes, expected):
-    """Test if data extract is returned.
+def test_convert(seqs, v_genes, j_genes, expected):
+    """Test if converted data is returned.
 
     Parameters
     ----------
@@ -171,8 +171,8 @@ def test_extract(seqs, v_genes, j_genes, expected):
         file='tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
         nt_col='nt_sequence',
         resolved_col='j_resolved')
-    extractor = SequenceExtractor()
-    results = extractor.extract(
+    asc = AdaptiveSequenceConvertor()
+    results = asc.convert(
         num_threads=1,
         seqs=seqs,
         ref_v_genes=v_genes,
