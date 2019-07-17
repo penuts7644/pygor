@@ -27,11 +27,11 @@ from immuno_probs.util.io import read_fasta_as_dataframe
 @pytest.mark.parametrize('file, expected', [
     ('tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
      pandas.DataFrame(
-         [['tgaacactgaagctttctttggacaaggcaccagactcacagttgtag'.upper()],
-          ['ctaactatggctacaccttcggttcggggaccaggttaaccgttgtag'.upper()],
-          ['ctctggaaacaccatatattttggagagggaagttggctcactgttgtag'.upper()],
-          ['caactaatgaaaaactgttttttggcagtggaacccagctctctgtcttgg'.upper()],
-          ['tagcaatcagccccagcattttggtgatgggactcgactctccatcctag'.upper()]],
+         [['TGAACACTGAAGCTTTCTTTGGACAAGGCACCAGACTCACAGTTGTAG'],
+          ['CTAACTATGGCTACACCTTCGGTTCGGGGACCAGGTTAACCGTTGTAG'],
+          ['CTCTGGAAACACCATATATTTTGGAGAGGGAAGTTGGCTCACTGTTGTAG'],
+          ['CAACTAATGAAAAACTGTTTTTTGGCAGTGGAACCCAGCTCTCTGTCTTGG'],
+          ['TAGCAATCAGCCCCAGCATTTTGGTGATGGGACTCGACTCTCCATCCTAG']],
          columns=['nt_sequence']))
 ])
 def test_read_fasta_as_dataframe(file, expected):
