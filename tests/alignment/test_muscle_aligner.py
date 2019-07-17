@@ -25,9 +25,9 @@ from immuno_probs.alignment.muscle_aligner import MuscleAligner
 
 
 @pytest.mark.parametrize('infile, cmd, expected', [
-    ('tests/data/mouse_t_beta/ref_genomes/TRBJ.fasta', 'muscle',
+    ('tests/data/human_t_beta/ref_genomes/TRBJ.fasta', 'muscle',
      MultipleSeqAlignment),
-    pytest.param('tests/data/mouse_t_beta/ref_genomes/TRBJ.fasta',
+    pytest.param('tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
                  'fake_command', MultipleSeqAlignment, marks=pytest.mark.xfail)
 ])
 def test_muscle_aligner(infile, cmd, expected):
