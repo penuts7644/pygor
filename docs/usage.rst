@@ -96,7 +96,7 @@ With a custom model: select the sequences (``seqs``), the model parameters and m
         -ref <GENE> <FASTA> \
         -type <MODEL TYPE>
 
-Both of the scenarios above can be used for evaluating VJ or VDJ sequences. If your input data consists of CDR3 sequences, you'll need to add the ``cdr3`` flag at the end of either of the commands. You can also use ``use-cdr3-allele`` flag to use allele information from the input data to calculate the generation probability. When using a custom model, you also want to replace the ``ref`` command with ``anchor <GENE> <SEPARATED>``. Note that for CDR3, we don't need genomic templates.
+Both of the scenarios above can be used for evaluating VJ or VDJ sequences. If your input data consists of CDR3 sequences, you'll need to add the ``cdr3`` flag at the end of either of the commands. You can also use ``use-allele`` flag to use allele information from the input data to calculate the generation probability. When using a custom model, you also want to replace the ``ref`` command with ``anchor <GENE> <SEPARATED>``. Note that for CDR3, we don't need genomic templates.
 
 Parameters
 ^^^^^^^^^^
@@ -152,7 +152,7 @@ Parameters
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``evaluate`` | ``anchor``            | A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the first column, anchor index in the second and gene function in the third.         |                                                                                          | If ``cdr3`` and ``custom-model`` specified       |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
-| ``evaluate`` | ``use-cdr3-allele``   | If specified in combination with the ``cdr3`` flag, the allele information from the gene choice fields is used to calculate the generation probability.                           | Allele ``*01`` is used for each gene.                                                    |                                                  |
+| ``evaluate`` | ``use-allele``        | If specified in combination with the ``cdr3`` flag, the allele information from the gene choice fields is used to calculate the generation probability.                           | Allele ``*01`` is used for each gene.                                                    |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 
 Configuration file setup
