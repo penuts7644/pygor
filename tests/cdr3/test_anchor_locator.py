@@ -27,7 +27,7 @@ from immuno_probs.cdr3.anchor_locator import AnchorLocator
 
 def create_alignment():
     """Create an alignment to use for testing."""
-    filename = 'tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta'
+    filename = 'tests/data/mouse_t_beta/ref_genomes/TRBJ.fasta'
     aligner = MuscleAligner(infile=filename)
     return aligner.get_muscle_alignment()
 

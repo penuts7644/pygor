@@ -25,7 +25,7 @@ from immuno_probs.util.io import read_fasta_as_dataframe
 
 
 @pytest.mark.parametrize('file, expected', [
-    ('tests/data/mouse_B_heavy/ref_genomes/genomicJs.fasta',
+    ('tests/data/mouse_t_beta/ref_genomes/TRBJ.fasta',
      pandas.DataFrame(
          [['CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAG'],
           ['CTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTTTCCTCAG'],
