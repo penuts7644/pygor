@@ -187,18 +187,6 @@ class GenerateSequences(object):
             A directory path for writing output files to.
 
         """
-        # Setup the necessary column names.
-        col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'NT_P_COL': get_config_data('NT_P_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
-            'D_GENE_CHOICE_COL': get_config_data('D_GENE_CHOICE_COL'),
-            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
-        }
-
         # If the given type of sequences generation is not CDR3, use IGoR.
         if not args.cdr3:
 
@@ -258,15 +246,15 @@ class GenerateSequences(object):
                     separator=';',
                     index_col='seq_index',
                     cols=['nt_sequence'])
-                sequence_df.index.names = [col_names['I_COL']]
-                sequence_df.columns = [col_names['NT_COL']]
-                sequence_df[col_names['AA_COL']] = sequence_df[col_names['NT_COL']] \
-                    .apply(nucleotides_to_aminoacids)
+                sequence_df.index.names = [get_config_data('I_COL')]
+                sequence_df.columns = [get_config_data('NT_COL')]
+                sequence_df[get_config_data('AA_COL')] = \
+                    sequence_df[get_config_data('NT_COL')].apply(nucleotides_to_aminoacids)
                 realizations_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                     separator=';',
                     index_col='seq_index')
-                realizations_df.index.names = [col_names['I_COL']]
+                realizations_df.index.names = [get_config_data('I_COL')]
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
                     model_type = files['type']
@@ -280,9 +268,9 @@ class GenerateSequences(object):
                                        model_marginals=args.custom_model[1])
                 realizations_df = self._process_realizations(
                     data=realizations_df, model=model,
-                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
-                    d_gene_choice_col=col_names['D_GENE_CHOICE_COL'],
-                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
+                    v_gene_choice_col=get_config_data('V_GENE_CHOICE_COL'),
+                    d_gene_choice_col=get_config_data('D_GENE_CHOICE_COL'),
+                    j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'))
                 full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (IOError, KeyError, ValueError) as err:
@@ -301,7 +289,7 @@ class GenerateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    index_name=get_config_data('I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -353,12 +341,12 @@ class GenerateSequences(object):
             try:
                 seq_generator = OlgaContainer(
                     igor_model=model,
-                    nt_col=col_names['NT_COL'],
-                    nt_p_col=col_names['NT_P_COL'],
-                    aa_col=col_names['AA_COL'],
-                    aa_p_col=col_names['AA_P_COL'],
-                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
-                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
+                    nt_col=get_config_data('NT_COL'),
+                    nt_p_col=get_config_data('NT_P_COL'),
+                    aa_col=get_config_data('AA_COL'),
+                    aa_p_col=get_config_data('AA_P_COL'),
+                    v_gene_choice_col=get_config_data('V_GENE_CHOICE_COL'),
+                    j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'))
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.n_gen)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
@@ -377,7 +365,7 @@ class GenerateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    index_name=get_config_data('I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
