@@ -73,7 +73,7 @@ Similar to step **b**, but now we are using CDR3 input sequences so we’ll have
 Building your own model
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-In the second part of the ImmunoProbs tutorial, we will perform the general and custom model :ref:`use_cases:Use cases` to create our own IGoR model. For this tutorial we will use the `zipped data files <https://github.com/penuts7644/ImmunoProbs/tree/master/tutorial_data.zip>`__ located in the GitHub project to create a human VDJ beta chain model. Finally, we are going to generate and evaluate sequences using our created model. The zipped data files are included in the ``tutorial\_data`` directory in the root of the ImmunoProbs docker image.
+In the second part of the ImmunoProbs tutorial, we will perform the general and custom model :ref:`use_cases:Use cases` to create our own IGoR model. For this tutorial we will use the `zipped data files <https://github.com/penuts7644/ImmunoProbs/tree/master/tutorial_data.zip>`__ located in the GitHub project to create a human VDJ beta chain model. Finally, we are going to generate and evaluate sequences using our created model. The zipped data files are included in the ``tutorial_data`` directory in the root of the ImmunoProbs docker image.
 
 Building a model
 ~~~~~~~~~~~~~~~~

@@ -52,16 +52,6 @@ class GenerateSequences(object):
         super(GenerateSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
-        self.col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'NT_P_COL': get_config_data('NT_P_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_COL': get_config_data('V_GENE_COL'),
-            'D_GENE_COL': get_config_data('D_GENE_COL'),
-            'J_GENE_COL': get_config_data('J_GENE_COL'),
-        }
 
     def _add_options(self):
         """Function for adding the parser and options to the given ArgumentParser.
@@ -80,8 +70,7 @@ class GenerateSequences(object):
         parser_options = {
             '-model': {
                 'type': 'str.lower',
-                'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
-                            'human-b-heavy', 'mouse-t-beta'],
+                'choices': get_default_model_file_paths(),
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for generation. " \
                         "(required if -custom-model NOT specified) " \
@@ -132,7 +121,9 @@ class GenerateSequences(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    def _process_realizations(self, data, model):
+    @staticmethod
+    def _process_realizations(data, model, v_gene_choice_col,
+                              d_gene_choice_col, j_gene_choice_col):
         """Function for processing an IGoR realization dataframe with indices.
 
         Parameters
@@ -141,6 +132,12 @@ class GenerateSequences(object):
             A pandas dataframe object with the IGoR realization data.
         model : immuno_probs.model.igor_loader.IgorLoader
             Object containing the IGoR model.
+        v_gene_choice_col : str
+            The name of the V gene choice column to use.
+        d_gene_choice_col : str
+            The name of the D gene choice column to use.
+        j_gene_choice_col : str
+            The name of the J gene choice column to use.
 
         Returns
         -------
@@ -155,18 +152,14 @@ class GenerateSequences(object):
                                      data.filter(regex=("GeneChoice_J_gene_.*")),
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
                                     axis=1, sort=False)
-            real_df.columns = [self.col_names['V_GENE_COL'], self.col_names['J_GENE_COL'],
-                               self.col_names['D_GENE_COL']]
-            real_df[self.col_names['V_GENE_COL']], \
-            real_df[self.col_names['J_GENE_COL']], \
-            real_df[self.col_names['D_GENE_COL']] = zip(
+            real_df.columns = [v_gene_choice_col, j_gene_choice_col, d_gene_choice_col]
+            real_df[v_gene_choice_col], \
+            real_df[j_gene_choice_col], \
+            real_df[d_gene_choice_col] = zip(
                 *real_df.apply(lambda row: (
-                    model.get_genomic_data() \
-                        .genV[int(row[self.col_names['V_GENE_COL']].strip('()'))][0],
-                    model.get_genomic_data() \
-                        .genJ[int(row[self.col_names['J_GENE_COL']].strip('()'))][0],
-                    model.get_genomic_data() \
-                        .genD[int(row[self.col_names['D_GENE_COL']].strip('()'))][0]
+                    model.get_genomic_data().genV[int(row[v_gene_choice_col].strip('()'))][0],
+                    model.get_genomic_data().genJ[int(row[j_gene_choice_col].strip('()'))][0],
+                    model.get_genomic_data().genD[int(row[d_gene_choice_col].strip('()'))][0]
                 ), axis=1))
 
         # Or do the same if the model is VJ.
@@ -174,14 +167,12 @@ class GenerateSequences(object):
             real_df = pandas.concat([data.filter(regex=("GeneChoice_V_gene_.*")),
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
                                     axis=1, sort=False)
-            real_df.columns = [self.col_names['V_GENE_COL'], self.col_names['J_GENE_COL']]
-            real_df[self.col_names['V_GENE_COL']], \
-            real_df[self.col_names['J_GENE_COL']] = zip(
+            real_df.columns = [v_gene_choice_col, j_gene_choice_col]
+            real_df[v_gene_choice_col], \
+            real_df[j_gene_choice_col] = zip(
                 *real_df.apply(lambda row: (
-                    model.get_genomic_data() \
-                        .genV[int(row[self.col_names['V_GENE_COL']].strip('()'))][0],
-                    model.get_genomic_data() \
-                        .genJ[int(row[self.col_names['J_GENE_COL']].strip('()'))][0]
+                    model.get_genomic_data().genV[int(row[v_gene_choice_col].strip('()'))][0],
+                    model.get_genomic_data().genJ[int(row[j_gene_choice_col].strip('()'))][0]
                 ), axis=1))
         return real_df
 
@@ -196,6 +187,18 @@ class GenerateSequences(object):
             A directory path for writing output files to.
 
         """
+        # Setup the necessary column names.
+        col_names = {
+            'I_COL': get_config_data('I_COL'),
+            'NT_COL': get_config_data('NT_COL'),
+            'NT_P_COL': get_config_data('NT_P_COL'),
+            'AA_COL': get_config_data('AA_COL'),
+            'AA_P_COL': get_config_data('AA_P_COL'),
+            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
+            'D_GENE_CHOICE_COL': get_config_data('D_GENE_CHOICE_COL'),
+            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
+        }
+
         # If the given type of sequences generation is not CDR3, use IGoR.
         if not args.cdr3:
 
@@ -255,15 +258,15 @@ class GenerateSequences(object):
                     separator=';',
                     index_col='seq_index',
                     cols=['nt_sequence'])
-                sequence_df.index.names = [self.col_names['I_COL']]
-                sequence_df.columns = [self.col_names['NT_COL']]
-                sequence_df[self.col_names['AA_COL']] = sequence_df[self.col_names['NT_COL']] \
+                sequence_df.index.names = [col_names['I_COL']]
+                sequence_df.columns = [col_names['NT_COL']]
+                sequence_df[col_names['AA_COL']] = sequence_df[col_names['NT_COL']] \
                     .apply(nucleotides_to_aminoacids)
                 realizations_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                     separator=';',
                     index_col='seq_index')
-                realizations_df.index.names = [self.col_names['I_COL']]
+                realizations_df.index.names = [col_names['I_COL']]
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
                     model_type = files['type']
@@ -275,8 +278,11 @@ class GenerateSequences(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                realizations_df = self._process_realizations(data=realizations_df,
-                                                             model=model)
+                realizations_df = self._process_realizations(
+                    data=realizations_df, model=model,
+                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
+                    d_gene_choice_col=col_names['D_GENE_CHOICE_COL'],
+                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
                 full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (IOError, KeyError, ValueError) as err:
@@ -295,7 +301,7 @@ class GenerateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=self.col_names['I_COL'])
+                    index_name=col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -347,12 +353,12 @@ class GenerateSequences(object):
             try:
                 seq_generator = OlgaContainer(
                     igor_model=model,
-                    nt_col=self.col_names['NT_COL'],
-                    nt_p_col=self.col_names['NT_P_COL'],
-                    aa_col=self.col_names['AA_COL'],
-                    aa_p_col=self.col_names['AA_P_COL'],
-                    v_gene_col=self.col_names['V_GENE_COL'],
-                    j_gene_col=self.col_names['J_GENE_COL'])
+                    nt_col=col_names['NT_COL'],
+                    nt_p_col=col_names['NT_P_COL'],
+                    aa_col=col_names['AA_COL'],
+                    aa_p_col=col_names['AA_P_COL'],
+                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
+                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
                 cdr3_seqs_df = seq_generator.generate(num_seqs=args.n_gen)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
@@ -371,7 +377,7 @@ class GenerateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=self.col_names['I_COL'])
+                    index_name=col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:

@@ -54,15 +54,6 @@ class EvaluateSequences(object):
         super(EvaluateSequences, self).__init__()
         self.subparsers = subparsers
         self._add_options()
-        self.col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'NT_P_COL': get_config_data('NT_P_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_COL': get_config_data('V_GENE_COL'),
-            'J_GENE_COL': get_config_data('J_GENE_COL'),
-        }
 
     def _add_options(self):
         """Function for adding the parser and options to the given ArgumentParser.
@@ -84,12 +75,11 @@ class EvaluateSequences(object):
                 'required': 'True',
                 'type': 'str',
                 'help': "An input FASTA or separated data file with " \
-                        "sequences for training the model."
+                        "sequences to evaluate."
             },
             '-model': {
                 'type': 'str.lower',
-                'choices': ['tutorial-model', 'human-t-alpha', 'human-t-beta',
-                            'human-b-heavy', 'mouse-t-beta'],
+                'choices': get_default_model_file_paths(),
                 'required': '-custom-model' not in sys.argv,
                 'help': "Specify a pre-installed model for evaluation. " \
                         "(required if -custom-model NOT specified) " \
@@ -137,12 +127,12 @@ class EvaluateSequences(object):
                 'help': 'If specified, CDR3 sequences should be evaluated, ' \
                         'else expecting V(D)J input sequences.'
             },
-            '-use-cdr3-allele': {
+            '-use-allele': {
                 'action': 'store_true',
                 'help': "If specified in combination with the '-cdr3' flag, " \
                         "the allele information from the gene choice fields " \
                         "is used to calculate the generation probability " \
-                        "(default: allele '*01' is used for each gene)."
+                        "(default: allele from config is used for each gene)."
             },
         }
 
@@ -163,6 +153,17 @@ class EvaluateSequences(object):
             A directory path for writing output files to.
 
         """
+        # Setup the column names necessary.
+        col_names = {
+            'I_COL': get_config_data('I_COL'),
+            'NT_COL': get_config_data('NT_COL'),
+            'NT_P_COL': get_config_data('NT_P_COL'),
+            'AA_COL': get_config_data('AA_COL'),
+            'AA_P_COL': get_config_data('AA_P_COL'),
+            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
+            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
+        }
+
         # If the given type of sequences evaluation is VDJ, use IGoR.
         if not args.cdr3:
 
@@ -227,8 +228,8 @@ class EvaluateSequences(object):
                         copy_to_dir(working_dir, str(args.seqs), 'csv'),
                         get_config_data('SEPARATOR'),
                         ';',
-                        self.col_names['I_COL'],
-                        [self.col_names['NT_COL']]
+                        col_names['I_COL'],
+                        [col_names['NT_COL']]
                     )
                     command_list.append(['read_seqs', input_seqs])
                 else:
@@ -272,33 +273,33 @@ class EvaluateSequences(object):
             try:
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(
-                        file=args.seqs, col=self.col_names['NT_COL'])
+                        file=args.seqs, col=col_names['NT_COL'])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=self.col_names['I_COL'])
+                        index_col=col_names['I_COL'])
                 full_pgen_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';',
                     index_col='seq_index',
                     cols=['Pgen_estimate'])
-                full_pgen_df.index.names = [self.col_names['I_COL']]
+                full_pgen_df.index.names = [col_names['I_COL']]
                 full_pgen_df.rename(
-                    columns={'Pgen_estimate': self.col_names['NT_P_COL']},
+                    columns={'Pgen_estimate': col_names['NT_P_COL']},
                     inplace=True)
-                full_pgen_df.loc[:, self.col_names['AA_P_COL']] = numpy.nan
+                full_pgen_df.loc[:, col_names['AA_P_COL']] = numpy.nan
             except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Insert amino acid sequence column if not existent.
-            if (self.col_names['NT_COL'] in seqs_df.columns
-                    and not self.col_names['AA_COL'] in seqs_df.columns):
+            if (col_names['NT_COL'] in seqs_df.columns
+                    and not col_names['AA_COL'] in seqs_df.columns):
                 seqs_df.insert(
-                    seqs_df.columns.get_loc(self.col_names['NT_COL']) + 1,
-                    self.col_names['AA_COL'], numpy.nan)
-                seqs_df[self.col_names['AA_COL']] = seqs_df[self.col_names['NT_COL']] \
+                    seqs_df.columns.get_loc(col_names['NT_COL']) + 1,
+                    col_names['AA_COL'], numpy.nan)
+                seqs_df[col_names['AA_COL']] = seqs_df[col_names['NT_COL']] \
                     .apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
@@ -316,7 +317,7 @@ class EvaluateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=self.col_names['I_COL'])
+                    index_name=col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -373,12 +374,12 @@ class EvaluateSequences(object):
                 if is_fasta(args.seqs):
                     sys.stdout.write('(FASTA input file extension detected)...')
                     seqs_df = read_fasta_as_dataframe(
-                        file=args.seqs, col=self.col_names['NT_COL'])
+                        file=args.seqs, col=col_names['NT_COL'])
                 elif is_separated(args.seqs, get_config_data('SEPARATOR')):
                     sys.stdout.write('(separated input file type detected)...')
                     seqs_df = read_separated_to_dataframe(
                         file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=self.col_names['I_COL'])
+                        index_col=col_names['I_COL'])
                 else:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
@@ -396,19 +397,15 @@ class EvaluateSequences(object):
             try:
                 seq_evaluator = OlgaContainer(
                     igor_model=model,
-                    nt_col=self.col_names['NT_COL'],
-                    nt_p_col=self.col_names['NT_P_COL'],
-                    aa_col=self.col_names['AA_COL'],
-                    aa_p_col=self.col_names['AA_P_COL'],
-                    v_gene_col=self.col_names['V_GENE_COL'],
-                    j_gene_col=self.col_names['J_GENE_COL'])
-                if args.use_cdr3_allele:
-                    cdr3_pgen_df = seq_evaluator.evaluate(
-                        seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'))
-                else:
-                    cdr3_pgen_df = seq_evaluator.evaluate(
-                        seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'),
-                        default_allele=get_config_data('ALLELE'))
+                    nt_col=col_names['NT_COL'],
+                    nt_p_col=col_names['NT_P_COL'],
+                    aa_col=col_names['AA_COL'],
+                    aa_p_col=col_names['AA_P_COL'],
+                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
+                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
+                cdr3_pgen_df = seq_evaluator.evaluate(
+                    seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'),
+                    use_allele=args.use_allele, default_allele=get_config_data('ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
@@ -429,7 +426,7 @@ class EvaluateSequences(object):
                     filename=output_filename,
                     directory=output_dir,
                     separator=get_config_data('SEPARATOR'),
-                    index_name=self.col_names['I_COL'])
+                    index_name=col_names['I_COL'])
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:

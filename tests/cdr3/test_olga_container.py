@@ -28,7 +28,7 @@ from immuno_probs.model.igor_loader import IgorLoader
 
 @pytest.mark.parametrize('option, expected', [
     ('generate', [['nt_sequence', str], ['aa_sequence', str],
-                  ['gene_choice_v', str], ['gene_choice_j', str]]),
+                  ['v_gene_choice', str], ['j_gene_choice', str]]),
     ('evaluate', pandas.DataFrame(
         [['TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', numpy.nan, 0, numpy.nan],
          ['TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', numpy.nan, 6.022455403460228e-08, numpy.nan],
@@ -52,10 +52,10 @@ def test_olga_container(option, expected):
         If the performed test failed.
 
     """
-    params = 'tests/data/human_T_alpha/model_params.txt'
-    marginals = 'tests/data/human_T_alpha/model_marginals.txt'
-    v_anchors = 'tests/data/human_T_alpha/V_gene_CDR3_anchors.csv'
-    j_anchors = 'tests/data/human_T_alpha/J_gene_CDR3_anchors.csv'
+    params = 'tests/data/human_t_alpha/model_params.txt'
+    marginals = 'tests/data/human_t_alpha/model_marginals.txt'
+    v_anchors = 'tests/data/human_t_alpha/V_gene_CDR3_anchors.csv'
+    j_anchors = 'tests/data/human_t_alpha/J_gene_CDR3_anchors.csv'
     model = IgorLoader(model_type='alpha', model_params=params, model_marginals=marginals)
     model.set_anchor(gene='V', file=v_anchors)
     model.set_anchor(gene='J', file=j_anchors)
@@ -66,8 +66,8 @@ def test_olga_container(option, expected):
         nt_p_col='nt_pgen_estimate',
         aa_col='aa_sequence',
         aa_p_col='aa_pgen_estimate',
-        v_gene_col='gene_choice_v',
-        j_gene_col='gene_choice_j')
+        v_gene_choice_col='v_gene_choice',
+        j_gene_choice_col='j_gene_choice')
     if option == 'generate':
         result = olga_container.generate(num_seqs=1)
         for i in expected:

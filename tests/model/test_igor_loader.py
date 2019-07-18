@@ -24,10 +24,10 @@ from immuno_probs.model.igor_loader import IgorLoader
 
 
 @pytest.mark.parametrize('infiles, expected', [
-    (['tests/data/human_T_alpha/model_params.txt',
-      'tests/data/human_T_alpha/model_marginals.txt',
-      'tests/data/human_T_alpha/V_gene_CDR3_anchors.csv',
-      'tests/data/human_T_alpha/J_gene_CDR3_anchors.csv'],
+    (['tests/data/human_t_alpha/model_params.txt',
+      'tests/data/human_t_alpha/model_marginals.txt',
+      'tests/data/human_t_alpha/V_gene_CDR3_anchors.csv',
+      'tests/data/human_t_alpha/J_gene_CDR3_anchors.csv'],
      IgorLoader)
 ])
 def test_igor_loader(infiles, expected):
