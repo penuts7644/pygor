@@ -188,14 +188,15 @@ class ConvertAdaptiveSequences(object):
                 n_random = args.n_random
             elif get_config_data('CONVERT', 'NUM_RANDOM', 'int'):
                 n_random = get_config_data('CONVERT', 'NUM_RANDOM', 'int')
-            if len(seqs_df) >= n_random > 0:
-                seqs_df = seqs_df.sample(n=n_random, random_state=1)
-            else:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(
-                    'Number of random sequences should be higher 0 and ' \
-                    'smaller than total number of rows in file\n', 'bg-red'))
-                return
+            if n_random != 0:
+                if len(seqs_df) >= n_random:
+                    seqs_df = seqs_df.sample(n=n_random, random_state=1)
+                else:
+                    sys.stdout.write(make_colored('error\n', 'red'))
+                    sys.stderr.write(make_colored(
+                        'Number of random sequences should be higher 0 and ' \
+                        'smaller than total number of rows in file\n', 'bg-red'))
+                    return
             sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError, ValueError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
