@@ -363,7 +363,14 @@ class GenerateSequences(object):
                     n_generate = args.n_gen
                 elif get_config_data('GENERATE', 'NUM_GENERATE', 'int'):
                     n_generate = get_config_data('GENERATE', 'NUM_GENERATE', 'int')
-                cdr3_seqs_df = seq_generator.generate(num_seqs=n_generate)
+                if n_generate > 0:
+                    cdr3_seqs_df = seq_generator.generate(num_seqs=n_generate)
+                else:
+                    sys.stdout.write(make_colored('error\n', 'red'))
+                    sys.stderr.write(make_colored(
+                        'Number of sequences to generate should be higher 0\n',
+                        'bg-red'))
+                    return
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))

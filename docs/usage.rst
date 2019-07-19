@@ -185,36 +185,27 @@ Configuration file setup
 
 ImmunoProbs supports user specified run configurations to modify additional settings that are not available to the user via the commandline tools. When a user specifies a configuration file to ImmunoProbs is will be merged with ImmunoProbs default configuration to make sure that all variables are set. The configuration is separated into a number of general sections:
 
-* ``BASIC`` - Parameters that are also accessible though ImmunoProbs's commandline. Note that the flags given in the commandline will overwrite the ones in the configuration file (priority: ``default ImmunoProbs configuration < user specified configuration < commandline parameters``).
-* ``EXPERT`` - Parameters that will likely never get modified. These could can solve some system depending (e.g a compute cluster) issues when executing ImmunoProbs.
-* ``COMMON`` - Parameters that are not available for commandline and are used throughout ImmunoProbs.
+* ``COMMON`` - Parameters that are common to all ImmunoProbs tools. Note that the flags given in the commandline will overwrite the ones in the configuration file (priority: ``default ImmunoProbs configuration < user specified configuration < commandline parameters``).
+* ``EXPERT`` - Parameters that will likely never get modified. These could solve some system depending (e.g a compute cluster) issues when executing ImmunoProbs.
 
-Additionally to the general sections, there are sections for each tool (e.g ``LOCATE``) where relevant. These contain variables that are only used within that specific tool. The complete default configuration file of ImmunoProbs is shown in the code block below. Remember that the user does not have to specify each section and variable in their own configuration file. Only the variables with corresponding section that are of interest.
+Additionally to the general sections, there are sections for each tool (e.g ``LOCATE``). These contain variables that are only used within that specific tool. The complete default configuration file of ImmunoProbs is shown in the code block below. Remember that the user does not have to specify each section and variable in their own configuration file. Only the variables with corresponding section that are of interest.
 
 .. code-block:: ini
 
-    ; Contains basic parameters that can also be overwritten through commandline execution of ImmunoProbs.
-    [BASIC]
-    ; The number of threads the system can use. If not given, the max available threads to system are used.
-    NUM_THREADS
-    ; The separator character for file in/out. If not given, use tab character.
-    SEPARATOR
-    ; The directory for ImmunoProbs for writing files to. ImmunoProbs will use the current directory, if not specified.
-    WORKING_DIR
-    ; The output filename (or prefix value) that should be used for any given ImmunoProbs tool.
-    OUT_NAME
-
-    ; Contains expert parameters that should never have to be modified with normal usage of ImmunoProbs.
-    [EXPERT]
-    ; Should ImmunoProbs use the system's temporary directory (default) or use the WORKING_DIR location?
-    USE_SYSTEM_TEMP = true
-    ; The name of the temporary directory used by ImmunoProbs.
-    TEMP_DIR = immuno_probs_tmp
-
-    ; Common parameters used for multiple tools in ImmunoProbs.
+    ; Contains common parameters used throughout ImmunoProbs and its tools.
     [COMMON]
-    ; The allele value to use when allele information from the input data should not be used.
-    ALLELE = 01
+    ; The number of threads the system can use. By default max threads to system.
+    NUM_THREADS
+    ; The separator character for file in/out. Default tab character.
+    SEPARATOR
+    ; The directory for ImmunoProbs for writing files to. Default current directory.
+    WORKING_DIR
+    ; The output filename (or prefix value) that should be used for any given ImmunoProbs tool. Default None
+    OUT_NAME
+    ; The name of the column to use that identifies the each row in the input file.
+    ROW_ID_COL = row_id
+    ; The column name to use for the sequence filename idetifier.
+    FILE_NAME_ID_COL = file_name_id
     ; Name of the column containing the sequence indices.
     I_COL = seq_index
     ; Name of the column containing the nucleotide sequences.
@@ -225,24 +216,6 @@ Additionally to the general sections, there are sections for each tool (e.g ``LO
     AA_COL = aa_sequence
     ; Name of the column containing the amino acid pgen scores.
     AA_P_COL = aa_pgen_estimate
-    ; Name of the column containing the V gene choice string.
-    V_GENE_CHOICE_COL = v_gene_choice
-    ; Name of the column containing the J gene choice string.
-    J_GENE_CHOICE_COL = j_gene_choice
-
-    ; Parameters specific for the 'locate' tool.
-    [LOCATE]
-    ; The default search motifs for the V gene.
-    V_MOTIFS = TGT,TGC
-    ; The default search motifs for the J gene.
-    J_MOTIFS = TGG,TTC,TTT
-
-    ; Parameters specific for the 'convert' tool.
-    [CONVERT]
-    ; The name of the column to use that identifies the each row in the input file.
-    ROW_ID_COL = row_id
-    ; The column name to use for the sequence filename idetifier.
-    FILE_NAME_ID_COL = file_name_id
     ; Name of the column specifying the frame type of the sequences.
     FRAME_TYPE_COL = frame_type
     ; Name of the column specifying the length of the CDR3 sequences.
@@ -251,8 +224,53 @@ Additionally to the general sections, there are sections for each tool (e.g ``LO
     V_RESOLVED_COL = v_resolved
     ; Name of the column containing the resolved J gene name string.
     J_RESOLVED_COL = j_resolved
+    ; Name of the column containing the V gene choice string.
+    V_GENE_CHOICE_COL = v_gene_choice
+    ; Name of the column containing the D gene choice string.
+    D_GENE_CHOICE_COL = d_gene_choice
+    ; Name of the column containing the J gene choice string.
+    J_GENE_CHOICE_COL = j_gene_choice
+
+    ; Parameters specific for the 'convert' tool.
+    [CONVERT]
+    ; The number of random sequences to convert.
+    NUM_RANDOM = 0
+    ; The default allele value to use when USE_ALLELE = false.
+    DEFAULT_ALLELE = 01
+    ; If true, use the the allele information from the input file
+    USE_ALLELE = false
+
+    ; Parameters specific for the 'build' tool.
+    [BUILD]
+    ; The default number of inference iteration for training a model.
+    NUM_ITERATIONS = 1
+
+    ; Parameters specific for the 'locate' tool.
+    [LOCATE]
+    ; The default search motifs for the V gene.
+    V_MOTIFS = TGT,TGC
+    ; The default search motifs for the J gene.
+    J_MOTIFS = TGG,TTC,TTT
 
     ; Parameters specific for the 'generate' tool.
     [GENERATE]
-    ; Name of the column containing the D gene choice string.
-    D_GENE_CHOICE_COL = d_gene_choice
+    ; The number of sequences to generate.
+    NUM_GENERATE = 1
+    ; If the tool should evaluate CDR3 sequnces instead of VDJ ones.
+    EVAL_CDR3 = false
+
+    ; Parameters specific for the 'evaluate' tool.
+    [EVALUATE]
+    ; If the tool should evaluate CDR3 sequnces instead of VDJ ones.
+    EVAL_CDR3 = false
+    ; The default allele value to use when USE_ALLELE = false.
+    DEFAULT_ALLELE = 01
+    ; If true, use the the allele information from the input file
+    USE_ALLELE = false
+
+    ; Contains expert parameters that should never have to be modified with normal usage of ImmunoProbs.
+    [EXPERT]
+    ; Should ImmunoProbs use the system's temporary directory (default) or use the WORKING_DIR location?
+    USE_SYSTEM_TEMP = true
+    ; The name of the temporary directory used by ImmunoProbs.
+    TEMP_DIR = immuno_probs_tmp
