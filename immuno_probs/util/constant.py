@@ -133,11 +133,12 @@ def set_separator(value='tab'):
         When the SEPARATOR global variable is not of type string.
 
     """
+    separators = {'tab': '\t', 'semi-colon': ';', 'comma': ','}
     if not isinstance(value, str):
         raise TypeError(
             "The SEPARATOR variable needs to be of type string", value)
     else:
-        CONFIG_DATA.set('COMMON', 'SEPARATOR', value)
+        CONFIG_DATA.set('COMMON', 'SEPARATOR', separators[value])
 
 def set_working_dir(value=os.getcwd()):
     """Sets and updates the global WORKING_DIR variable.

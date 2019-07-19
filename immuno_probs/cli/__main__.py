@@ -44,7 +44,8 @@ def main():
         '-separator': {
             'type': 'str.lower',
             'choices': ['tab', 'semi-colon', 'comma'],
-            'default': get_config_data('COMMON', 'SEPARATOR'),
+            'default': {'\t': 'tab', ';': 'semi-colon', ',': 'comma'} \
+                       [get_config_data('COMMON', 'SEPARATOR')],
             'help': 'The separator character used for input files and for ' \
                     'writing new files (select one: %(choices)s) ' \
                     '(default: %(default)s).'
