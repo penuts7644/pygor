@@ -89,15 +89,16 @@ class ConvertAdaptiveSequences(object):
             '-n-random': {
                 'type': 'int',
                 'nargs': '?',
-                'help': "Number of random sequences to use from the given " \
-                        "file as subset (default: all sequences)."
+                'default': get_config_data('CONVERT', 'NUM_RANDOM', 'int'),
+                'help': "Number of random sequences (subset) to convert " \
+                        "from the given file (default: %(default)s)."
             },
             '-use-allele': {
                 'action': 'store_true',
-                'help': "If specified, the allele information from the " \
-                        "resolved gene fields are used to when reconstructing " \
-                        "the gene choices (default: allele from config is " \
-                        "used for each gene)."
+                'default': get_config_data('CONVERT', 'USE_ALLELE', 'bool'),
+                'help': "If specified (True), the allele information from " \
+                        "the resolved gene fields are used to when " \
+                        "reconstructing the gene choices (default: %(default)s)."
             },
         }
 
@@ -144,7 +145,7 @@ class ConvertAdaptiveSequences(object):
 
         """
         # Get the working directory.
-        working_dir = get_config_data('WORKING_DIR')
+        working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
         # Collect and read in the corresponding reference genomic templates.
         sys.stdout.write('Processing genomic reference templates...')
@@ -156,12 +157,14 @@ class ConvertAdaptiveSequences(object):
                 )
                 if gene[0] == 'V':
                     v_gene_df = self._process_gene_df(
-                        filename=filename, nt_col=get_config_data('NT_COL'),
-                        resolved_col=get_config_data('V_RESOLVED_COL'))
+                        filename=filename,
+                        nt_col=get_config_data('COMMON', 'NT_COL'),
+                        resolved_col=get_config_data('COMMON', 'V_RESOLVED_COL'))
                 if gene[0] == 'J':
                     j_gene_df = self._process_gene_df(
-                        filename=filename, nt_col=get_config_data('NT_COL'),
-                        resolved_col=get_config_data('J_RESOLVED_COL'))
+                        filename=filename,
+                        nt_col=get_config_data('COMMON', 'NT_COL'),
+                        resolved_col=get_config_data('COMMON', 'J_RESOLVED_COL'))
         except (IOError, KeyError, ValueError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
@@ -171,24 +174,28 @@ class ConvertAdaptiveSequences(object):
         sys.stdout.write('Pre-processing input sequence file...')
         try:
             seqs_df = read_separated_to_dataframe(
-                file=args.seqs, separator=get_config_data('SEPARATOR'),
-                cols=[get_config_data('NT_COL'),
-                      get_config_data('AA_COL'),
-                      get_config_data('FRAME_TYPE_COL'),
-                      get_config_data('CDR3_LENGTH_COL'),
-                      get_config_data('V_RESOLVED_COL'),
-                      get_config_data('J_RESOLVED_COL')])
+                file=args.seqs,
+                separator=get_config_data('COMMON', 'SEPARATOR'),
+                cols=[get_config_data('COMMON', 'NT_COL'),
+                      get_config_data('COMMON', 'AA_COL'),
+                      get_config_data('COMMON', 'FRAME_TYPE_COL'),
+                      get_config_data('COMMON', 'CDR3_LENGTH_COL'),
+                      get_config_data('COMMON', 'V_RESOLVED_COL'),
+                      get_config_data('COMMON', 'J_RESOLVED_COL')])
 
             # Take a random subsample of sequences in the file.
-            if args.n_random is not None:
-                if args.n_random > 0 and len(seqs_df) >= args.n_random:
-                    seqs_df = seqs_df.sample(n=args.n_random, random_state=1)
-                else:
-                    sys.stdout.write(make_colored('error\n', 'red'))
-                    sys.stderr.write(make_colored(
-                        'Number of random sequences should be higher 0 and ' \
-                        'smaller than total number of rows in file\n', 'bg-red'))
-                    return
+            if args.n_random:
+                n_random = args.n_random
+            elif get_config_data('CONVERT', 'NUM_RANDOM', 'int'):
+                n_random = get_config_data('CONVERT', 'NUM_RANDOM', 'int')
+            if len(seqs_df) >= n_random > 0:
+                seqs_df = seqs_df.sample(n=n_random, random_state=1)
+            else:
+                sys.stdout.write(make_colored('error\n', 'red'))
+                sys.stderr.write(make_colored(
+                    'Number of random sequences should be higher 0 and ' \
+                    'smaller than total number of rows in file\n', 'bg-red'))
+                return
             sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError, ValueError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
@@ -198,35 +205,39 @@ class ConvertAdaptiveSequences(object):
         # Setup the data convertor class and convert data.
         sys.stdout.write('Converting adaptive format...')
         try:
+            if args.use_allele:
+                use_allele = args.use_allele
+            elif get_config_data('CONVERT', 'USE_ALLELE', 'bool'):
+                use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             cdr3_df = pandas.DataFrame()
             full_prod_df = pandas.DataFrame()
             full_unprod_df = pandas.DataFrame()
             full_df = pandas.DataFrame()
             asc = AdaptiveSequenceConvertor()
             results = asc.convert(
-                num_threads=get_config_data('NUM_THREADS'),
+                num_threads=get_config_data('COMMON', 'NUM_THREADS', 'int'),
                 seqs=seqs_df,
                 ref_v_genes=v_gene_df,
                 ref_j_genes=j_gene_df,
-                row_id_col=get_config_data('ROW_ID_COL'),
-                nt_col=get_config_data('NT_COL'),
-                aa_col=get_config_data('AA_COL'),
-                frame_type_col=get_config_data('FRAME_TYPE_COL'),
-                cdr3_length_col=get_config_data('CDR3_LENGTH_COL'),
-                v_resolved_col=get_config_data('V_RESOLVED_COL'),
-                v_gene_choice_col=get_config_data('V_GENE_CHOICE_COL'),
-                j_resolved_col=get_config_data('J_RESOLVED_COL'),
-                j_gene_choice_col=get_config_data('J_GENE_CHOICE_COL'),
-                use_allele=args.use_allele,
-                default_allele=get_config_data('ALLELE'))
+                row_id_col=get_config_data('COMMON', 'ROW_ID_COL'),
+                nt_col=get_config_data('COMMON', 'NT_COL'),
+                aa_col=get_config_data('COMMON', 'AA_COL'),
+                frame_type_col=get_config_data('COMMON', 'FRAME_TYPE_COL'),
+                cdr3_length_col=get_config_data('COMMON', 'CDR3_LENGTH_COL'),
+                v_resolved_col=get_config_data('COMMON', 'V_RESOLVED_COL'),
+                v_gene_choice_col=get_config_data('COMMON', 'V_GENE_CHOICE_COL'),
+                j_resolved_col=get_config_data('COMMON', 'J_RESOLVED_COL'),
+                j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'),
+                use_allele=use_allele,
+                default_allele=get_config_data('CONVERT', 'DEFAULT_ALLELE'))
             for processed in results:
-                processed[0].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                processed[0].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
                                     os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[1].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                processed[1].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
                                     os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[2].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                processed[2].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
                                     os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[3].insert(0, get_config_data('FILE_NAME_ID_COL'),
+                processed[3].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
                                     os.path.splitext(os.path.basename(args.seqs))[0])
                 cdr3_df = cdr3_df.append(processed[0], ignore_index=True)
                 full_prod_df = full_prod_df.append(processed[1], ignore_index=True)
@@ -241,33 +252,33 @@ class ConvertAdaptiveSequences(object):
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
         try:
-            output_prefix = get_config_data('OUT_NAME')
+            output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'converted'
             _, filename_1 = write_dataframe_to_separated(
                 dataframe=cdr3_df,
                 filename='{}_CDR3'.format(output_prefix),
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
+                separator=get_config_data('COMMON', 'SEPARATOR'),
+                index_name=get_config_data('COMMON', 'I_COL'))
             _, filename_2 = write_dataframe_to_separated(
                 dataframe=full_prod_df,
                 filename='{}_full_length_productive'.format(output_prefix),
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
+                separator=get_config_data('COMMON', 'SEPARATOR'),
+                index_name=get_config_data('COMMON', 'I_COL'))
             _, filename_3 = write_dataframe_to_separated(
                 dataframe=full_unprod_df,
                 filename='{}_full_length_unproductive'.format(output_prefix),
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
+                separator=get_config_data('COMMON', 'SEPARATOR'),
+                index_name=get_config_data('COMMON', 'I_COL'))
             _, filename_4 = write_dataframe_to_separated(
                 dataframe=full_df,
                 filename='{}_full_length'.format(output_prefix),
                 directory=output_dir,
-                separator=get_config_data('SEPARATOR'),
-                index_name=get_config_data('I_COL'))
+                separator=get_config_data('COMMON', 'SEPARATOR'),
+                index_name=get_config_data('COMMON', 'I_COL'))
             sys.stdout.write("(written '{}', '{}', '{}' and '{}')...".format(
                 filename_1, filename_2, filename_3, filename_4))
             sys.stdout.write(make_colored('success\n', 'green'))

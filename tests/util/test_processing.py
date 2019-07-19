@@ -44,7 +44,7 @@ def test_multiprocess_array(ary, func, num_workers, plus, expected):
     func : Object
         A function object that the workers should apply.
     num_workers : int
-        For this test we will set the global NUM_THREADS variable.
+        The number of workers/threads to spawn.
     **kwargs
         The remaining arguments to be given to the input function.
     expected : numpy.ndarray

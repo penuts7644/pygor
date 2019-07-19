@@ -42,36 +42,41 @@ def main():
         'probability of V(D)J and CDR3 sequences.'
     parser_general_options = {
         '-separator': {
-            'type': 'str',
-            'nargs': '?',
+            'type': 'str.lower',
+            'choices': ['tab', 'semi-colon', 'comma'],
+            'default': get_config_data('COMMON', 'SEPARATOR'),
             'help': 'The separator character used for input files and for ' \
-                    'writing new files (default: tab character).'
+                    'writing new files (select one: %(choices)s) ' \
+                    '(default: %(default)s).'
         },
         '-threads': {
             'type': 'int',
             'nargs': '?',
+            'default': get_config_data('COMMON', 'NUM_THREADS', 'int'),
             'help': 'The number of threads the program is allowed to use ' \
-                    '(default: max available threads in system).'
+                    '(default: %(default)s).'
         },
         '-set-wd': {
             'type': 'str',
             'nargs': '?',
+            'default': get_config_data('COMMON', 'WORKING_DIR'),
             'help': 'An optional location for writing files (default: ' \
-                    'the current working directory).'
+                    '%(default)s).'
         },
         '-out-name': {
             'type': 'str',
             'nargs': '?',
+            'default': get_config_data('COMMON', 'OUT_NAME'),
             'help': 'An optional output file name. If multiple files are ' \
                     'created, the value is used as a prefix for the file ' \
-                    '(default: none).'
+                    '(default: %(default)s).'
         },
         '-config-file': {
             'type': 'str',
             'nargs': '?',
             'help': 'An optional configuration file path for ImmunoProbs. ' \
                     'This file is always combined with the default ' \
-                    'configuration to make up missing values (default: none).'
+                    'configuration to make up missing values.'
         },
     }
     parser = argparse.ArgumentParser(prog='immuno-probs',
@@ -82,15 +87,23 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    cas = ConvertAdaptiveSequences(subparsers=subparsers)
-    lca = LocateCdr3Anchors(subparsers=subparsers)
-    bim = BuildIgorModel(subparsers=subparsers)
-    ges = GenerateSequences(subparsers=subparsers)
-    evs = EvaluateSequences(subparsers=subparsers)
+    sys.stdout.write('Setting up commandline tools...')
+    try:
+        cas = ConvertAdaptiveSequences(subparsers=subparsers)
+        lca = LocateCdr3Anchors(subparsers=subparsers)
+        bim = BuildIgorModel(subparsers=subparsers)
+        ges = GenerateSequences(subparsers=subparsers)
+        evs = EvaluateSequences(subparsers=subparsers)
+        sys.stdout.write(make_colored('success\n', 'green'))
+    except (TypeError) as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        return
 
     # Parse the commandline arguments and set variables.
-    parsed_arguments = parser.parse_args()
+    sys.stdout.write('Parsing commandline arguments...')
     try:
+        parsed_arguments = parser.parse_args()
         if parsed_arguments.config_file is not None:
             set_config_data(parsed_arguments.config_file)
         if parsed_arguments.separator is not None:
@@ -101,44 +114,53 @@ def main():
             set_working_dir(parsed_arguments.set_wd)
         if parsed_arguments.out_name is not None:
             set_out_name(parsed_arguments.out_name)
+        sys.stdout.write(make_colored('success\n', 'green'))
     except (TypeError, ValueError, IOError) as err:
         sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err), 'bg-red'))
+        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
         return
 
     # Create the directory paths for temporary files.
+    sys.stdout.write('Seting up temporary directory...')
     try:
-        output_dir = get_config_data('WORKING_DIR')
-        if get_config_data('USE_SYSTEM_TEMP', option_type='bool'):
+        output_dir = get_config_data('COMMON', 'WORKING_DIR')
+        if get_config_data('EXPERT', 'USE_SYSTEM_TEMP', 'bool'):
             temp_dir = create_directory_path(
-                os.path.join(tempfile.gettempdir(), get_config_data('TEMP_DIR')))
+                os.path.join(tempfile.gettempdir(), get_config_data('COMMON', 'TEMP_DIR')))
         else:
             temp_dir = create_directory_path(
-                os.path.join(output_dir, get_config_data('TEMP_DIR')))
+                os.path.join(output_dir, get_config_data('COMMON', 'TEMP_DIR')))
         set_working_dir(temp_dir)
+        sys.stdout.write(make_colored('success\n', 'green'))
     except IOError as err:
         sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(
-            'Cannot create ImmunoProbs working directory ({})\n'.format(err),
-            'bg-red'))
+        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
         return
 
     # Execute the correct tool based on given subparser name.
-    if parsed_arguments.subparser_name == 'convert':
-        cas.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'locate':
-        lca.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'build':
-        bim.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'generate':
-        ges.run(args=parsed_arguments, output_dir=output_dir)
-    elif parsed_arguments.subparser_name == 'evaluate':
-        evs.run(args=parsed_arguments, output_dir=output_dir)
-    else:
-        sys.stdout.write("No option selected, run 'immuno-probs -h' to show all options.\n")
+    sys.stdout.write('Execting ImmunoProbs tool...')
+    try:
+        if parsed_arguments.subparser_name == 'convert':
+            cas.run(args=parsed_arguments, output_dir=output_dir)
+        elif parsed_arguments.subparser_name == 'locate':
+            lca.run(args=parsed_arguments, output_dir=output_dir)
+        elif parsed_arguments.subparser_name == 'build':
+            bim.run(args=parsed_arguments, output_dir=output_dir)
+        elif parsed_arguments.subparser_name == 'generate':
+            ges.run(args=parsed_arguments, output_dir=output_dir)
+        elif parsed_arguments.subparser_name == 'evaluate':
+            evs.run(args=parsed_arguments, output_dir=output_dir)
+        else:
+            sys.stdout.write("No tool selected, run 'immuno-probs -h' to " \
+                             "show all supported tools.\n")
 
-    # Finally, delete the temporary directory.
-    rmtree(temp_dir, ignore_errors=True)
+        # Finally, delete the temporary directory.
+        rmtree(temp_dir, ignore_errors=True)
+        sys.stdout.write(make_colored('success\n', 'green'))
+    except (TypeError) as err:
+        sys.stdout.write(make_colored('error\n', 'red'))
+        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        return
 
 
 if __name__ == '__main__':
