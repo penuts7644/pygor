@@ -245,7 +245,7 @@ class ConvertAdaptiveSequences(object):
 
         # Copy the output files to the output directory with prefix.
         try:
-            self.logger.info('Writing converted files system')
+            self.logger.info('Writing converted files to file system')
             output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'converted'
