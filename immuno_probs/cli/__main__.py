@@ -138,27 +138,22 @@ def main():
         return
 
     # Execute the correct tool based on given subparser name.
-    try:
-        if parsed_arguments.subparser_name == 'convert':
-            cas.run(args=parsed_arguments, output_dir=output_dir)
-        elif parsed_arguments.subparser_name == 'locate':
-            lca.run(args=parsed_arguments, output_dir=output_dir)
-        elif parsed_arguments.subparser_name == 'build':
-            bim.run(args=parsed_arguments, output_dir=output_dir)
-        elif parsed_arguments.subparser_name == 'generate':
-            ges.run(args=parsed_arguments, output_dir=output_dir)
-        elif parsed_arguments.subparser_name == 'evaluate':
-            evs.run(args=parsed_arguments, output_dir=output_dir)
-        else:
-            sys.stdout.write("No tool selected, run 'immuno-probs -h' to " \
-                             "show all supported tools.\n")
+    if parsed_arguments.subparser_name == 'convert':
+        cas.run(args=parsed_arguments, output_dir=output_dir)
+    elif parsed_arguments.subparser_name == 'locate':
+        lca.run(args=parsed_arguments, output_dir=output_dir)
+    elif parsed_arguments.subparser_name == 'build':
+        bim.run(args=parsed_arguments, output_dir=output_dir)
+    elif parsed_arguments.subparser_name == 'generate':
+        ges.run(args=parsed_arguments, output_dir=output_dir)
+    elif parsed_arguments.subparser_name == 'evaluate':
+        evs.run(args=parsed_arguments, output_dir=output_dir)
+    else:
+        sys.stdout.write(
+            "No tool selected, run help command to show all supported tools.\n")
 
-        # Finally, delete the temporary directory.
-        rmtree(temp_dir, ignore_errors=True)
-    except (TypeError) as err:
-        sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
-        return
+    # Finally, delete the temporary directory.
+    rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == '__main__':
