@@ -200,7 +200,7 @@ class ConvertAdaptiveSequences(object):
             return
 
         # Setup the data convertor class and convert data.
-        self.logger.info('Converting adaptive format')
+        self.logger.info('Converting adaptive file format')
         try:
             use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             if args.use_allele:
@@ -245,6 +245,7 @@ class ConvertAdaptiveSequences(object):
 
         # Copy the output files to the output directory with prefix.
         try:
+            self.logger.info('Writing converted files system')
             output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'converted'

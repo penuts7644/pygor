@@ -109,7 +109,9 @@ class LocateCdr3Anchors(object):
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
-            self.logger.info('Processing genomic reference templates')
+            self.logger.info(
+                'Processing genomic reference template for %s and building ' \
+                'MUSCLE alignment', gene[0])
             try:
                 filename = preprocess_reference_file(
                     os.path.join(working_dir, 'genomic_templates'),
@@ -161,6 +163,7 @@ class LocateCdr3Anchors(object):
 
             # Write the pandas dataframe to a separated file with prefix.
             try:
+                self.logger.info('Writing CDR3 acnhors for %s to system', gene[0])
                 output_prefix = get_config_data('COMMON', 'OUT_NAME')
                 if not output_prefix:
                     output_prefix = 'gene_CDR3_anchors'

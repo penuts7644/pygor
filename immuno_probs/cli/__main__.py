@@ -40,7 +40,7 @@ def main():
     # Setting up the logger.
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=os.environ.get("LOGLEVEL", "DEBUG"))
+        level=os.environ.get("LOGLEVEL", "INFO"))
     logger = logging.getLogger(__name__)
 
     # Create the parser with general commands and set the subparser.
@@ -93,7 +93,7 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    logger.info('Setting up commandline tools')
+    logger.info('Setting up ImmunoProbs commandline tools')
     try:
         cas = ConvertAdaptiveSequences(subparsers=subparsers)
         lca = LocateCdr3Anchors(subparsers=subparsers)
@@ -105,7 +105,7 @@ def main():
         return
 
     # Parse the commandline arguments and set variables.
-    logger.info('Parsing commandline arguments')
+    logger.info('Parsing/formatting commandline arguments')
     try:
         parsed_arguments = parser.parse_args()
         if parsed_arguments.config_file is not None:
@@ -123,7 +123,7 @@ def main():
         return
 
     # Create the directory paths for temporary files.
-    logger.info('Setting up temporary output directory')
+    logger.info('Setting up temporary system directory')
     try:
         output_dir = get_config_data('COMMON', 'WORKING_DIR')
         if get_config_data('EXPERT', 'USE_SYSTEM_TEMP', 'bool'):
@@ -138,7 +138,8 @@ def main():
         return
 
     # Execute the correct tool based on given subparser name.
-    logger.info('Executing ImmunoProbs tool')
+    logger.info('Executing selected ImmunoProbs tool (%s)',
+                parsed_arguments.subparser_name)
     if parsed_arguments.subparser_name == 'convert':
         cas.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'locate':
@@ -154,7 +155,7 @@ def main():
             'No tool selected, run help command to show all supported tools')
 
     # Finally, delete the temporary directory.
-    logger.info('Deleting temporary directory')
+    logger.info('Cleaning up working directory')
     rmtree(temp_dir, ignore_errors=True)
 
 

@@ -166,13 +166,14 @@ class EvaluateSequences(object):
         if not eval_cdr3:
 
             # Add general IGoR commands.
+            self.logger.info('Setting up initial IGoR command (1/4)')
             command_list = []
             working_dir = get_config_data('COMMON', 'WORKING_DIR')
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
             # Add the model (build-in or custom) command depending on given.
-            self.logger.info('Processing genomic reference templates')
+            self.logger.info('Processing genomic reference templates (2/4)')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -209,7 +210,7 @@ class EvaluateSequences(object):
                 return
 
             # Add the sequence command after pre-processing of the input file.
-            self.logger.info('Pre-processing input sequence file')
+            self.logger.info('Pre-processing input sequence file (3/4)')
             try:
                 if is_fasta(args.seqs):
                     self.logger.info('FASTA input file extension detected')
@@ -237,15 +238,14 @@ class EvaluateSequences(object):
                 self.logger.error(str(err))
                 return
 
-            # Add alignment commands.
+            # Add alignment and evealuation commands.
+            self.logger.info('Adding additional variables to IGoR command (4/4)')
             command_list.append(['align', ['all']])
-
-            # Add evaluation commands.
             command_list.append(['evaluate'])
             command_list.append(['output', ['Pgen']])
 
             # Execute IGoR through command line and catch error code.
-            self.logger.info('Executing IGoR')
+            self.logger.info('Executing IGoR (this might take a while)')
             try:
                 igor_cline = IgorInterface(command=command_list)
                 exit_code, _, stderr, _ = igor_cline.call()
@@ -299,6 +299,7 @@ class EvaluateSequences(object):
 
             # Write the pandas dataframe to a separated file.
             try:
+                self.logger.info('Writing evaluated data to file system')
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'pgen_estimate_{}'.format(model_type)
@@ -322,7 +323,7 @@ class EvaluateSequences(object):
                 os.makedirs(os.path.join(get_config_data('COMMON', 'WORKING_DIR'), 'output'))
 
             # Load the model and create the sequence evaluator.
-            self.logger.info('Loading model')
+            self.logger.info('Loading the IGoR model files')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -405,6 +406,7 @@ class EvaluateSequences(object):
 
             # Write the pandas dataframe to a separated file.
             try:
+                self.logger.info('Writing evaluated data to file system')
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)

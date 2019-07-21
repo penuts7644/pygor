@@ -199,13 +199,14 @@ class GenerateSequences(object):
         if not eval_cdr3:
 
             # Add general igor commands.
+            self.logger.info('Setting up initial IGoR command (1/3)')
             command_list = []
             working_dir = get_config_data('COMMON', 'WORKING_DIR')
             command_list.append(['set_wd', working_dir])
             command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
             # Add the model (build-in or custom) command.
-            self.logger.info('Processing IGoR model files')
+            self.logger.info('Processing IGoR model files (2/3)')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -225,6 +226,7 @@ class GenerateSequences(object):
                 return
 
             # Add generate command.
+            self.logger.info('Adding additional variables to IGoR command (3/3)')
             if args.n_gen:
                 command_list.append(['generate', str(args.n_gen), ['noerr']])
             else:
@@ -232,7 +234,7 @@ class GenerateSequences(object):
                     str(get_config_data('GENERATE', 'NUM_GENERATE', 'int')), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
-            self.logger.info('Executing IGoR')
+            self.logger.info('Executing IGoR (this might take a while)')
             try:
                 igor_cline = IgorInterface(command=command_list)
                 exit_code, _, stderr, _ = igor_cline.call()
@@ -286,6 +288,7 @@ class GenerateSequences(object):
 
             # Write the pandas dataframe to a separated file.
             try:
+                self.logger.info('Writing generated sequences to file system')
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'generated_seqs_{}'.format(model_type)
@@ -307,7 +310,7 @@ class GenerateSequences(object):
             working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
             # Load the model, create the sequence generator and generate the sequences.
-            self.logger.info('Loading model')
+            self.logger.info('Loading the IGoR model files')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -363,6 +366,7 @@ class GenerateSequences(object):
 
             # Write the pandas dataframe to a separated file with.
             try:
+                self.logger.info('Writing generated sequences to file system')
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'generated_seqs_{}_CDR3'.format(model_type)

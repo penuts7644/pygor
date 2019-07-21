@@ -153,13 +153,14 @@ class BuildIgorModel(object):
 
         """
         # Add general igor commands.
+        self.logger.info('Setting up initial IGoR command (1/5)')
         command_list = []
         working_dir = get_config_data('COMMON', 'WORKING_DIR')
         command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
         # Add sequence and file paths commands.
-        self.logger.info('Processing genomic reference templates')
+        self.logger.info('Processing genomic reference templates (2/5)')
         try:
             ref_list = ['set_genomic']
             for i in args.ref:
@@ -175,7 +176,7 @@ class BuildIgorModel(object):
             return
 
         # Set the initial model parameters using a build-in model.
-        self.logger.info('Setting initial model parameters')
+        self.logger.info('Setting initial model parameters (3/5)')
         if args.type in ['beta', 'heavy']:
             command_list.append([
                 'set_custom_model',
@@ -188,7 +189,7 @@ class BuildIgorModel(object):
             ])
 
         # Add the sequence command after pre-processing of the input file.
-        self.logger.info('Pre-processing input sequence file')
+        self.logger.info('Pre-processing input sequence file (4/5)')
         try:
             if is_fasta(args.seqs):
                 self.logger.info('FASTA input file extension detected')
@@ -222,10 +223,9 @@ class BuildIgorModel(object):
             self.logger.error(str(err))
             return
 
-        # Add alignment commands.
+        # Add alignment command and inference commands.
+        self.logger.info('Adding additional variables to IGoR command (5/5)')
         command_list.append(['align', ['all']])
-
-        # Add inference commands.
         if args.n_iter:
             command_list.append(['infer', ['N_iter', str(args.n_iter)]])
         else:
@@ -233,7 +233,7 @@ class BuildIgorModel(object):
                 'N_iter', str(get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))]])
 
         # Execute IGoR through command line and catch error code.
-        self.logger.info('Executing IGoR')
+        self.logger.info('Executing IGoR (this might take a while)')
         try:
             igor_cline = IgorInterface(command=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
@@ -248,6 +248,7 @@ class BuildIgorModel(object):
 
         # Copy the output files to the output directory with prefix.
         try:
+            self.logger.info('Writing model files to file system')
             output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'model'
