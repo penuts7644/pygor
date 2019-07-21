@@ -124,15 +124,18 @@ class EvaluateSequences(object):
             },
             '-cdr3': {
                 'action': 'store_true',
-                'help': 'If specified, CDR3 sequences should be evaluated, ' \
-                        'else expecting V(D)J input sequences.'
+                'help': 'If specified (True), CDR3 sequences should be ' \
+                        'evaluated, otherwise V(D)J sequences (default: ' \
+                        '{}).'.format(
+                            get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'))
             },
             '-use-allele': {
                 'action': 'store_true',
-                'help': "If specified in combination with the '-cdr3' flag, " \
-                        "the allele information from the gene choice fields " \
-                        "is used to calculate the generation probability " \
-                        "(default: allele from config is used for each gene)."
+                'help': "If specified (True), in combination with the '-cdr3' " \
+                        " flag, the allele information from the gene choice " \
+                        "fields is used to calculate the generation " \
+                        "probability (default: {}).".format(
+                            get_config_data('EVALUATE', 'USE_ALLELE', 'bool'))
             },
         }
 
@@ -153,25 +156,18 @@ class EvaluateSequences(object):
             A directory path for writing output files to.
 
         """
-        # Setup the column names necessary.
-        col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'NT_P_COL': get_config_data('NT_P_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
-            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
-        }
+        eval_cdr3 = get_config_data('EVALUATE', 'EVAL_CDR3', 'bool')
+        if args.cdr3:
+            eval_cdr3 = args.cdr3
 
         # If the given type of sequences evaluation is VDJ, use IGoR.
-        if not args.cdr3:
+        if not eval_cdr3:
 
             # Add general IGoR commands.
             command_list = []
-            working_dir = get_config_data('WORKING_DIR')
+            working_dir = get_config_data('COMMON', 'WORKING_DIR')
             command_list.append(['set_wd', working_dir])
-            command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
+            command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
             # Add the model (build-in or custom) command depending on given.
             sys.stdout.write('Processing genomic reference templates...')
@@ -221,15 +217,15 @@ class EvaluateSequences(object):
                         'read_seqs',
                         copy_to_dir(working_dir, str(args.seqs), 'fasta')
                     ])
-                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                elif is_separated(args.seqs, get_config_data('COMMON', 'SEPARATOR')):
                     sys.stdout.write('(separated input file type detected)...')
                     input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
                         copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                        get_config_data('SEPARATOR'),
+                        get_config_data('COMMON', 'SEPARATOR'),
                         ';',
-                        col_names['I_COL'],
-                        [col_names['NT_COL']]
+                        get_config_data('COMMON', 'I_COL'),
+                        [get_config_data('COMMON', 'NT_COL')]
                     )
                     command_list.append(['read_seqs', input_seqs])
                 else:
@@ -273,34 +269,36 @@ class EvaluateSequences(object):
             try:
                 if is_fasta(args.seqs):
                     seqs_df = read_fasta_as_dataframe(
-                        file=args.seqs, col=col_names['NT_COL'])
-                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                        file=args.seqs,
+                        col=get_config_data('COMMON', 'NT_COL'))
+                elif is_separated(args.seqs, get_config_data('COMMON', 'SEPARATOR')):
                     seqs_df = read_separated_to_dataframe(
-                        file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=col_names['I_COL'])
+                        file=args.seqs,
+                        separator=get_config_data('COMMON', 'SEPARATOR'),
+                        index_col=get_config_data('COMMON', 'I_COL'))
                 full_pgen_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'output', 'Pgen_counts.csv'),
                     separator=';',
                     index_col='seq_index',
                     cols=['Pgen_estimate'])
-                full_pgen_df.index.names = [col_names['I_COL']]
+                full_pgen_df.index.names = [get_config_data('COMMON', 'I_COL')]
                 full_pgen_df.rename(
-                    columns={'Pgen_estimate': col_names['NT_P_COL']},
+                    columns={'Pgen_estimate': get_config_data('COMMON', 'NT_P_COL')},
                     inplace=True)
-                full_pgen_df.loc[:, col_names['AA_P_COL']] = numpy.nan
+                full_pgen_df.loc[:, get_config_data('COMMON', 'AA_P_COL')] = numpy.nan
             except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
                 return
 
             # Insert amino acid sequence column if not existent.
-            if (col_names['NT_COL'] in seqs_df.columns
-                    and not col_names['AA_COL'] in seqs_df.columns):
+            if (get_config_data('COMMON', 'NT_COL') in seqs_df.columns
+                    and not get_config_data('COMMON', 'AA_COL') in seqs_df.columns):
                 seqs_df.insert(
-                    seqs_df.columns.get_loc(col_names['NT_COL']) + 1,
-                    col_names['AA_COL'], numpy.nan)
-                seqs_df[col_names['AA_COL']] = seqs_df[col_names['NT_COL']] \
-                    .apply(nucleotides_to_aminoacids)
+                    seqs_df.columns.get_loc(get_config_data('COMMON', 'NT_COL')) + 1,
+                    get_config_data('COMMON', 'AA_COL'), numpy.nan)
+                seqs_df[get_config_data('COMMON', 'AA_COL')] = \
+                    seqs_df[get_config_data('COMMON', 'NT_COL')].apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
             full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
@@ -309,15 +307,15 @@ class EvaluateSequences(object):
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
             try:
-                output_filename = get_config_data('OUT_NAME')
+                output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'pgen_estimate_{}'.format(model_type)
                 _, filename = write_dataframe_to_separated(
                     dataframe=full_pgen_df,
                     filename=output_filename,
                     directory=output_dir,
-                    separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    separator=get_config_data('COMMON', 'SEPARATOR'),
+                    index_name=get_config_data('COMMON', 'I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -326,12 +324,12 @@ class EvaluateSequences(object):
                 return
 
         # If the given type of sequences evaluation is CDR3, use OLGA.
-        elif args.cdr3:
+        elif eval_cdr3:
 
             # Create the directory for the output files.
-            working_dir = os.path.join(get_config_data('WORKING_DIR'), 'output')
+            working_dir = os.path.join(get_config_data('COMMON', 'WORKING_DIR'), 'output')
             if not os.path.isdir(working_dir):
-                os.makedirs(os.path.join(get_config_data('WORKING_DIR'), 'output'))
+                os.makedirs(os.path.join(get_config_data('COMMON', 'WORKING_DIR'), 'output'))
 
             # Load the model and create the sequence evaluator.
             sys.stdout.write('Loading model...')
@@ -352,7 +350,7 @@ class EvaluateSequences(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                    separator = get_config_data('SEPARATOR')
+                    separator = get_config_data('COMMON', 'SEPARATOR')
                 for gene in args.anchor:
                     anchor_file = preprocess_separated_file(
                         os.path.join(working_dir, 'cdr3_anchors'),
@@ -374,12 +372,14 @@ class EvaluateSequences(object):
                 if is_fasta(args.seqs):
                     sys.stdout.write('(FASTA input file extension detected)...')
                     seqs_df = read_fasta_as_dataframe(
-                        file=args.seqs, col=col_names['NT_COL'])
-                elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+                        file=args.seqs,
+                        col=get_config_data('COMMON', 'NT_COL'))
+                elif is_separated(args.seqs, get_config_data('COMMON', 'SEPARATOR')):
                     sys.stdout.write('(separated input file type detected)...')
                     seqs_df = read_separated_to_dataframe(
-                        file=args.seqs, separator=get_config_data('SEPARATOR'),
-                        index_col=col_names['I_COL'])
+                        file=args.seqs,
+                        separator=get_config_data('COMMON', 'SEPARATOR'),
+                        index_col=get_config_data('COMMON', 'I_COL'))
                 else:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
@@ -395,17 +395,22 @@ class EvaluateSequences(object):
             # Evaluate the sequences.
             sys.stdout.write('Evaluating sequences...')
             try:
+                use_allele = get_config_data('EVALUATE', 'USE_ALLELE', 'bool')
+                if args.use_allele:
+                    use_allele = args.use_allele
                 seq_evaluator = OlgaContainer(
                     igor_model=model,
-                    nt_col=col_names['NT_COL'],
-                    nt_p_col=col_names['NT_P_COL'],
-                    aa_col=col_names['AA_COL'],
-                    aa_p_col=col_names['AA_P_COL'],
-                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
-                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
+                    nt_col=get_config_data('COMMON', 'NT_COL'),
+                    nt_p_col=get_config_data('COMMON', 'NT_P_COL'),
+                    aa_col=get_config_data('COMMON', 'AA_COL'),
+                    aa_p_col=get_config_data('COMMON', 'AA_P_COL'),
+                    v_gene_choice_col=get_config_data('COMMON', 'V_GENE_CHOICE_COL'),
+                    j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'))
                 cdr3_pgen_df = seq_evaluator.evaluate(
-                    seqs=seqs_df, num_threads=get_config_data('NUM_THREADS'),
-                    use_allele=args.use_allele, default_allele=get_config_data('ALLELE'))
+                    seqs=seqs_df,
+                    num_threads=get_config_data('COMMON', 'NUM_THREADS', 'int'),
+                    use_allele=use_allele,
+                    default_allele=get_config_data('EVALUATE', 'DEFAULT_ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.
                 cdr3_pgen_df = seqs_df.merge(cdr3_pgen_df, left_index=True, right_index=True)
@@ -418,15 +423,15 @@ class EvaluateSequences(object):
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
             try:
-                output_filename = get_config_data('OUT_NAME')
+                output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'pgen_estimate_{}_CDR3'.format(model_type)
                 _, filename = write_dataframe_to_separated(
                     dataframe=cdr3_pgen_df,
                     filename=output_filename,
                     directory=output_dir,
-                    separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    separator=get_config_data('COMMON', 'SEPARATOR'),
+                    index_name=get_config_data('COMMON', 'I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:

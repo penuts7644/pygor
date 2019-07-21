@@ -91,9 +91,9 @@ class BuildIgorModel(object):
             '-n-iter': {
                 'type': 'int',
                 'nargs': '?',
-                'default': 1,
                 'help': 'The number of inference iterations to perform when ' \
-                        'creating the model. (default: %(default)s)'
+                        'creating the model (default: {}).'.format(
+                            get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))
             }
         }
 
@@ -152,9 +152,9 @@ class BuildIgorModel(object):
         """
         # Add general igor commands.
         command_list = []
-        working_dir = get_config_data('WORKING_DIR')
+        working_dir = get_config_data('COMMON', 'WORKING_DIR')
         command_list.append(['set_wd', working_dir])
-        command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
+        command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
         # Add sequence and file paths commands.
         sys.stdout.write('Processing genomic reference templates...')
@@ -197,23 +197,23 @@ class BuildIgorModel(object):
                     'read_seqs',
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
-            elif is_separated(args.seqs, get_config_data('SEPARATOR')):
+            elif is_separated(args.seqs, get_config_data('COMMON', 'SEPARATOR')):
                 sys.stdout.write('(separated input file type detected)...')
                 try:
                     input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
                         copy_to_dir(working_dir, str(args.seqs), 'csv'),
-                        get_config_data('SEPARATOR'),
+                        get_config_data('COMMON', 'SEPARATOR'),
                         ';',
-                        get_config_data('I_COL'),
-                        [get_config_data('NT_COL')]
+                        get_config_data('COMMON', 'I_COL'),
+                        [get_config_data('COMMON', 'NT_COL')]
                     )
                     command_list.append(['read_seqs', input_seqs])
                 except (KeyError, ValueError) as err:
                     sys.stdout.write(make_colored('error\n', 'red'))
                     sys.stderr.write(make_colored(
                         "Given input sequence file does not have a '{}' column\n" \
-                        .format(get_config_data('NT_COL')), 'bg-red'))
+                        .format(get_config_data('COMMON', 'NT_COL')), 'bg-red'))
                     return
             else:
                 sys.stdout.write(make_colored('error\n', 'red'))
@@ -231,7 +231,11 @@ class BuildIgorModel(object):
         command_list.append(['align', ['all']])
 
         # Add inference commands.
-        command_list.append(['infer', ['N_iter', str(args.n_iter)]])
+        if args.n_iter:
+            command_list.append(['infer', ['N_iter', str(args.n_iter)]])
+        else:
+            command_list.append(['infer', [
+                'N_iter', str(get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))]])
 
         # Execute IGoR through command line and catch error code.
         sys.stdout.write('Executing IGoR...')
@@ -253,7 +257,7 @@ class BuildIgorModel(object):
         # Copy the output files to the output directory with prefix.
         sys.stdout.write('Writting files...')
         try:
-            output_prefix = get_config_data('OUT_NAME')
+            output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'model'
             _, filename_1 = self._copy_file_to_output(

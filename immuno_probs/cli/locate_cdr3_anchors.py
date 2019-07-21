@@ -79,9 +79,10 @@ class LocateCdr3Anchors(object):
             '-motif': {
                 'type': 'str.upper',
                 'action': 'append',
-                'help': "The motifs to look for. If none specified, the " \
-                        "default 'V' (Cystein - TGT and TGC) or 'J' " \
-                        "(Tryptophan - TGG, Phenylalanine - TTC and TTT)."
+                'help': "The motifs to look for (default: 'V' {} and 'J' {} " \
+                        "respectivly).".format(
+                            get_config_data('LOCATE', 'V_MOTIFS').split(','),
+                            get_config_data('LOCATE', 'J_MOTIFS').split(','))
             }
         }
 
@@ -104,7 +105,7 @@ class LocateCdr3Anchors(object):
 
         """
         # Get the working directory.
-        working_dir = get_config_data('WORKING_DIR')
+        working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
@@ -125,16 +126,17 @@ class LocateCdr3Anchors(object):
             try:
                 if args.motif is not None:
                     anchors_df = locator.get_indices_motifs(
-                        get_config_data('NUM_THREADS'), *args.motif)
+                        get_config_data('COMMON', 'NUM_THREADS', 'int'),
+                        *args.motif)
                 else:
                     if gene[0] == 'V':
                         anchors_df = locator.get_indices_motifs(
-                            get_config_data('NUM_THREADS'),
-                            *get_config_data('V_MOTIFS').split(','))
+                            get_config_data('COMMON', 'NUM_THREADS', 'int'),
+                            *get_config_data('LOCATE', 'V_MOTIFS').split(','))
                     elif gene[0] == 'J':
                         anchors_df = locator.get_indices_motifs(
-                            get_config_data('NUM_THREADS'),
-                            *get_config_data('J_MOTIFS').split(','))
+                            get_config_data('COMMON', 'NUM_THREADS', 'int'),
+                            *get_config_data('LOCATE', 'J_MOTIFS').split(','))
             except ValueError as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
                 sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
@@ -160,14 +162,14 @@ class LocateCdr3Anchors(object):
 
             # Write the pandas dataframe to a separated file with prefix.
             try:
-                output_prefix = get_config_data('OUT_NAME')
+                output_prefix = get_config_data('COMMON', 'OUT_NAME')
                 if not output_prefix:
                     output_prefix = 'gene_CDR3_anchors'
                 _, filename = write_dataframe_to_separated(
                     dataframe=anchors_df,
                     filename='{}_{}'.format(gene[0], output_prefix),
                     directory=output_dir,
-                    separator=get_config_data('SEPARATOR'))
+                    separator=get_config_data('COMMON', 'SEPARATOR'))
                 sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:

@@ -54,22 +54,22 @@ def set_config_data(value=None):
     globals().update(CONFIG_DATA=conf_parser)
 
     # Overwrite default values if not given.
-    if not conf_parser.get('BASIC', 'NUM_THREADS'):
+    if not conf_parser.get('COMMON', 'NUM_THREADS'):
         set_num_threads()
-    if not conf_parser.get('BASIC', 'SEPARATOR'):
+    if not conf_parser.get('COMMON', 'SEPARATOR'):
         set_separator()
-    if conf_parser.get('BASIC', 'SEPARATOR') == '|':
-        set_separator('|')
-    if not conf_parser.get('BASIC', 'WORKING_DIR'):
+    if not conf_parser.get('COMMON', 'WORKING_DIR'):
         set_working_dir()
-    if not conf_parser.get('BASIC', 'OUT_NAME'):
+    if not conf_parser.get('COMMON', 'OUT_NAME'):
         set_out_name()
 
-def get_config_data(value, option_type=None):
+def get_config_data(section, value, option_type=None):
     """Collects and returns the global CONFIG_DATA variable.
 
     Parameters
     ----------
+    section : str
+        The section where the given option is located.
     value : str
         The option to return its value from.
     option_type : str, optional
@@ -83,15 +83,14 @@ def get_config_data(value, option_type=None):
         The value of the option within the configuration file.
 
     """
-    for section in CONFIG_DATA.sections():
-        if CONFIG_DATA.has_option(section, value):
-            if option_type == 'bool':
-                return CONFIG_DATA.getboolean(section, value)
-            if option_type == 'int':
-                return CONFIG_DATA.getint(section, value)
-            if option_type == 'float':
-                return CONFIG_DATA.getfloat(section, value)
-            return CONFIG_DATA.get(section, value)
+    if CONFIG_DATA.has_option(section, value):
+        if option_type == 'bool':
+            return CONFIG_DATA.getboolean(section, value)
+        if option_type == 'int':
+            return CONFIG_DATA.getint(section, value)
+        if option_type == 'float':
+            return CONFIG_DATA.getfloat(section, value)
+        return CONFIG_DATA.get(section, value)
 
 def set_num_threads(value=ph.cpu_count()):
     """Sets and updates the global NUM_THREADS variable.
@@ -117,9 +116,9 @@ def set_num_threads(value=ph.cpu_count()):
         raise ValueError(
             "The NUM_THREADS variable needs to be higher than zero", value)
     else:
-        CONFIG_DATA.set('BASIC', 'NUM_THREADS', str(value))
+        CONFIG_DATA.set('COMMON', 'NUM_THREADS', str(value))
 
-def set_separator(value='\t'):
+def set_separator(value='tab'):
     """Sets and updates the global SEPARATOR variable.
 
     Parameters
@@ -132,18 +131,14 @@ def set_separator(value='\t'):
     ------
     TypeError
         When the SEPARATOR global variable is not of type string.
-    ValueError
-        When the SEPARATOR global variable is a single '|' character.
 
     """
+    separators = {'tab': '\t', 'semi-colon': ';', 'comma': ','}
     if not isinstance(value, str):
         raise TypeError(
             "The SEPARATOR variable needs to be of type string", value)
-    if value == '|':
-        raise ValueError(
-            "The SEPARATOR variable cannot be a '|' character", value)
     else:
-        CONFIG_DATA.set('BASIC', 'SEPARATOR', value)
+        CONFIG_DATA.set('COMMON', 'SEPARATOR', separators[value])
 
 def set_working_dir(value=os.getcwd()):
     """Sets and updates the global WORKING_DIR variable.
@@ -170,20 +165,21 @@ def set_working_dir(value=os.getcwd()):
         raise IOError(
             "The WORKING_DIR variable needs to be an existing directory", value)
     else:
-        CONFIG_DATA.set('BASIC', 'WORKING_DIR', value)
+        CONFIG_DATA.set('COMMON', 'WORKING_DIR', value)
 
-def set_out_name(value=''):
+def set_out_name(value=None):
     """Sets and updates the global OUT_NAME variable.
 
     Parameters
     ----------
     value : str, optional
         The output file name string to use when writing output files or when
-        prefixing output files (default: none).
+        prefixing output files (default: None).
 
     """
-    updated_value = re.sub(r'\s+', '', value)
-    CONFIG_DATA.set('BASIC', 'OUT_NAME', updated_value)
+    if value:
+        value = re.sub(r'\s+', '', value)
+    CONFIG_DATA.set('COMMON', 'OUT_NAME', value)
 
 # Set the default config data object.
 set_config_data()

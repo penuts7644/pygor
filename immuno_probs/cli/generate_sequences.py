@@ -104,14 +104,16 @@ class GenerateSequences(object):
             '-n-gen': {
                 'type': 'int',
                 'nargs': '?',
-                'default': 1,
-                'help': 'The number of sequences to generate. (default: ' \
-                        '%(default)s)'
+                'help': 'The number of sequences to generate (default: ' \
+                        '{}).'.format(
+                            get_config_data('GENERATE', 'NUM_GENERATE', 'int'))
             },
             '-cdr3': {
                 'action': 'store_true',
-                'help': 'If specified, CDR3 sequences are generated, else ' \
-                        'V(D)J full length sequences.'
+                'help': 'If specified (True), CDR3 sequences are ' \
+                        'generated, otherwise V(D)J sequences (default: ' \
+                        '{}).'.format(
+                            get_config_data('GENERATE', 'EVAL_CDR3', 'bool'))
             },
         }
 
@@ -187,26 +189,18 @@ class GenerateSequences(object):
             A directory path for writing output files to.
 
         """
-        # Setup the necessary column names.
-        col_names = {
-            'I_COL': get_config_data('I_COL'),
-            'NT_COL': get_config_data('NT_COL'),
-            'NT_P_COL': get_config_data('NT_P_COL'),
-            'AA_COL': get_config_data('AA_COL'),
-            'AA_P_COL': get_config_data('AA_P_COL'),
-            'V_GENE_CHOICE_COL': get_config_data('V_GENE_CHOICE_COL'),
-            'D_GENE_CHOICE_COL': get_config_data('D_GENE_CHOICE_COL'),
-            'J_GENE_CHOICE_COL': get_config_data('J_GENE_CHOICE_COL'),
-        }
+        eval_cdr3 = get_config_data('GENERATE', 'EVAL_CDR3', 'bool')
+        if args.cdr3:
+            eval_cdr3 = args.cdr3
 
         # If the given type of sequences generation is not CDR3, use IGoR.
-        if not args.cdr3:
+        if not eval_cdr3:
 
             # Add general igor commands.
             command_list = []
-            working_dir = get_config_data('WORKING_DIR')
+            working_dir = get_config_data('COMMON', 'WORKING_DIR')
             command_list.append(['set_wd', working_dir])
-            command_list.append(['threads', str(get_config_data('NUM_THREADS'))])
+            command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
             # Add the model (build-in or custom) command.
             sys.stdout.write('Processing IGoR model files...')
@@ -231,7 +225,11 @@ class GenerateSequences(object):
                 return
 
             # Add generate command.
-            command_list.append(['generate', str(args.n_gen), ['noerr']])
+            if args.n_gen:
+                command_list.append(['generate', str(args.n_gen), ['noerr']])
+            else:
+                command_list.append(['generate', \
+                    str(get_config_data('GENERATE', 'NUM_GENERATE', 'int')), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             sys.stdout.write('Executing IGoR...')
@@ -253,20 +251,20 @@ class GenerateSequences(object):
             # Merge the generated output files together (translated).
             sys.stdout.write('Processing sequence realizations...')
             try:
-                sequence_df = read_separated_to_dataframe(
+                seqs_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
                     separator=';',
                     index_col='seq_index',
                     cols=['nt_sequence'])
-                sequence_df.index.names = [col_names['I_COL']]
-                sequence_df.columns = [col_names['NT_COL']]
-                sequence_df[col_names['AA_COL']] = sequence_df[col_names['NT_COL']] \
-                    .apply(nucleotides_to_aminoacids)
-                realizations_df = read_separated_to_dataframe(
+                seqs_df.index.names = [get_config_data('COMMON', 'I_COL')]
+                seqs_df.columns = [get_config_data('COMMON', 'NT_COL')]
+                seqs_df[get_config_data('COMMON', 'AA_COL')] = \
+                    seqs_df[get_config_data('COMMON', 'NT_COL')].apply(nucleotides_to_aminoacids)
+                real_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_realizations_noerr.csv'),
                     separator=';',
                     index_col='seq_index')
-                realizations_df.index.names = [col_names['I_COL']]
+                real_df.index.names = [get_config_data('COMMON', 'I_COL')]
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
                     model_type = files['type']
@@ -278,12 +276,13 @@ class GenerateSequences(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                realizations_df = self._process_realizations(
-                    data=realizations_df, model=model,
-                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
-                    d_gene_choice_col=col_names['D_GENE_CHOICE_COL'],
-                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
-                full_seqs_df = sequence_df.merge(realizations_df, left_index=True, right_index=True)
+                real_df = self._process_realizations(
+                    data=real_df,
+                    model=model,
+                    v_gene_choice_col=get_config_data('COMMON', 'V_GENE_CHOICE_COL'),
+                    d_gene_choice_col=get_config_data('COMMON', 'D_GENE_CHOICE_COL'),
+                    j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'))
+                full_seqs_df = seqs_df.merge(real_df, left_index=True, right_index=True)
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (IOError, KeyError, ValueError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
@@ -293,15 +292,15 @@ class GenerateSequences(object):
             # Write the pandas dataframe to a separated file.
             sys.stdout.write('Writting file...')
             try:
-                output_filename = get_config_data('OUT_NAME')
+                output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'generated_seqs_{}'.format(model_type)
                 _, filename = write_dataframe_to_separated(
                     dataframe=full_seqs_df,
                     filename=output_filename,
                     directory=output_dir,
-                    separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    separator=get_config_data('COMMON', 'SEPARATOR'),
+                    index_name=get_config_data('COMMON', 'I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
@@ -310,10 +309,10 @@ class GenerateSequences(object):
                 return
 
         # If the given type of sequences generation is CDR3, use OLGA.
-        elif args.cdr3:
+        elif eval_cdr3:
 
             # Get the working directory.
-            working_dir = get_config_data('WORKING_DIR')
+            working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
             # Load the model, create the sequence generator and generate the sequences.
             sys.stdout.write('Loading model...')
@@ -332,7 +331,7 @@ class GenerateSequences(object):
                     model = IgorLoader(model_type=model_type,
                                        model_params=args.custom_model[0],
                                        model_marginals=args.custom_model[1])
-                    separator = get_config_data('SEPARATOR')
+                    separator = get_config_data('COMMON', 'SEPARATOR')
                 for gene in args.anchor:
                     anchor_file = preprocess_separated_file(
                         os.path.join(working_dir, 'cdr3_anchors'),
@@ -353,13 +352,23 @@ class GenerateSequences(object):
             try:
                 seq_generator = OlgaContainer(
                     igor_model=model,
-                    nt_col=col_names['NT_COL'],
-                    nt_p_col=col_names['NT_P_COL'],
-                    aa_col=col_names['AA_COL'],
-                    aa_p_col=col_names['AA_P_COL'],
-                    v_gene_choice_col=col_names['V_GENE_CHOICE_COL'],
-                    j_gene_choice_col=col_names['J_GENE_CHOICE_COL'])
-                cdr3_seqs_df = seq_generator.generate(num_seqs=args.n_gen)
+                    nt_col=get_config_data('COMMON', 'NT_COL'),
+                    nt_p_col=get_config_data('COMMON', 'NT_P_COL'),
+                    aa_col=get_config_data('COMMON', 'AA_COL'),
+                    aa_p_col=get_config_data('COMMON', 'AA_P_COL'),
+                    v_gene_choice_col=get_config_data('COMMON', 'V_GENE_CHOICE_COL'),
+                    j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'))
+                n_generate = get_config_data('GENERATE', 'NUM_GENERATE', 'int')
+                if args.n_gen:
+                    n_generate = args.n_gen
+                if n_generate > 0:
+                    cdr3_seqs_df = seq_generator.generate(num_seqs=n_generate)
+                else:
+                    sys.stdout.write(make_colored('error\n', 'red'))
+                    sys.stderr.write(make_colored(
+                        'Number of sequences to generate should be higher 0\n',
+                        'bg-red'))
+                    return
                 sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
                 sys.stdout.write(make_colored('error\n', 'red'))
@@ -369,15 +378,15 @@ class GenerateSequences(object):
             # Write the pandas dataframe to a separated file with.
             sys.stdout.write('Writting file...')
             try:
-                output_filename = get_config_data('OUT_NAME')
+                output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
                     output_filename = 'generated_seqs_{}_CDR3'.format(model_type)
                 _, filename = write_dataframe_to_separated(
                     dataframe=cdr3_seqs_df,
                     filename=output_filename,
                     directory=output_dir,
-                    separator=get_config_data('SEPARATOR'),
-                    index_name=col_names['I_COL'])
+                    separator=get_config_data('COMMON', 'SEPARATOR'),
+                    index_name=get_config_data('COMMON', 'I_COL'))
                 sys.stdout.write("(written '{}')...".format(filename))
                 sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
