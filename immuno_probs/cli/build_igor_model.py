@@ -91,9 +91,9 @@ class BuildIgorModel(object):
             '-n-iter': {
                 'type': 'int',
                 'nargs': '?',
-                'default': get_config_data('BUILD', 'NUM_ITERATIONS', 'int'),
                 'help': 'The number of inference iterations to perform when ' \
-                        'creating the model (default: %(default)s).'
+                        'creating the model (default: {}).'.format(
+                            get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))
             }
         }
 

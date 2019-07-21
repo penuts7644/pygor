@@ -124,18 +124,18 @@ class EvaluateSequences(object):
             },
             '-cdr3': {
                 'action': 'store_true',
-                'default': get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'),
                 'help': 'If specified (True), CDR3 sequences should be ' \
                         'evaluated, otherwise V(D)J sequences (default: ' \
-                        '%(default)s).'
+                        '{}).'.format(
+                            get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'))
             },
             '-use-allele': {
                 'action': 'store_true',
-                'default': get_config_data('EVALUATE', 'USE_ALLELE', 'bool'),
                 'help': "If specified (True), in combination with the '-cdr3' " \
                         " flag, the allele information from the gene choice " \
                         "fields is used to calculate the generation " \
-                        "probability (default: %(default)s)."
+                        "probability (default: {}).".format(
+                            get_config_data('EVALUATE', 'USE_ALLELE', 'bool'))
             },
         }
 
@@ -156,10 +156,9 @@ class EvaluateSequences(object):
             A directory path for writing output files to.
 
         """
+        eval_cdr3 = get_config_data('EVALUATE', 'EVAL_CDR3', 'bool')
         if args.cdr3:
             eval_cdr3 = args.cdr3
-        elif get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'):
-            eval_cdr3 = get_config_data('EVALUATE', 'EVAL_CDR3', 'bool')
 
         # If the given type of sequences evaluation is VDJ, use IGoR.
         if not eval_cdr3:
@@ -396,6 +395,9 @@ class EvaluateSequences(object):
             # Evaluate the sequences.
             sys.stdout.write('Evaluating sequences...')
             try:
+                use_allele = get_config_data('EVALUATE', 'USE_ALLELE', 'bool')
+                if args.use_allele:
+                    use_allele = args.use_allele
                 seq_evaluator = OlgaContainer(
                     igor_model=model,
                     nt_col=get_config_data('COMMON', 'NT_COL'),
@@ -407,7 +409,7 @@ class EvaluateSequences(object):
                 cdr3_pgen_df = seq_evaluator.evaluate(
                     seqs=seqs_df,
                     num_threads=get_config_data('COMMON', 'NUM_THREADS', 'int'),
-                    use_allele=args.use_allele,
+                    use_allele=use_allele,
                     default_allele=get_config_data('EVALUATE', 'DEFAULT_ALLELE'))
 
                 # Merge IGoR generated sequence output dataframes.

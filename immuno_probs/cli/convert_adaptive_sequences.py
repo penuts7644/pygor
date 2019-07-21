@@ -89,16 +89,16 @@ class ConvertAdaptiveSequences(object):
             '-n-random': {
                 'type': 'int',
                 'nargs': '?',
-                'default': get_config_data('CONVERT', 'NUM_RANDOM', 'int'),
                 'help': "Number of random sequences (subset) to convert " \
-                        "from the given file (default: %(default)s)."
+                        "from the given file (default: {}).".format(
+                            get_config_data('CONVERT', 'NUM_RANDOM', 'int'))
             },
             '-use-allele': {
                 'action': 'store_true',
-                'default': get_config_data('CONVERT', 'USE_ALLELE', 'bool'),
                 'help': "If specified (True), the allele information from " \
                         "the resolved gene fields are used to when " \
-                        "reconstructing the gene choices (default: %(default)s)."
+                        "reconstructing the gene choices (default: {}).".format(
+                            get_config_data('CONVERT', 'USE_ALLELE', 'bool'))
             },
         }
 
@@ -165,6 +165,7 @@ class ConvertAdaptiveSequences(object):
                         filename=filename,
                         nt_col=get_config_data('COMMON', 'NT_COL'),
                         resolved_col=get_config_data('COMMON', 'J_RESOLVED_COL'))
+            sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError, ValueError) as err:
             sys.stdout.write(make_colored('error\n', 'red'))
             sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
@@ -184,10 +185,9 @@ class ConvertAdaptiveSequences(object):
                       get_config_data('COMMON', 'J_RESOLVED_COL')])
 
             # Take a random subsample of sequences in the file.
+            n_random = get_config_data('CONVERT', 'NUM_RANDOM', 'int')
             if args.n_random:
                 n_random = args.n_random
-            elif get_config_data('CONVERT', 'NUM_RANDOM', 'int'):
-                n_random = get_config_data('CONVERT', 'NUM_RANDOM', 'int')
             if n_random != 0:
                 if len(seqs_df) >= n_random:
                     seqs_df = seqs_df.sample(n=n_random, random_state=1)
@@ -206,10 +206,9 @@ class ConvertAdaptiveSequences(object):
         # Setup the data convertor class and convert data.
         sys.stdout.write('Converting adaptive format...')
         try:
+            use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             if args.use_allele:
                 use_allele = args.use_allele
-            elif get_config_data('CONVERT', 'USE_ALLELE', 'bool'):
-                use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             cdr3_df = pandas.DataFrame()
             full_prod_df = pandas.DataFrame()
             full_unprod_df = pandas.DataFrame()

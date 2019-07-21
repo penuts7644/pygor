@@ -44,33 +44,32 @@ def main():
         '-separator': {
             'type': 'str.lower',
             'choices': ['tab', 'semi-colon', 'comma'],
-            'default': {'\t': 'tab', ';': 'semi-colon', ',': 'comma'} \
-                       [get_config_data('COMMON', 'SEPARATOR')],
             'help': 'The separator character used for input files and for ' \
                     'writing new files (select one: %(choices)s) ' \
-                    '(default: %(default)s).'
+                    '(default: {}).'.format(
+                        {'\t': 'tab', ';': 'semi-colon', ',': 'comma'} \
+                        [get_config_data('COMMON', 'SEPARATOR')])
         },
         '-threads': {
             'type': 'int',
             'nargs': '?',
-            'default': get_config_data('COMMON', 'NUM_THREADS', 'int'),
             'help': 'The number of threads the program is allowed to use ' \
-                    '(default: %(default)s).'
+                    '(default: {}).'.format(
+                        get_config_data('COMMON', 'NUM_THREADS', 'int'))
         },
         '-set-wd': {
             'type': 'str',
             'nargs': '?',
-            'default': get_config_data('COMMON', 'WORKING_DIR'),
             'help': 'An optional location for writing files (default: ' \
-                    '%(default)s).'
+                    '{}).'.format(get_config_data('COMMON', 'WORKING_DIR'))
         },
         '-out-name': {
             'type': 'str',
             'nargs': '?',
-            'default': get_config_data('COMMON', 'OUT_NAME'),
             'help': 'An optional output file name. If multiple files are ' \
                     'created, the value is used as a prefix for the file ' \
-                    '(default: %(default)s).'
+                    '(default: {}).'.format(
+                        get_config_data('COMMON', 'OUT_NAME'))
         },
         '-config-file': {
             'type': 'str',
@@ -127,19 +126,18 @@ def main():
         output_dir = get_config_data('COMMON', 'WORKING_DIR')
         if get_config_data('EXPERT', 'USE_SYSTEM_TEMP', 'bool'):
             temp_dir = create_directory_path(
-                os.path.join(tempfile.gettempdir(), get_config_data('COMMON', 'TEMP_DIR')))
+                os.path.join(tempfile.gettempdir(), get_config_data('EXPERT', 'TEMP_DIR')))
         else:
             temp_dir = create_directory_path(
-                os.path.join(output_dir, get_config_data('COMMON', 'TEMP_DIR')))
+                os.path.join(output_dir, get_config_data('EXPERT', 'TEMP_DIR')))
         set_working_dir(temp_dir)
         sys.stdout.write(make_colored('success\n', 'green'))
-    except IOError as err:
+    except (IOError, AttributeError) as err:
         sys.stdout.write(make_colored('error\n', 'red'))
         sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
         return
 
     # Execute the correct tool based on given subparser name.
-    sys.stdout.write('Execting ImmunoProbs tool...')
     try:
         if parsed_arguments.subparser_name == 'convert':
             cas.run(args=parsed_arguments, output_dir=output_dir)
@@ -157,7 +155,6 @@ def main():
 
         # Finally, delete the temporary directory.
         rmtree(temp_dir, ignore_errors=True)
-        sys.stdout.write(make_colored('success\n', 'green'))
     except (TypeError) as err:
         sys.stdout.write(make_colored('error\n', 'red'))
         sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))

@@ -104,16 +104,16 @@ class GenerateSequences(object):
             '-n-gen': {
                 'type': 'int',
                 'nargs': '?',
-                'default': get_config_data('GENERATE', 'NUM_GENERATE', 'int'),
-                'help': 'The number of sequences to generate. (default: ' \
-                        '%(default)s)'
+                'help': 'The number of sequences to generate (default: ' \
+                        '{}).'.format(
+                            get_config_data('GENERATE', 'NUM_GENERATE', 'int'))
             },
             '-cdr3': {
                 'action': 'store_true',
-                'default': get_config_data('GENERATE', 'EVAL_CDR3', 'bool'),
                 'help': 'If specified (True), CDR3 sequences are ' \
                         'generated, otherwise V(D)J sequences (default: ' \
-                        '%(default)s).'
+                        '{}).'.format(
+                            get_config_data('GENERATE', 'EVAL_CDR3', 'bool'))
             },
         }
 
@@ -189,10 +189,9 @@ class GenerateSequences(object):
             A directory path for writing output files to.
 
         """
+        eval_cdr3 = get_config_data('GENERATE', 'EVAL_CDR3', 'bool')
         if args.cdr3:
             eval_cdr3 = args.cdr3
-        elif get_config_data('GENERATE', 'EVAL_CDR3', 'bool'):
-            eval_cdr3 = get_config_data('GENERATE', 'EVAL_CDR3', 'bool')
 
         # If the given type of sequences generation is not CDR3, use IGoR.
         if not eval_cdr3:
@@ -359,10 +358,9 @@ class GenerateSequences(object):
                     aa_p_col=get_config_data('COMMON', 'AA_P_COL'),
                     v_gene_choice_col=get_config_data('COMMON', 'V_GENE_CHOICE_COL'),
                     j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'))
+                n_generate = get_config_data('GENERATE', 'NUM_GENERATE', 'int')
                 if args.n_gen:
                     n_generate = args.n_gen
-                elif get_config_data('GENERATE', 'NUM_GENERATE', 'int'):
-                    n_generate = get_config_data('GENERATE', 'NUM_GENERATE', 'int')
                 if n_generate > 0:
                     cdr3_seqs_df = seq_generator.generate(num_seqs=n_generate)
                 else:
