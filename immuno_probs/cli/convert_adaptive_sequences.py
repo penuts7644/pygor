@@ -18,14 +18,14 @@
 """Commandline tool for converting VDJ sequences (and CDR3) from adaptive format."""
 
 
+import logging
 import os
-import sys
 
 import pandas
 import numpy
 
 from immuno_probs.convert.adaptive_sequence_convertor import AdaptiveSequenceConvertor
-from immuno_probs.util.cli import dynamic_cli_options, make_colored
+from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
 write_dataframe_to_separated, read_fasta_as_dataframe, read_separated_to_dataframe
@@ -50,6 +50,7 @@ class ConvertAdaptiveSequences(object):
     """
     def __init__(self, subparsers):
         super(ConvertAdaptiveSequences, self).__init__()
+        self.logger = logging.getLogger(__name__)
         self.subparsers = subparsers
         self._add_options()
 
@@ -148,7 +149,7 @@ class ConvertAdaptiveSequences(object):
         working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
         # Collect and read in the corresponding reference genomic templates.
-        sys.stdout.write('Processing genomic reference templates...')
+        self.logger.info('Processing genomic reference templates')
         try:
             for gene in args.ref:
                 filename = preprocess_reference_file(
@@ -165,14 +166,12 @@ class ConvertAdaptiveSequences(object):
                         filename=filename,
                         nt_col=get_config_data('COMMON', 'NT_COL'),
                         resolved_col=get_config_data('COMMON', 'J_RESOLVED_COL'))
-            sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError, ValueError) as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
         # Read in the sequence data.
-        sys.stdout.write('Pre-processing input sequence file...')
+        self.logger.info('Pre-processing input sequence file')
         try:
             seqs_df = read_separated_to_dataframe(
                 file=args.seqs,
@@ -192,19 +191,16 @@ class ConvertAdaptiveSequences(object):
                 if len(seqs_df) >= n_random:
                     seqs_df = seqs_df.sample(n=n_random, random_state=1)
                 else:
-                    sys.stdout.write(make_colored('error\n', 'red'))
-                    sys.stderr.write(make_colored(
+                    self.logger.error(
                         'Number of random sequences should be higher 0 and ' \
-                        'smaller than total number of rows in file\n', 'bg-red'))
+                        'smaller than total number of rows in file')
                     return
-            sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError, ValueError) as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
         # Setup the data convertor class and convert data.
-        sys.stdout.write('Converting adaptive format...')
+        self.logger.info('Converting adaptive format')
         try:
             use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             if args.use_allele:
@@ -243,14 +239,11 @@ class ConvertAdaptiveSequences(object):
                 full_prod_df = full_prod_df.append(processed[1], ignore_index=True)
                 full_unprod_df = full_unprod_df.append(processed[2], ignore_index=True)
                 full_df = full_df.append(processed[3], ignore_index=True)
-            sys.stdout.write(make_colored('success\n', 'green'))
         except KeyError as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
         # Copy the output files to the output directory with prefix.
-        sys.stdout.write('Writting files...')
         try:
             output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
@@ -261,30 +254,30 @@ class ConvertAdaptiveSequences(object):
                 directory=output_dir,
                 separator=get_config_data('COMMON', 'SEPARATOR'),
                 index_name=get_config_data('COMMON', 'I_COL'))
+            self.logger.info("Written '%s'", filename_1)
             _, filename_2 = write_dataframe_to_separated(
                 dataframe=full_prod_df,
                 filename='{}_full_length_productive'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('COMMON', 'SEPARATOR'),
                 index_name=get_config_data('COMMON', 'I_COL'))
+            self.logger.info("Written '%s'", filename_2)
             _, filename_3 = write_dataframe_to_separated(
                 dataframe=full_unprod_df,
                 filename='{}_full_length_unproductive'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('COMMON', 'SEPARATOR'),
                 index_name=get_config_data('COMMON', 'I_COL'))
+            self.logger.info("Written '%s'", filename_3)
             _, filename_4 = write_dataframe_to_separated(
                 dataframe=full_df,
                 filename='{}_full_length'.format(output_prefix),
                 directory=output_dir,
                 separator=get_config_data('COMMON', 'SEPARATOR'),
                 index_name=get_config_data('COMMON', 'I_COL'))
-            sys.stdout.write("(written '{}', '{}', '{}' and '{}')...".format(
-                filename_1, filename_2, filename_3, filename_4))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            self.logger.info("Written '%s'", filename_4)
         except IOError as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
 

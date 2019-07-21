@@ -18,6 +18,7 @@
 """Commandline tool for generating V(D)J sequences from and IGoR model."""
 
 
+import logging
 import os
 import sys
 
@@ -27,7 +28,7 @@ from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.model.igor_loader import IgorLoader
-from immuno_probs.util.cli import dynamic_cli_options, make_colored
+from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import read_separated_to_dataframe, \
@@ -50,6 +51,7 @@ class GenerateSequences(object):
     """
     def __init__(self, subparsers):
         super(GenerateSequences, self).__init__()
+        self.logger = logging.getLogger(__name__)
         self.subparsers = subparsers
         self._add_options()
 
@@ -203,7 +205,7 @@ class GenerateSequences(object):
             command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
             # Add the model (build-in or custom) command.
-            sys.stdout.write('Processing IGoR model files...')
+            self.logger.info('Processing IGoR model files')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -218,10 +220,8 @@ class GenerateSequences(object):
                         copy_to_dir(working_dir, str(args.custom_model[0]), 'txt'),
                         copy_to_dir(working_dir, str(args.custom_model[1]), 'txt')
                     ])
-                sys.stdout.write(make_colored('success\n', 'green'))
             except IOError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Add generate command.
@@ -232,24 +232,21 @@ class GenerateSequences(object):
                     str(get_config_data('GENERATE', 'NUM_GENERATE', 'int')), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
-            sys.stdout.write('Executing IGoR...')
+            self.logger.info('Executing IGoR')
             try:
                 igor_cline = IgorInterface(command=command_list)
                 exit_code, _, stderr, _ = igor_cline.call()
                 if exit_code != 0:
-                    sys.stdout.write(make_colored('error\n', 'red'))
-                    sys.stderr.write(make_colored(
-                        "An error occurred during execution of IGoR command (exit " \
-                        "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+                    self.logger.error(
+                        "An error occurred during execution of IGoR command " \
+                        "(exit code %s):\n%s", exit_code, stderr)
                     return
-                sys.stdout.write(make_colored('success\n', 'green'))
             except OSError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err), 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Merge the generated output files together (translated).
-            sys.stdout.write('Processing sequence realizations...')
+            self.logger.info('Processing sequence realizations')
             try:
                 seqs_df = read_separated_to_dataframe(
                     file=os.path.join(working_dir, 'generated', 'generated_seqs_noerr.csv'),
@@ -283,14 +280,11 @@ class GenerateSequences(object):
                     d_gene_choice_col=get_config_data('COMMON', 'D_GENE_CHOICE_COL'),
                     j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'))
                 full_seqs_df = seqs_df.merge(real_df, left_index=True, right_index=True)
-                sys.stdout.write(make_colored('success\n', 'green'))
             except (IOError, KeyError, ValueError) as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Write the pandas dataframe to a separated file.
-            sys.stdout.write('Writting file...')
             try:
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
@@ -301,11 +295,9 @@ class GenerateSequences(object):
                     directory=output_dir,
                     separator=get_config_data('COMMON', 'SEPARATOR'),
                     index_name=get_config_data('COMMON', 'I_COL'))
-                sys.stdout.write("(written '{}')...".format(filename))
-                sys.stdout.write(make_colored('success\n', 'green'))
+                self.logger.info("Written '%s'", filename)
             except IOError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
         # If the given type of sequences generation is CDR3, use OLGA.
@@ -315,7 +307,7 @@ class GenerateSequences(object):
             working_dir = get_config_data('COMMON', 'WORKING_DIR')
 
             # Load the model, create the sequence generator and generate the sequences.
-            sys.stdout.write('Loading model...')
+            self.logger.info('Loading model')
             try:
                 if args.model:
                     files = get_default_model_file_paths(name=args.model)
@@ -341,14 +333,12 @@ class GenerateSequences(object):
                     )
                     model.set_anchor(gene=gene[0], file=anchor_file)
                 model.initialize_model()
-                sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, OSError, IOError, KeyError, ValueError) as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Setup the sequence generator and generate sequences.
-            sys.stdout.write('Generating sequences...')
+            self.logger.info('Generating sequences')
             try:
                 seq_generator = OlgaContainer(
                     igor_model=model,
@@ -364,19 +354,14 @@ class GenerateSequences(object):
                 if n_generate > 0:
                     cdr3_seqs_df = seq_generator.generate(num_seqs=n_generate)
                 else:
-                    sys.stdout.write(make_colored('error\n', 'red'))
-                    sys.stderr.write(make_colored(
-                        'Number of sequences to generate should be higher 0\n',
-                        'bg-red'))
+                    self.logger.error(
+                        'Number of sequences to generate should be higher 0')
                     return
-                sys.stdout.write(make_colored('success\n', 'green'))
             except (TypeError, IOError) as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Write the pandas dataframe to a separated file with.
-            sys.stdout.write('Writting file...')
             try:
                 output_filename = get_config_data('COMMON', 'OUT_NAME')
                 if not output_filename:
@@ -387,11 +372,9 @@ class GenerateSequences(object):
                     directory=output_dir,
                     separator=get_config_data('COMMON', 'SEPARATOR'),
                     index_name=get_config_data('COMMON', 'I_COL'))
-                sys.stdout.write("(written '{}')...".format(filename))
-                sys.stdout.write(make_colored('success\n', 'green'))
+                self.logger.info("Written '%s'", filename)
             except IOError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
 
