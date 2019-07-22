@@ -17,13 +17,14 @@
 
 """Commandline tool for creating a custom IGoR V(D)J model."""
 
+
+import logging
 import os
 from shutil import copy2
-import sys
 
 from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
-from immuno_probs.util.cli import dynamic_cli_options, make_colored
+from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import preprocess_separated_file, \
 preprocess_reference_file, is_fasta, is_separated, copy_to_dir
@@ -46,6 +47,7 @@ class BuildIgorModel(object):
     """
     def __init__(self, subparsers):
         super(BuildIgorModel, self).__init__()
+        self.logger = logging.getLogger(__name__)
         self.subparsers = subparsers
         self._add_options()
 
@@ -151,13 +153,14 @@ class BuildIgorModel(object):
 
         """
         # Add general igor commands.
+        self.logger.info('Setting up initial IGoR command (1/5)')
         command_list = []
         working_dir = get_config_data('COMMON', 'WORKING_DIR')
         command_list.append(['set_wd', working_dir])
         command_list.append(['threads', str(get_config_data('COMMON', 'NUM_THREADS', 'int'))])
 
         # Add sequence and file paths commands.
-        sys.stdout.write('Processing genomic reference templates...')
+        self.logger.info('Processing genomic reference templates (2/5)')
         try:
             ref_list = ['set_genomic']
             for i in args.ref:
@@ -168,14 +171,12 @@ class BuildIgorModel(object):
                 )
                 ref_list.append([i[0], filename])
             command_list.append(ref_list)
-            sys.stdout.write(make_colored('success\n', 'green'))
         except IOError as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
         # Set the initial model parameters using a build-in model.
-        sys.stdout.write('Setting initial model parameters...')
+        self.logger.info('Setting initial model parameters (3/5)')
         if args.type in ['beta', 'heavy']:
             command_list.append([
                 'set_custom_model',
@@ -186,19 +187,18 @@ class BuildIgorModel(object):
                 'set_custom_model',
                 get_default_model_file_paths(name='human-t-alpha')['parameters']
             ])
-        sys.stdout.write(make_colored('success\n', 'green'))
 
         # Add the sequence command after pre-processing of the input file.
-        sys.stdout.write('Pre-processing input sequence file...')
+        self.logger.info('Pre-processing input sequence file (4/5)')
         try:
             if is_fasta(args.seqs):
-                sys.stdout.write('(FASTA input file extension detected)...')
+                self.logger.info('FASTA input file extension detected')
                 command_list.append([
                     'read_seqs',
                     copy_to_dir(working_dir, str(args.seqs), 'fasta')
                 ])
             elif is_separated(args.seqs, get_config_data('COMMON', 'SEPARATOR')):
-                sys.stdout.write('(separated input file type detected)...')
+                self.logger.info('Separated input file type detected')
                 try:
                     input_seqs = preprocess_separated_file(
                         os.path.join(working_dir, 'input'),
@@ -210,27 +210,22 @@ class BuildIgorModel(object):
                     )
                     command_list.append(['read_seqs', input_seqs])
                 except (KeyError, ValueError) as err:
-                    sys.stdout.write(make_colored('error\n', 'red'))
-                    sys.stderr.write(make_colored(
-                        "Given input sequence file does not have a '{}' column\n" \
-                        .format(get_config_data('COMMON', 'NT_COL')), 'bg-red'))
+                    self.logger.error(
+                        "Given input sequence file does not have a '%s' column",
+                        get_config_data('COMMON', 'NT_COL'))
                     return
             else:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(
-                    'Given input sequence file could not be detected as FASTA ' \
-                    'file or separated data type\n', 'bg-red'))
+                self.logger.error(
+                    'Given input sequence file could not be detected as ' \
+                    'FASTA file or separated data type')
                 return
-            sys.stdout.write(make_colored('success\n', 'green'))
         except (IOError, KeyError) as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
-        # Add alignment commands.
+        # Add alignment command and inference commands.
+        self.logger.info('Adding additional variables to IGoR command (5/5)')
         command_list.append(['align', ['all']])
-
-        # Add inference commands.
         if args.n_iter:
             command_list.append(['infer', ['N_iter', str(args.n_iter)]])
         else:
@@ -238,25 +233,22 @@ class BuildIgorModel(object):
                 'N_iter', str(get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))]])
 
         # Execute IGoR through command line and catch error code.
-        sys.stdout.write('Executing IGoR...')
+        self.logger.info('Executing IGoR (this might take a while)')
         try:
             igor_cline = IgorInterface(command=command_list)
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(
-                    "An error occurred during execution of IGoR command (exit " \
-                    "code {}):\n{}\n".format(exit_code, stderr), 'bg-red'))
+                self.logger.error(
+                    "An error occurred during execution of IGoR command " \
+                    "(exit code %s):\n%s", exit_code, stderr)
                 return
-            sys.stdout.write(make_colored('success\n', 'green'))
         except OSError as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err), 'bg-red'))
+            self.logger.error(str(err))
             return
 
         # Copy the output files to the output directory with prefix.
-        sys.stdout.write('Writting files...')
         try:
+            self.logger.info('Writing model files to file system')
             output_prefix = get_config_data('COMMON', 'OUT_NAME')
             if not output_prefix:
                 output_prefix = 'model'
@@ -264,15 +256,14 @@ class BuildIgorModel(object):
                 file=os.path.join(working_dir, 'inference', 'final_marginals.txt'),
                 filename='{}_marginals'.format(output_prefix),
                 directory=output_dir)
+            self.logger.info("Written '%s'", filename_1)
             _, filename_2 = self._copy_file_to_output(
                 file=os.path.join(working_dir, 'inference', 'final_parms.txt'),
                 filename='{}_params'.format(output_prefix),
                 directory=output_dir)
-            sys.stdout.write("(written '{}' and '{}')...".format(filename_1, filename_2))
-            sys.stdout.write(make_colored('success\n', 'green'))
+            self.logger.info("Written '%s'", filename_2)
         except IOError as err:
-            sys.stdout.write(make_colored('error\n', 'red'))
-            sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+            self.logger.error(str(err))
             return
 
 

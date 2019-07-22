@@ -18,14 +18,14 @@
 """Commandline tool for creating files containing CDR3 anchor indices."""
 
 
+import logging
 import os
-import sys
 
 import numpy
 
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
-from immuno_probs.util.cli import dynamic_cli_options, make_colored
+from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
 from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
 write_dataframe_to_separated
@@ -48,6 +48,7 @@ class LocateCdr3Anchors(object):
     """
     def __init__(self, subparsers):
         super(LocateCdr3Anchors, self).__init__()
+        self.logger = logging.getLogger(__name__)
         self.subparsers = subparsers
         self._add_options()
 
@@ -92,8 +93,7 @@ class LocateCdr3Anchors(object):
         parser_tool = dynamic_cli_options(parser=parser_tool,
                                           options=parser_options)
 
-    @staticmethod
-    def run(args, output_dir):
+    def run(self, args, output_dir):
         """Function to execute the commandline tool.
 
         Parameters
@@ -109,7 +109,9 @@ class LocateCdr3Anchors(object):
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
-            sys.stdout.write('Locating CDR3 anchors for {}...'.format(gene[0]))
+            self.logger.info(
+                'Processing genomic reference template for %s and building ' \
+                'MUSCLE alignment', gene[0])
             try:
                 filename = preprocess_reference_file(
                     os.path.join(working_dir, 'genomic_templates'),
@@ -119,11 +121,11 @@ class LocateCdr3Anchors(object):
                 locator = AnchorLocator(alignment=aligner.get_muscle_alignment(),
                                         gene=gene[0])
             except (OSError, ValueError, IOError) as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             try:
+                self.logger.info('Locating CDR3 anchors for %s', gene[0])
                 if args.motif is not None:
                     anchors_df = locator.get_indices_motifs(
                         get_config_data('COMMON', 'NUM_THREADS', 'int'),
@@ -138,30 +140,30 @@ class LocateCdr3Anchors(object):
                             get_config_data('COMMON', 'NUM_THREADS', 'int'),
                             *get_config_data('LOCATE', 'J_MOTIFS').split(','))
             except ValueError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
             # Modify the dataframe to make it OLGA compliant.
-            anchors_df.insert(2, 'function', numpy.nan)
-            anchors_df.rename(columns={'name': 'gene'}, inplace=True)
+            self.logger.info('Formatting CDR3 anchor dataframe')
             try:
+                anchors_df.insert(2, 'function', numpy.nan)
+                anchors_df.rename(columns={'name': 'gene'}, inplace=True)
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
+
+                # Apply some filtering to the anchor dataframe.
+                anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
+                anchors_df.reset_index(inplace=True, drop=True)
             except (IndexError, ValueError):
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(
+                self.logger.error(
                     "FASTA header needs to be separated by '|', needs to have " \
                     "gene name on index position 1 and function on index " \
-                    "position 3: '{}'\n".format(anchors_df['gene']), 'bg-red'))
+                    "position 3: '%s'", anchors_df['gene'])
                 return
-
-            # Apply some filtering to the anchor dataframe.
-            anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
-            anchors_df.reset_index(inplace=True, drop=True)
 
             # Write the pandas dataframe to a separated file with prefix.
             try:
+                self.logger.info('Writing CDR3 acnhors for %s to system', gene[0])
                 output_prefix = get_config_data('COMMON', 'OUT_NAME')
                 if not output_prefix:
                     output_prefix = 'gene_CDR3_anchors'
@@ -170,11 +172,9 @@ class LocateCdr3Anchors(object):
                     filename='{}_{}'.format(gene[0], output_prefix),
                     directory=output_dir,
                     separator=get_config_data('COMMON', 'SEPARATOR'))
-                sys.stdout.write("(written '{}' for {} gene)...".format(filename, gene[0]))
-                sys.stdout.write(make_colored('success\n', 'green'))
+                self.logger.info("Written '%s' for %s gene", filename, gene[0])
             except IOError as err:
-                sys.stdout.write(make_colored('error\n', 'red'))
-                sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+                self.logger.error(str(err))
                 return
 
 

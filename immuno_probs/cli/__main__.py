@@ -18,9 +18,9 @@
 """Executable for running functions located in immuno_probs.cli directory."""
 
 
+import logging
 import argparse
 import os
-import sys
 import tempfile
 from shutil import rmtree
 
@@ -29,7 +29,7 @@ from immuno_probs.cli.generate_sequences import GenerateSequences
 from immuno_probs.cli.convert_adaptive_sequences import ConvertAdaptiveSequences
 from immuno_probs.cli.evaluate_sequences import EvaluateSequences
 from immuno_probs.cli.locate_cdr3_anchors import LocateCdr3Anchors
-from immuno_probs.util.cli import dynamic_cli_options, make_colored
+from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import set_num_threads, set_separator, \
 set_working_dir, set_out_name, set_config_data, get_config_data
 from immuno_probs.util.io import create_directory_path
@@ -37,6 +37,12 @@ from immuno_probs.util.io import create_directory_path
 
 def main():
     """Function to create the ArgumentParser containing the sub-options."""
+    # Setting up the logger.
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=os.environ.get("LOGLEVEL", "INFO"))
+    logger = logging.getLogger(__name__)
+
     # Create the parser with general commands and set the subparser.
     description = 'Create IGoR models and calculate the generation ' \
         'probability of V(D)J and CDR3 sequences.'
@@ -87,21 +93,19 @@ def main():
                                        dest='subparser_name')
 
     # Add main- and suboptions to the subparser.
-    sys.stdout.write('Setting up commandline tools...')
+    logger.info('Setting up ImmunoProbs commandline tools')
     try:
         cas = ConvertAdaptiveSequences(subparsers=subparsers)
         lca = LocateCdr3Anchors(subparsers=subparsers)
         bim = BuildIgorModel(subparsers=subparsers)
         ges = GenerateSequences(subparsers=subparsers)
         evs = EvaluateSequences(subparsers=subparsers)
-        sys.stdout.write(make_colored('success\n', 'green'))
     except (TypeError) as err:
-        sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        logger.error(str(err))
         return
 
     # Parse the commandline arguments and set variables.
-    sys.stdout.write('Parsing commandline arguments...')
+    logger.info('Parsing/formatting commandline arguments')
     try:
         parsed_arguments = parser.parse_args()
         if parsed_arguments.config_file is not None:
@@ -114,14 +118,12 @@ def main():
             set_working_dir(parsed_arguments.set_wd)
         if parsed_arguments.out_name is not None:
             set_out_name(parsed_arguments.out_name)
-        sys.stdout.write(make_colored('success\n', 'green'))
     except (TypeError, ValueError, IOError) as err:
-        sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        logger.error(str(err))
         return
 
     # Create the directory paths for temporary files.
-    sys.stdout.write('Seting up temporary directory...')
+    logger.info('Setting up temporary system directory')
     try:
         output_dir = get_config_data('COMMON', 'WORKING_DIR')
         if get_config_data('EXPERT', 'USE_SYSTEM_TEMP', 'bool'):
@@ -131,13 +133,13 @@ def main():
             temp_dir = create_directory_path(
                 os.path.join(output_dir, get_config_data('EXPERT', 'TEMP_DIR')))
         set_working_dir(temp_dir)
-        sys.stdout.write(make_colored('success\n', 'green'))
     except (IOError, AttributeError) as err:
-        sys.stdout.write(make_colored('error\n', 'red'))
-        sys.stderr.write(make_colored(str(err) + '\n', 'bg-red'))
+        logger.error(str(err))
         return
 
     # Execute the correct tool based on given subparser name.
+    logger.info('Executing selected ImmunoProbs tool (%s)',
+                parsed_arguments.subparser_name)
     if parsed_arguments.subparser_name == 'convert':
         cas.run(args=parsed_arguments, output_dir=output_dir)
     elif parsed_arguments.subparser_name == 'locate':
@@ -149,10 +151,11 @@ def main():
     elif parsed_arguments.subparser_name == 'evaluate':
         evs.run(args=parsed_arguments, output_dir=output_dir)
     else:
-        sys.stdout.write(
-            "No tool selected, run help command to show all supported tools.\n")
+        logger.error(
+            'No tool selected, run help command to show all supported tools')
 
     # Finally, delete the temporary directory.
+    logger.info('Cleaning up working directory')
     rmtree(temp_dir, ignore_errors=True)
 
 
