@@ -186,7 +186,7 @@ class AdaptiveSequenceConvertor(object):
             columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
 
         # Shuffle the dataframe and iterate over the rows with index value.
-        ary = ary.sample(frac=1, random_state=1)
+        ary = ary.sample(frac=1)
         for i, row in ary.iterrows():
 
             # Exit loop if prod and reached max number of sequences, do not add
@@ -391,14 +391,14 @@ class AdaptiveSequenceConvertor(object):
                 n_random = len(full_unprod)
             full_prod = full_prod.head(n_random)
             full_unprod = full_unprod.head(n_random)
-        reassembled = pandas.merge(tmp, full_prod, how='inner', on=col_names['ROW_ID_COL'])
+        reassembled = tmp[tmp[col_names['ROW_ID_COL']].isin(full_prod[col_names['ROW_ID_COL']])]
         reassembled = reassembled.append(
-            pandas.merge(tmp, full_unprod, how='inner', on=col_names['ROW_ID_COL']),
+            tmp[tmp[col_names['ROW_ID_COL']].isin(full_unprod[col_names['ROW_ID_COL']])],
             ignore_index=True)
 
         # Build the dataframe with the total full length sequences.
         full = pandas.concat([full_prod, full_unprod])
-        full = full.sample(frac=1, random_state=1).reset_index(drop=True)
+        full = full.sample(frac=1).reset_index(drop=True)
         if n_random > 0:
             full = full.head(len(full_prod))
         return [reassembled, full_prod, full_unprod, full]

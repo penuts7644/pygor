@@ -104,37 +104,7 @@ def test_find_longest_substring(full, partial, expected):
     ('tests/data/human_t_beta/10_sequence_samples.tsv',
      'tests/data/human_t_beta/ref_genomes/TRBV.fasta',
      'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
-     [pandas.DataFrame(
-         [[0, 'TGTGCCAGCAGCCAAACCAAGGGGACCGGGGAGCTGTTTTTT', 'CASSQTKGTGELFF',
-           'TRBV4-2*01', 'TRBJ2-2*01']],
-         columns=['row_id', 'nt_sequence', 'aa_sequence', 'v_gene_choice', 'j_gene_choice']),
-      pandas.DataFrame(
-          [[0, 'GAAACGGGAGTTACGCAGACACCAAGACACCTGGTCATGGGAATGACAAATAAGAAGTCTT' \
-            'TGAAATGTGAACAACATCTGGGGCATAACGCTATGTATTGGTACAAGCAAAGTGCTAAGAAGCC' \
-            'ACTGGAGCTCATGTTTGTCTACAACTTTAAAGAACAGACTGAAAACAACAGTGTGCCAAGTCGC' \
-            'TTCTCACCTGAATGCCCCAACAGCTCTCACTTATTCCTTCACCTACACACCCTGCAGCCAGAAG' \
-            'ACTCGGCCCTGTATCTCTGTGCCAGCAGCCAAACCAAGGGGACCGGGGAGCTGTTTTTTGGAGA' \
-            'AGGCTCTAGGCTGACCGTACTGG']],
-          columns=['row_id', 'nt_sequence']
-      ),
-      pandas.DataFrame(
-          [[3, 'ATTGCTGGGATCACCCAGGCACCAACATCTCAGATCCTGGCAGCAGGACGGCGCATGACAC' \
-            'TGAGATGTACCCAGGATATGAGACATAATGCCATGTACTGGTATAGACAAGATCTAGGACTGGG' \
-            'GCTAAGGCTCATCCATTATTCAAATACTGCAGGTACCACTGGCAAAGGAGAAGTCCCTGATGGT' \
-            'TATAGTGTCTCCAGAGCAAACACAGATGATTTCCCCCTCACGTTGGCGTCTGCTGTACCCTCTC' \
-            'AGACATCTGTGTACTTCTGTGCCAGCAGTTGATCCTCAGGTCTCCTACGAGCAGTACTTCGGGC' \
-            'CGGGCACCAGGCTCACGGTCACAG']],
-          columns=['row_id', 'nt_sequence']
-      ),
-      pandas.DataFrame(
-          [[0, 'GAAACGGGAGTTACGCAGACACCAAGACACCTGGTCATGGGAATGACAAATAAGAAGTCTT' \
-            'TGAAATGTGAACAACATCTGGGGCATAACGCTATGTATTGGTACAAGCAAAGTGCTAAGAAGCC' \
-            'ACTGGAGCTCATGTTTGTCTACAACTTTAAAGAACAGACTGAAAACAACAGTGTGCCAAGTCGC' \
-            'TTCTCACCTGAATGCCCCAACAGCTCTCACTTATTCCTTCACCTACACACCCTGCAGCCAGAAG' \
-            'ACTCGGCCCTGTATCTCTGTGCCAGCAGCCAAACCAAGGGGACCGGGGAGCTGTTTTTTGGAGA' \
-            'AGGCTCTAGGCTGACCGTACTGG']],
-          columns=['row_id', 'nt_sequence']
-      )]),
+     [6, 4, 2, 6]),
 ])
 def test_convert(seqs, v_genes, j_genes, expected):
     """Test if converted data is returned.
@@ -156,10 +126,6 @@ def test_convert(seqs, v_genes, j_genes, expected):
         If the performed test failed.
 
     """
-    cdr3_df = pandas.DataFrame()
-    full_prod_df = pandas.DataFrame()
-    full_unprod_df = pandas.DataFrame()
-    full_df = pandas.DataFrame()
     seqs = read_separated_to_dataframe(
         file='tests/data/human_t_beta/10_sequence_samples.tsv',
         separator='\t')
@@ -172,7 +138,7 @@ def test_convert(seqs, v_genes, j_genes, expected):
         nt_col='nt_sequence',
         resolved_col='j_resolved')
     asc = AdaptiveSequenceConvertor()
-    results = asc.convert(
+    cdr3_df, full_prod_df, full_unprod_df, full_df = asc.convert(
         num_threads=1,
         seqs=seqs,
         ref_v_genes=v_genes,
@@ -188,12 +154,7 @@ def test_convert(seqs, v_genes, j_genes, expected):
         j_gene_choice_col='j_gene_choice',
         use_allele=True,
         default_allele='01')
-    for processed in results:
-        cdr3_df = cdr3_df.append(processed[0], ignore_index=True)
-        full_prod_df = full_prod_df.append(processed[1], ignore_index=True)
-        full_unprod_df = full_unprod_df.append(processed[2], ignore_index=True)
-        full_df = full_df.append(processed[3], ignore_index=True)
-    assert (cdr3_df.head(1) == expected[0]).all().all()
-    assert (full_prod_df.head(1) == expected[1]).all().all()
-    assert (full_unprod_df.head(1) == expected[2]).all().all()
-    assert (full_df.head(1) == expected[3]).all().all()
+    assert len(cdr3_df) == expected[0]
+    assert len(full_prod_df) == expected[1]
+    assert len(full_unprod_df) == expected[2]
+    assert len(full_df) == expected[3]
