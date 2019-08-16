@@ -188,12 +188,10 @@ class ConvertAdaptiveSequences(object):
             if args.n_random:
                 n_random = args.n_random
             if n_random != 0:
-                if len(seqs_df) >= n_random:
-                    seqs_df = seqs_df.sample(n=n_random, random_state=1)
-                else:
-                    self.logger.error(
-                        'Number of random sequences should be higher 0 and ' \
-                        'smaller than total number of rows in file')
+                if len(seqs_df) < n_random:
+                    self.logger.warn(
+                        'Number of random sequences is higher then number of ' \
+                        'rows in file, all rows are used')
                     return
         except (IOError, KeyError, ValueError) as err:
             self.logger.error(str(err))
@@ -205,12 +203,8 @@ class ConvertAdaptiveSequences(object):
             use_allele = get_config_data('CONVERT', 'USE_ALLELE', 'bool')
             if args.use_allele:
                 use_allele = args.use_allele
-            cdr3_df = pandas.DataFrame()
-            full_prod_df = pandas.DataFrame()
-            full_unprod_df = pandas.DataFrame()
-            full_df = pandas.DataFrame()
             asc = AdaptiveSequenceConvertor()
-            results = asc.convert(
+            cdr3_df, full_prod_df, full_unprod_df, full_df = asc.convert(
                 num_threads=get_config_data('COMMON', 'NUM_THREADS', 'int'),
                 seqs=seqs_df,
                 ref_v_genes=v_gene_df,
@@ -225,20 +219,16 @@ class ConvertAdaptiveSequences(object):
                 j_resolved_col=get_config_data('COMMON', 'J_RESOLVED_COL'),
                 j_gene_choice_col=get_config_data('COMMON', 'J_GENE_CHOICE_COL'),
                 use_allele=use_allele,
-                default_allele=get_config_data('CONVERT', 'DEFAULT_ALLELE'))
-            for processed in results:
-                processed[0].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
-                                    os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[1].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
-                                    os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[2].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
-                                    os.path.splitext(os.path.basename(args.seqs))[0])
-                processed[3].insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
-                                    os.path.splitext(os.path.basename(args.seqs))[0])
-                cdr3_df = cdr3_df.append(processed[0], ignore_index=True)
-                full_prod_df = full_prod_df.append(processed[1], ignore_index=True)
-                full_unprod_df = full_unprod_df.append(processed[2], ignore_index=True)
-                full_df = full_df.append(processed[3], ignore_index=True)
+                default_allele=get_config_data('CONVERT', 'DEFAULT_ALLELE'),
+                n_random=n_random)
+            cdr3_df.insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
+                           os.path.splitext(os.path.basename(args.seqs))[0])
+            full_prod_df.insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
+                                os.path.splitext(os.path.basename(args.seqs))[0])
+            full_unprod_df.insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
+                                  os.path.splitext(os.path.basename(args.seqs))[0])
+            full_df.insert(0, get_config_data('COMMON', 'FILE_NAME_ID_COL'),
+                           os.path.splitext(os.path.basename(args.seqs))[0])
         except KeyError as err:
             self.logger.error(str(err))
             return
