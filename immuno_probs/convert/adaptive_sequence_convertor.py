@@ -19,6 +19,7 @@
 
 
 import re
+import math
 
 import pandas
 import numpy
@@ -157,15 +158,14 @@ class AdaptiveSequenceConvertor(object):
         ----------
         args : list
             A collection of arguments containing the dataframe to process for
-            the thread, reference V and J gene dataframes, column names and
-            default allele value.
+            the thread, reference V and J gene dataframes, column names,
+            default allele value and number of random sequences to use.
 
         Returns
         -------
         list
-            Four pandas dataframes containing the reassembled data, full length
-            productive VDJ sequences, full length unproductive VDJ sequences and
-            one with the total full length VDJ sequences.
+            Three pandas dataframes containing the reassembled data, full length
+            productive VDJ sequences and full length unproductive VDJ sequences.
 
         """
         # Setup the initial dataframe.
@@ -175,6 +175,7 @@ class AdaptiveSequenceConvertor(object):
         col_names = kwargs['col_names']
         use_allele = kwargs['use_allele']
         default_allele = kwargs['default_allele']
+        n_random = kwargs['n_random']
         reassembled_df = pandas.DataFrame(columns=[
             col_names['ROW_ID_COL'], col_names['NT_COL'], col_names['AA_COL'],
             col_names['V_GENE_CHOICE_COL'], col_names['J_GENE_CHOICE_COL']
@@ -183,11 +184,24 @@ class AdaptiveSequenceConvertor(object):
             columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
         full_length_unprod_df = pandas.DataFrame(
             columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
-        full_length_df = pandas.DataFrame(
-            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
 
-        # Iterate over the rows with index value.
+        # Shuffle the dataframe and iterate over the rows with index value.
+        ary = ary.sample(frac=1, random_state=1)
         for i, row in ary.iterrows():
+
+            # Exit loop if prod and reached max number of sequences, do not add
+            # sequences when max is reached for a dataframe.
+            if n_random > 0:
+                if (len(full_length_prod_df) >= n_random
+                        and len(full_length_unprod_df) >= n_random):
+                    break
+                if (row[col_names['FRAME_TYPE_COL']].lower() == 'in'
+                        and len(full_length_prod_df) >= n_random):
+                    continue
+                elif ((row[col_names['FRAME_TYPE_COL']].lower() == 'out'
+                       or row[col_names['FRAME_TYPE_COL']].lower() == 'stop')
+                      and len(full_length_unprod_df) >= n_random):
+                    continue
 
             # Pre-process the resolved V genes.
             v_gene_choices = []
@@ -269,16 +283,12 @@ class AdaptiveSequenceConvertor(object):
                     col_names['ROW_ID_COL']: i,
                     col_names['NT_COL']: vdj_sequence
                 }, ignore_index=True)
-            full_length_df = full_length_df.append({
-                col_names['ROW_ID_COL']: i,
-                col_names['NT_COL']: vdj_sequence
-            }, ignore_index=True)
-        return reassembled_df, full_length_prod_df, full_length_unprod_df, full_length_df
+        return reassembled_df, full_length_prod_df, full_length_unprod_df
 
     def convert(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col,
                 nt_col, aa_col, frame_type_col, cdr3_length_col, v_resolved_col,
                 v_gene_choice_col, j_resolved_col, j_gene_choice_col,
-                default_allele, use_allele=True):
+                default_allele, use_allele=True, n_random=0):
         """Convert the full length VDJ and CDR3 sequences from the given
         adaptive dataframe to ImmunoProbs format.
 
@@ -321,6 +331,15 @@ class AdaptiveSequenceConvertor(object):
         use_allele : bool, optional
             If True, the allele information from the input genes is used instead
             of the 'default_allele' value (default: True).
+        n_random : int, optional
+            If given, a random subsample of sequences is taken for the full
+            length VDJ productive and unproductive. The total full length VDJ
+            data will contain a subset of the productive and unproductive
+            sequences in order to get the same number of sequences. The
+            reassembled data will contain all sequences used for the full length
+            VDJ datasets. If the given number is too larger than the size of a
+            dataframe, the value is adjusted to the smallest value.
+            (default: 0, all sequences are included).
 
         Returns
         -------
@@ -330,7 +349,7 @@ class AdaptiveSequenceConvertor(object):
             one with the total full length VDJ sequences.
 
         """
-        # Setuop the column names.
+        # Setup the column names and outputr dataframes.
         col_names = {
             'ROW_ID_COL': row_id_col,
             'NT_COL': nt_col,
@@ -342,6 +361,12 @@ class AdaptiveSequenceConvertor(object):
             'J_RESOLVED_COL': j_resolved_col,
             'J_GENE_CHOICE_COL': j_gene_choice_col,
         }
+        n_random_thread = 0
+        if n_random > 0:
+            n_random_thread = math.ceil(float(n_random) / num_threads)
+        tmp = pandas.DataFrame()
+        full_prod = pandas.DataFrame()
+        full_unprod = pandas.DataFrame()
 
         # Set and perform the multiprocessing task.
         results = multiprocess_array(ary=seqs,
@@ -351,5 +376,29 @@ class AdaptiveSequenceConvertor(object):
                                      ref_j_genes=ref_j_genes,
                                      col_names=col_names,
                                      use_allele=use_allele,
-                                     default_allele=default_allele)
-        return results
+                                     default_allele=default_allele,
+                                     n_random=n_random_thread)
+
+        # Process the resulted dataframes.
+        for processed in results:
+            tmp = tmp.append(processed[0], ignore_index=True)
+            full_prod = full_prod.append(processed[1], ignore_index=True)
+            full_unprod = full_unprod.append(processed[2], ignore_index=True)
+        if n_random > 0:
+            if len(full_prod) < n_random:
+                n_random = len(full_prod)
+            if len(full_unprod) < n_random:
+                n_random = len(full_unprod)
+            full_prod = full_prod.head(n_random)
+            full_unprod = full_unprod.head(n_random)
+        reassembled = pandas.merge(tmp, full_prod, how='inner', on=col_names['ROW_ID_COL'])
+        reassembled = reassembled.append(
+            pandas.merge(tmp, full_unprod, how='inner', on=col_names['ROW_ID_COL']),
+            ignore_index=True)
+
+        # Build the dataframe with the total full length sequences.
+        full = pandas.concat([full_prod, full_unprod])
+        full = full.sample(frac=1, random_state=1).reset_index(drop=True)
+        if n_random > 0:
+            full = full.head(len(full_prod))
+        return [reassembled, full_prod, full_unprod, full]
