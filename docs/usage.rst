@@ -272,5 +272,7 @@ Additionally to the general sections, there are sections for each tool (e.g ``LO
     [EXPERT]
     ; Should ImmunoProbs use the system's temporary directory (default) or use the WORKING_DIR location?
     USE_SYSTEM_TEMP = true
+    ; Should ImmunoProbs use remove the temporary working directory after execution?
+    REMOVE_TEMP_DIR = true
     ; The name of the temporary directory used by ImmunoProbs.
     TEMP_DIR = immuno_probs_tmp

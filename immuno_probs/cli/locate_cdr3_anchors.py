@@ -150,10 +150,6 @@ class LocateCdr3Anchors(object):
                 anchors_df.rename(columns={'name': 'gene'}, inplace=True)
                 anchors_df['gene'], anchors_df['function'] = zip(*anchors_df['gene'].apply(
                     lambda value: (value.split('|')[1], value.split('|')[3])))
-
-                # Apply some filtering to the anchor dataframe.
-                anchors_df.drop_duplicates(subset=['gene'], keep='first', inplace=True)
-                anchors_df.reset_index(inplace=True, drop=True)
             except (IndexError, ValueError):
                 self.logger.error(
                     "FASTA header needs to be separated by '|', needs to have " \
