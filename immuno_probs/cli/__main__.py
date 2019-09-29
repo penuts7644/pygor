@@ -154,9 +154,10 @@ def main():
         logger.error(
             'No tool selected, run help command to show all supported tools')
 
-    # Finally, delete the temporary directory.
-    logger.info('Cleaning up working directory')
-    rmtree(temp_dir, ignore_errors=True)
+    # Finally, delete the temporary directory if specified.
+    if get_config_data('EXPERT', 'REMOVE_TEMP_DIR', 'bool'):
+        logger.info('Cleaning up working directory')
+        rmtree(temp_dir, ignore_errors=True)
 
 
 if __name__ == '__main__':

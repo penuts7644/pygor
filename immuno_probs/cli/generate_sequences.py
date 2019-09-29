@@ -82,7 +82,7 @@ class GenerateSequences(object):
                 'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
-                'help': 'The type of model to create. (select one: ' \
+                'help': 'The type of the custom model to use. (select one: ' \
                         '%(choices)s) (required for -custom-model).'
             },
             '-anchor': {
