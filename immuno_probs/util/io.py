@@ -290,7 +290,8 @@ def preprocess_reference_file(directory, file, index=None):
     """Formats the IMGT reference genome files for IGoR.
 
     The sequence is always formatted to uppercase and '.' characters are removed
-    from the sequence string. Make sure to use IMGT reference files.
+    from the sequence string. Make sure to use IMGT in and out-frame reference
+    files.
 
     Parameters
     ----------

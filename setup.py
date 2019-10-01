@@ -17,7 +17,14 @@
 
 """Setup file for creating the package."""
 
+
+import os
 from setuptools import setup
 
 
-setup()
+def get_latest_git_tag():
+    return os.popen('git tag | tail -1').read().strip()
+
+setup(
+    version=get_latest_git_tag()
+)
