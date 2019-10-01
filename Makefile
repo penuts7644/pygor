@@ -4,6 +4,8 @@
 ##		and CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt
 ##
 
+VERSION = $(shell git tag | tail -1)
+
 default: help
 
 ##	COMMANDS
@@ -52,7 +54,7 @@ docs: test clean
 ##			ImmunoProbs and finally builds a docker image of all executables.
 ##
 build-docker: test clean build
-	docker build -t penuts7644/immuno-probs:0.1.20 . && docker tag penuts7644/immuno-probs:0.1.20 penuts7644/immuno-probs:latest
+	docker build -t penuts7644/immuno-probs:$(VERSION) . && docker tag penuts7644/immuno-probs:$(VERSION) penuts7644/immuno-probs:latest
 
 ##		make test-deploy
 ##			Tests, cleans, builds and uploads all distribution files to PyPI test server.
