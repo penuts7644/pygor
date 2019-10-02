@@ -12,58 +12,65 @@ default: help
 ##
 
 ##		make help
-##			Display the help information.
+##			Display the help information for this file.
 ##
 help:
 	@grep '^##.*' ./Makefile
 
-##		make setup
-##			Setup the development enviroment from setup.py and install all
-##			additional development requirements.
-##
-setup:
-	pip install -I -r requirements_travis.txt && pip install -e .[development]
-
-##		make test
-##			Run pytest tests from the tests directory on the immuno_probs source.
-##
-test:
-	python -m pytest -v tests
-
 ##		make clean
-##			Removes the old distribution directories and files.
+##			Delete the old distribution and build artifacts.
 ##
 clean:
 	rm -rf ./dist && rm -rf ./build && rm -rf ./docs/_build && rm -rf ./.pytest_cache && find . -name '*.pyc' -type f -delete
 
-##		make build
-##			Perfoms tests, a dir clean, builds the new distribution package as
-##			well as the documentation.
+##		make setup
+##			Perform directory cleanup and setup the development enviroment.
 ##
-build: test clean
-	python setup.py bdist_wheel
+setup: clean
+	pip install -I -r requirements_travis.txt && pip install -e .[development]
 
-##		make docs
+##		make test
+##			Test immuno_probs source code with pytest.
+##
+test:
+	python -m pytest -v tests
+
+##		make tag v=<*.*.*>
+##			Generate changelog file, tag the latest commit with specified version
+##			 and push the tag.
+##
+tag:
+	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E --grep="^\[DEV\]|\[NEW\]|\[FIX\]|\[DOC\]" > change-log.txt && git tag $(v) && git push --tags; fi
+
+##		make build-docs
 ##			Build the documentation for ImmunoProbs.
 ##
-docs: test clean
+build-docs: test clean
 	cd docs && make html
 
-##		make build-docker
-##			Perfoms tests, a dir clean, builds the new distribution package for
-##			ImmunoProbs and finally builds a docker image of all executables.
+##		make build-pypi
+##			Perfom tests, a directory cleanup and a build of the ImmunoProbs python
+##			distribution package.
 ##
-build-docker: test clean build
+build-pypi: test clean
+	python setup.py bdist_wheel
+
+##		make build-docker
+##			Perfom tests, a directory cleanup, build the python distribution package
+##			for ImmunoProbs and build a docker image of all executables.
+##
+build-docker: build-pypi
 	docker build -t penuts7644/immuno-probs:$(VERSION) . && docker tag penuts7644/immuno-probs:$(VERSION) penuts7644/immuno-probs:latest
 
-##		make test-deploy
-##			Tests, cleans, builds and uploads all distribution files to PyPI test server.
+##		make deploy-pypi
+##			Deploy ImmunoProbs python distribution files to PyPI.
 ##
-test-deploy: test clean build
-	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-##		make deploy
-##			Tests, cleans, builds and uploads all distribution files to PyPI.
-##
-deploy: test clean build
+deploy-pypi:
 	python -m twine upload dist/*
+
+##		make deploy-docker
+##			Deploy the ImmunoProbs docker images (<version> and 'latest') to
+##			docker hub.
+##
+deploy-docker:
+	docker push penuts7644/immuno-probs:$(VERSION) && docker push penuts7644/immuno-probs:latest
