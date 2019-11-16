@@ -42,35 +42,21 @@ test:
 tag:
 	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E --grep="^\[DEV\]|\[NEW\]|\[FIX\]|\[DOC\]" > change-log.txt && git tag $(v) && git push --tags; fi
 
-##		make build-docs
+##		make docs
 ##			Build the documentation for ImmunoProbs.
 ##
-build-docs: test clean
+docs: test clean
 	cd docs && make html
 
-##		make build-pypi
+##		make build
 ##			Perfom tests, a directory cleanup and a build of the ImmunoProbs python
 ##			distribution package.
 ##
-build-pypi: test clean
+build: test clean
 	python setup.py bdist_wheel
 
-##		make build-docker
-##			Perfom tests, a directory cleanup, build the python distribution package
-##			for ImmunoProbs and build a docker image of all executables.
-##
-build-docker: build-pypi
-	docker build -t penuts7644/immuno-probs:$(VERSION) . && docker tag penuts7644/immuno-probs:$(VERSION) penuts7644/immuno-probs:latest
-
-##		make deploy-pypi
+##		make deploy
 ##			Deploy ImmunoProbs python distribution files to PyPI.
 ##
-deploy-pypi:
+deploy:
 	python -m twine upload dist/*
-
-##		make deploy-docker
-##			Deploy the ImmunoProbs docker images (<version> and 'latest') to
-##			docker hub.
-##
-deploy-docker:
-	docker push penuts7644/immuno-probs:$(VERSION) && docker push penuts7644/immuno-probs:latest

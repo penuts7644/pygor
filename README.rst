@@ -10,7 +10,7 @@ For **installation**, **use cases** as well as a **tutorial**, please have a loo
 Development
 ^^^^^^^^^^^
 
-Development of ImmunoProbs is in an active state. If you would like to see new features, please open a new `issue <https://github.com/penuts7644/ImmunoProbs/issues/new>`__.
+If you would like to see new features, please open a new `issue <https://github.com/penuts7644/ImmunoProbs/issues/new>`__.
 
 It is also possible to help out ImmunoProbs development by forking this project and creating a `pull request <https://github.com/penuts7644/ImmunoProbs/compare>`__ to submit new features.
 
