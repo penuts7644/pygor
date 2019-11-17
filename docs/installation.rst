@@ -38,34 +38,6 @@ All Python dependencies that are used by this package are installed through pip 
 | ``build`` ``generate`` ``evaluate``           | This will use Python's subprocess package to pass the user arguments to `IGoR <https://github.com/qmarcou/IGoR>`__. For these tools to work properly, make sure that you have at least compiled and installed IGoR version 1.3.0 using the guide in `IGoR's documentation <https://qmarcou.github.io/IGoR/#install>`__.   |
 +-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-Docker
-^^^^^^
-
-It is also possible to use a docker image of ImmunoProbs with all necessary requirement pre-installed in an ubuntu environment. Make sure to install `Docker <https://www.docker.com>`__ first and pull the most recent version of the image with the following command.
-
-.. code-block:: none
-
-    docker pull penuts7644/immuno-probs
-
-Now you can use the ImmunoProbs image however you like (through calling ImmunoProbs directly or by opening an interactive session in the bash shell).
-
-You can also execute the ImmunoProbs image while using files in your local machine's working directory as a mounted volume:
-
-.. code-block:: none
-
-    docker run --rm -v "$PWD":/tmp penuts7644/immuno-probs \
-      immuno-probs \
-        [TOOL NAME] \
-          <TOOL OPTIONS>
-
-Note that the container is removed after execution and that you'll need to link to the ``/tmp`` directory of the container since that is the location where output files are created.
-
-Some additional information on running docker images can be found below:
-
--  `Copy files <https://docs.docker.com/engine/reference/commandline/cp/>`__ to/from the container (``docker cp``).
-
--  Run an image in a `detached <https://docs.docker.com/engine/reference/commandline/run/>`__ container (``docker run -d``) and `attach <https://docs.docker.com/engine/reference/commandline/attach/>`__ it later on (``docker attach``).
-
 Galaxy server
 ~~~~~~~~~~~~~
 

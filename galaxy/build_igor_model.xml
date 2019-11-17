@@ -21,7 +21,7 @@
                 ## model type
                 -type '$cond_type.type'
 
-                ## reference genomic templates
+                ## reference germline templates
                 -ref 'V' '$cond_type.ref_v'
                 -ref 'J' '$cond_type.ref_j'
                 #if $cond_type.type == "beta" or $cond_type.type == "heavy":
@@ -42,25 +42,25 @@
             </param>
 
             <when value="alpha">
-                <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_v" type="data" format="fasta" label="Reference germline template - V gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_j" type="data" format="fasta" label="Reference germline template - J gene" help="Needs to conform to IGMT annotation." />
             </when>
 
             <when value="beta">
-                <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_d" type="data" format="fasta" label="Reference genomic template - D gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_v" type="data" format="fasta" label="Reference germline template - V gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_d" type="data" format="fasta" label="Reference germline template - D gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_j" type="data" format="fasta" label="Reference germline template - J gene" help="Needs to conform to IGMT annotation." />
             </when>
 
             <when value="light">
-                <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_v" type="data" format="fasta" label="Reference germline template - V gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_j" type="data" format="fasta" label="Reference germline template - J gene" help="Needs to conform to IGMT annotation." />
             </when>
 
             <when value="heavy">
-                <param name="ref_v" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_d" type="data" format="fasta" label="Reference genomic template - D gene" help="Needs to conform to IGMT annotation." />
-                <param name="ref_j" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_v" type="data" format="fasta" label="Reference germline template - V gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_d" type="data" format="fasta" label="Reference germline template - D gene" help="Needs to conform to IGMT annotation." />
+                <param name="ref_j" type="data" format="fasta" label="Reference germline template - J gene" help="Needs to conform to IGMT annotation." />
             </when>
         </conditional>
 

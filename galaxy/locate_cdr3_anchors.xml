@@ -15,7 +15,7 @@
             ## tool command
             locate
 
-                ## reference genomic templates
+                ## reference germline templates
                 -ref '$cond_gene.gene' '$cond_gene.file'
 
                 ## specify the mofifs
@@ -35,11 +35,11 @@
             </param>
 
             <when value="V">
-                <param name="file" type="data" format="fasta" label="Reference genomic template - V gene" help="Needs to conform to IGMT annotation." />
+                <param name="file" type="data" format="fasta" label="Reference germline template - V gene" help="Needs to conform to IGMT annotation." />
             </when>
 
             <when value="J">
-                <param name="file" type="data" format="fasta" label="Reference genomic template - J gene" help="Needs to conform to IGMT annotation." />
+                <param name="file" type="data" format="fasta" label="Reference germline template - J gene" help="Needs to conform to IGMT annotation." />
             </when>
         </conditional>
 

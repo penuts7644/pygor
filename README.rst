@@ -5,7 +5,7 @@ ImmunoProbs
 
 Create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences.
 
-For **installation**, **use cases** as well as a **tutorial**, please have a look at the `ImmunoProbs documentation <https://penuts7644.github.io/ImmunoProbs/>`__.
+For **installation**, **usage** and **use cases**, please have a look at the `ImmunoProbs documentation <https://penuts7644.github.io/ImmunoProbs/>`__.
 
 Development
 ^^^^^^^^^^^

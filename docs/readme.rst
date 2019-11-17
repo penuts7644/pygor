@@ -11,9 +11,8 @@ Getting started
 
 ImmunoProbs Python package can be used to create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences. In order to get setup, please follow the steps below:
 
-1. Install ImmunoProbs, either via :ref:`installation:PyPI` or as :ref:`installation:Docker` image. When Installing ImmunoProbs through PyPI, make sure to install all the additional :ref:`installation:Requirements` (The docker image comes included with pre-installed requirements).
+1. Install ImmunoProbs via :ref:`installation:PyPI`. Make sure to install all the additional :ref:`installation:Requirements`.
 
-2. Have a look at the tutorial on how to perform the use cases. There are tutorials for using an :ref:`tutorial:Using pre-trained models` or for :ref:`tutorial:Building your own model`.
 
 Additional information
 ~~~~~~~~~~~~~~~~~~~~~~
