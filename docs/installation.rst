@@ -41,7 +41,7 @@ All Python dependencies that are used by this package are installed through pip 
 Galaxy server
 ~~~~~~~~~~~~~
 
-The ImmunoProbs docker image can be integrated as a galaxy tool by modifying the tool configuration XML file (``tool_conf.xml``). For each of the build in ImmunoProbs tools, there is a wrapper file located in the ``galaxy`` directory. The tools can be installed in a galaxy server by copying each of them over to your tools directory in the galaxy. Replace ``<LOCATION>`` to the location of your galaxy tool directory.
+The ImmunoProbs Docker image can be integrated as a galaxy tool by modifying the tool configuration XML file (``tool_conf.xml``). For each of the build in ImmunoProbs tools, there is a wrapper file located in the ``galaxy`` directory. The tools can be installed in a galaxy server by copying each of them over to your tools directory in the galaxy. Replace ``<LOCATION>`` to the location of your galaxy tool directory.
 
 .. code-block:: none
 
@@ -61,7 +61,7 @@ Finally, add the section with the ImmunoProbs tools to the ``tool_conf.xml``. Re
         <tool file="<LOCATION>/evaluate_sequences.xml" />
     </section>
 
-Make sure to have setup you galaxy server to be able to use docker images. This can be done inside the ``job_conf.xml`` file by adding the following:
+Make sure to have setup you galaxy server to be able to use Docker images. This can be done inside the ``job_conf.xml`` file by adding the following:
 
 .. code:: xml
 

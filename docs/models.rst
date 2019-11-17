@@ -14,8 +14,6 @@ Currently the following pre-trained IGoR models can be selected with the ``-mode
 -  Human IG heavy model (``human-b-heavy``)
 -  Mouse TCR beta model (``mouse-t-beta``)
 
-For tutorial purposes, there is the ``tutorial-model`` value. This model makes use of the **human TCR beta** model.
-
 Custom
 ^^^^^^
 

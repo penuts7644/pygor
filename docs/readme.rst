@@ -25,21 +25,9 @@ For more information you can have a look at the following wiki pages. These page
 
 -  A description of the included pre-trained IGoR models in ImmunoProbs. :ref:`models:Models`
 
--  How to use ImmunoProbs docker image in combination with a galaxy server setup. :ref:`installation:Galaxy server`
+-  How to use ImmunoProbs Docker image in combination with a galaxy server setup. :ref:`installation:Galaxy server`
 
-
-Development
-^^^^^^^^^^^
-
-Development of ImmunoProbs is in an active state. If you would like to see new features, please open a new `issue <https://github.com/penuts7644/ImmunoProbs/issues/new>`__.
-
-It is also possible to help out ImmunoProbs development by forking this project and creating a `pull request <https://github.com/penuts7644/ImmunoProbs/compare>`__ to submit new features.
-
-When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements using the make command:
-
-.. code-block:: none
-
-    make setup
+**Developed in collaboration with Sandve and Greiff labs.**
 
 .. |Build Status| image:: https://img.shields.io/travis/penuts7644/ImmunoProbs/master?style=for-the-badge
    :target: https://github.com/penuts7644/ImmunoProbs

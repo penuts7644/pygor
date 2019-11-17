@@ -43,29 +43,6 @@ def get_default_model_file_paths(name=None):
     # Set the file paths for the models
     pkg_name = __name__.split('.')[0]
     default_models = {
-        'tutorial-model': {
-            'type': 'beta',
-            'marginals': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'model_marginals.txt')),
-            'parameters': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'model_params.txt')),
-            'v_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'V_gene_CDR3_anchors.tsv')),
-            'j_anchors': resource_filename(
-                pkg_name, os.path.join('data', 'human_t_beta', 'J_gene_CDR3_anchors.tsv')),
-            'reference': {
-                'V': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBV.fasta')),
-                'D': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBD.fasta')),
-                'J': resource_filename(
-                    pkg_name, os.path.join('data', 'human_t_beta', 'TRBJ.fasta')),
-            },
-            'seqs': resource_filename(
-                pkg_name, os.path.join('data', 'tutorial_model', 'VDJ_sequences.tsv')),
-            'cdr3': resource_filename(
-                pkg_name, os.path.join('data', 'tutorial_model', 'CDR3_sequences.tsv')),
-        },
         'human-t-alpha': {
             'type': 'alpha',
             'marginals': resource_filename(
