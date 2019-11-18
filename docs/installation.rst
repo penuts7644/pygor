@@ -37,37 +37,3 @@ All Python dependencies that are used by this package are installed through pip 
 +-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``build`` ``generate`` ``evaluate``           | This will use Python's subprocess package to pass the user arguments to `IGoR <https://github.com/qmarcou/IGoR>`__. For these tools to work properly, make sure that you have at least compiled and installed IGoR version 1.3.0 using the guide in `IGoR's documentation <https://qmarcou.github.io/IGoR/#install>`__.   |
 +-----------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-Galaxy server
-~~~~~~~~~~~~~
-
-The ImmunoProbs Docker image can be integrated as a galaxy tool by modifying the tool configuration XML file (``tool_conf.xml``). For each of the build in ImmunoProbs tools, there is a wrapper file located in the ``galaxy`` directory. The tools can be installed in a galaxy server by copying each of them over to your tools directory in the galaxy. Replace ``<LOCATION>`` to the location of your galaxy tool directory.
-
-.. code-block:: none
-
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/build_igor_model.xml" & \
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/locate_cdr3_anchors.xml" & \
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/generate_sequences.xml" & \
-    wget -P <LOCATION> "https://raw.githubusercontent.com/penuts7644/ImmunoProbs/master/galaxy/evaluate_sequences.xml"
-
-Finally, add the section with the ImmunoProbs tools to the ``tool_conf.xml``. Replace ``<LOCATION>`` to the location of each ImmunoProbs tool within you galaxy tools directory.
-
-.. code:: xml
-
-    <section id="immuno_probs" name="ImmunoProbs">
-        <tool file="<LOCATION>/build_igor_model.xml" />
-        <tool file="<LOCATION>/locate_cdr3_anchors.xml" />
-        <tool file="<LOCATION>/generate_sequences.xml" />
-        <tool file="<LOCATION>/evaluate_sequences.xml" />
-    </section>
-
-Make sure to have setup you galaxy server to be able to use Docker images. This can be done inside the ``job_conf.xml`` file by adding the following:
-
-.. code:: xml
-
-    <destinations default="docker_local">
-        <destination id="local" runner="local"/>
-            <destination id="docker_local" runner="local">
-                <param id="docker_enabled">true</param>
-            </destination>
-    </destinations>
