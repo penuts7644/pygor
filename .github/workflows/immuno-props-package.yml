@@ -1,0 +1,32 @@
+name: ImmunoProbs package
+
+on:
+  push:
+    branches:
+      - master
+      - /^issue-[0-9]+.*$/
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        python-version: [2.7]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get install muscle
+        python -m pip install --upgrade pip
+        pip install --upgrade setuptools
+        pip install -I -r requirements.txt
+    - name: Test with flake8 and pytest
+      run: |
+        make test
