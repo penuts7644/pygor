@@ -2,9 +2,8 @@ name: build
 
 on:
   push:
-    branches:
-      - master
-      - /^issue-[0-9]+.*$/
+    branches-ignore:
+      - gh-pages
 
 jobs:
   test:
