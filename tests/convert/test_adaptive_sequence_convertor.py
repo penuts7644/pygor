@@ -36,14 +36,47 @@ def _process_gene_df(file, nt_col, resolved_col):
     return gene_df
 
 
-@pytest.mark.parametrize('value, use_allele, default_allele, expected', [
-    ('TRBV5', True, '01', [r'5\*01$']),
-    ('TRBV5*09', False, '01', [r'5\*01$']),
-    ('TRBV5*09', True, '01', [r'5\*09$']),
-    ('TRBV5-02*09', True, '01', [r'5\-2\*09$']),
-    ('TRBV5-01*09', True, '01', [r'5\-1\*09$|5\*09$']),
-    ('TRBV5-01/4-04*09', True, '01', [r'5\-1\*09$|5\*09$', r'4\-4\*09$']),
-])
+@pytest.mark.parametrize(
+    'value, use_allele, default_allele, expected',
+    [
+        (
+            'TRBV5',
+            True,
+            '01',
+            [r'5\*01$']
+        ),
+        (
+            'TRBV5*09',
+            False,
+            '01',
+            [r'5\*01$']
+        ),
+        (
+            'TRBV5*09',
+            True,
+            '01',
+            [r'5\*09$']
+        ),
+        (
+            'TRBV5-02*09',
+            True,
+            '01',
+            [r'5\-2\*09$']
+        ),
+        (
+            'TRBV5-01*09',
+            True,
+            '01',
+            [r'5\-1\*09$|5\*09$']
+        ),
+        (
+            'TRBV5-01/4-04*09',
+            True,
+            '01',
+            [r'5\-1\*09$|5\*09$', r'4\-4\*09$']
+        ),
+    ]
+)
 def test_build_resolved_pattern(value, use_allele, default_allele, expected):
     """Test if correct resolved gene regex patterns are returned.
 
@@ -72,10 +105,21 @@ def test_build_resolved_pattern(value, use_allele, default_allele, expected):
         assert pat in patterns
 
 
-@pytest.mark.parametrize('full, partial, expected', [
-    ('GATGCTGAAATCACCCAGAGCCCAAGACACAAGATCACAGAGACAGGAAGGCAGGTGACC', 'GAT', 'GAT'),
-    ('GATGCTGAAATCACCCAGAGCCCAAGACACAAGATCACAGAGACAGGAAGGCAGGTGACC', 'AGGCA', 'AGGCA'),
-])
+@pytest.mark.parametrize(
+    'full, partial, expected',
+    [
+        (
+            'GATGCTGAAATCACCCAGAGCCCAAGACACAAGATCACAGAGACAGGAAGGCAGGTGACC',
+            'GAT',
+            'GAT'
+        ),
+        (
+            'GATGCTGAAATCACCCAGAGCCCAAGACACAAGATCACAGAGACAGGAAGGCAGGTGACC',
+            'AGGCA',
+            'AGGCA'
+        ),
+    ]
+)
 def test_find_longest_substring(full, partial, expected):
     """Test if correct substring is returned.
 
@@ -100,12 +144,17 @@ def test_find_longest_substring(full, partial, expected):
     assert substring == expected
 
 
-@pytest.mark.parametrize('seqs, v_genes, j_genes, expected', [
-    ('tests/data/human_t_beta/10_sequence_samples.tsv',
-     'tests/data/human_t_beta/ref_genomes/TRBV.fasta',
-     'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
-     [6, 4, 2, 6]),
-])
+@pytest.mark.parametrize(
+    'seqs, v_genes, j_genes, expected',
+    [
+        (
+            'tests/data/human_t_beta/10_sequence_samples.tsv',
+            'tests/data/human_t_beta/ref_genomes/TRBV.fasta',
+            'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
+            [6, 4, 2, 6]
+        ),
+    ]
+)
 def test_convert(seqs, v_genes, j_genes, expected):
     """Test if converted data is returned.
 

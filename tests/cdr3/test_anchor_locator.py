@@ -32,24 +32,85 @@ def create_alignment():
     return aligner.get_muscle_alignment()
 
 
-@pytest.mark.parametrize('gene, motif, expected', [
-    ('J', 'TTT', pandas.DataFrame(
-        [['M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |', 19, 'TTT'],
-         ['M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |', 20, 'TTT'],
-         ['M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |', 19, 'TTT'],
-         ['X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |', 20, 'TTT'],
-         ['K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |', 17, 'TTT']],
-        columns=['name', 'anchor_index', 'motif'])
-    ),
-    pytest.param('J', 'TGG', pandas.DataFrame(
-        [['M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |', 21, 'TGG'],
-         ['M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |', 22, 'TGG'],
-         ['M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |', 21, 'TGG'],
-         ['X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |', 22, 'TGG'],
-         ['K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |', 19, 'TGG']],
-        columns=['name', 'anchor_index', 'motif'])),
-    pytest.param('X', None, None, marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'gene, motif, expected',
+    [
+        (
+            'J',
+            'TTT',
+            pandas.DataFrame(
+                [
+                    [
+                        'M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |',
+                        19,
+                        'TTT'
+                    ],
+                    [
+                        'M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |',
+                        20,
+                        'TTT'
+                    ],
+                    [
+                        'M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |',
+                        19,
+                        'TTT'
+                    ],
+                    [
+                        'X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |',
+                        20,
+                        'TTT'
+                    ],
+                    [
+                        'K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |',
+                        17,
+                        'TTT'
+                    ]
+                ],
+                columns=['name', 'anchor_index', 'motif']
+            )
+        ),
+        pytest.param(
+            'J',
+            'TGG',
+            pandas.DataFrame(
+                [
+                    [
+                        'M14158|TRBJ1-3*01|Homo sapiens|F|J-REGION|1499..1548|50 nt|2| | | | |50+0=50| | |',
+                        21,
+                        'TGG'
+                    ],
+                    [
+                        'M14158|TRBJ1-4*01|Homo sapiens|F|J-REGION|2095..2145|51 nt|3| | | | |51+0=51| | |',
+                        22,
+                        'TGG'
+                    ],
+                    [
+                        'M14158|TRBJ1-5*01|Homo sapiens|F|J-REGION|2368..2417|50 nt|2| | | | |50+0=50| | |',
+                        21,
+                        'TGG'
+                    ],
+                    [
+                        'X02987|TRBJ2-2*01|Homo sapiens|F|J-REGION|995..1045|51 nt|3| | | | |51+0=51| | |',
+                        22,
+                        'TGG'
+                    ],
+                    [
+                        'K02545|TRBJ1-1*01|Homo sapiens|F|J-REGION|749..796|48 nt|3| | | | |48+0=48| | |',
+                        19,
+                        'TGG'
+                    ]
+                ],
+                columns=['name', 'anchor_index', 'motif']
+            )
+        ),
+        pytest.param(
+            'X',
+            None,
+            None,
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_anchor_locator(gene, motif, expected):
     """Test if correct indices of conserved motif regions are returned.
 

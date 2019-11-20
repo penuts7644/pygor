@@ -32,8 +32,8 @@ def multiprocess_array(ary, func, num_workers, **kwargs):
     func : Object
         A function object that the workers should apply on the input data array.
     num_workers : int
-        The number of threads the program is allowed to use. This number is used
-        to split up the input array into various segments.
+        The number of threads the program is allowed to use. This number is used to split up the input array into various
+        segments.
     **kwargs
         The remaining arguments to be given to the input function.
 
@@ -50,6 +50,8 @@ def multiprocess_array(ary, func, num_workers, **kwargs):
 
     # Divide the array into chucks for the workers.
     pool = pp.ProcessPool(nodes=num_workers)
-    result = pool.amap(func, [(d, kwargs)
-                              for d in numpy.array_split(ary, num_workers)])
+    result = pool.amap(
+        func,
+        [(d, kwargs)for d in numpy.array_split(ary, num_workers)]
+    )
     return result.get()

@@ -30,12 +30,10 @@ class MuscleAligner(object):
     Parameters
     ----------
     infile : str
-        A file path to a FASTA formatted file containining the genomic sequence
-        data that is to be aligned against eachother.
+        A file path to a FASTA formatted file containining the genomic sequence data that is to be aligned against eachother.
     **kwargs
-        Optional arguments used for the MuscleCommandline biopython class. Have
-        a look at biopython's documenation for more information on the input
-        parameters.
+        Optional arguments used for the MuscleCommandline biopython class. Have a look at biopython's documenation for more
+        information on the input parameters.
 
     Methods
     -------
@@ -55,15 +53,13 @@ class MuscleAligner(object):
         Returns
         -------
         Bio.AlignIO
-            A biopython alignment object containing the alignment made from the
-            given input FASTA file.
+            A biopython alignment object containing the alignment made from the given input FASTA file.
 
         """
         return self.alignment
 
     def _align_fasta(self):
-        """Executed MUSCLE via commandline to create a multi-alignment from the
-        input FASTA file.
+        """Executed MUSCLE via commandline to create a multi-alignment from the input FASTA file.
 
         Raises
         ------
@@ -72,8 +68,7 @@ class MuscleAligner(object):
 
         Notes
         -----
-            This function uses the FASTA file set in the class constructor for
-            creating the alignment.
+            This function uses the FASTA file set in the class constructor for creating the alignment.
 
         """
         try:

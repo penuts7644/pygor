@@ -35,14 +35,12 @@ def set_config_data(value=None):
     Parameters
     ----------
     value : str, optional
-        An optional ImmunoProbs configuration file path to parse besides the
-        default file.
+        An optional ImmunoProbs configuration file path to parse besides the default file.
 
     """
     # Parse default configuration file.
     pkg_name = __name__.split('.')[0]
-    config_file_path = resource_filename(
-        pkg_name, os.path.join('config', 'default.ini'))
+    config_file_path = resource_filename(pkg_name, os.path.join('config', 'default.ini'))
     conf_parser = RawConfigParser(allow_no_value=True)
     conf_parser.read(config_file_path)
 
@@ -63,6 +61,7 @@ def set_config_data(value=None):
     if not conf_parser.get('COMMON', 'OUT_NAME'):
         set_out_name()
 
+
 def get_config_data(section, value, option_type=None):
     """Collects and returns the global CONFIG_DATA variable.
 
@@ -73,9 +72,8 @@ def get_config_data(section, value, option_type=None):
     value : str
         The option to return its value from.
     option_type : str, optional
-        The type of the option to return its value from, by default returns a
-        string. Currently supported values are 'bool' for boolean, 'int' for
-        integer and 'float' for float.
+        The type of the option to return its value from, by default returns a string. Currently supported values are 'bool'
+        for boolean, 'int' for integer and 'float' for float.
 
     Returns
     -------
@@ -92,14 +90,14 @@ def get_config_data(section, value, option_type=None):
             return CONFIG_DATA.getfloat(section, value)
         return CONFIG_DATA.get(section, value)
 
+
 def set_num_threads(value=ph.cpu_count()):
     """Sets and updates the global NUM_THREADS variable.
 
     Parameters
     ----------
     value : int, optional
-        The number of threads the program is allowed to use (default: max
-        available threads).
+        The number of threads the program is allowed to use (default: max available threads).
 
     Raises
     ------
@@ -110,13 +108,12 @@ def set_num_threads(value=ph.cpu_count()):
 
     """
     if not isinstance(value, int):
-        raise TypeError(
-            "The NUM_THREADS variable needs to be of type integer", value)
+        raise TypeError("The NUM_THREADS variable needs to be of type integer", value)
     if value < 1:
-        raise ValueError(
-            "The NUM_THREADS variable needs to be higher than zero", value)
+        raise ValueError("The NUM_THREADS variable needs to be higher than zero", value)
     else:
         CONFIG_DATA.set('COMMON', 'NUM_THREADS', str(value))
+
 
 def set_separator(value='tab'):
     """Sets and updates the global SEPARATOR variable.
@@ -124,8 +121,7 @@ def set_separator(value='tab'):
     Parameters
     ----------
     value : str, optional
-        The separator character to be used when writing files (default: tab
-        character).
+        The separator character to be used when writing files (default: tab character).
 
     Raises
     ------
@@ -135,10 +131,10 @@ def set_separator(value='tab'):
     """
     separators = {'tab': '\t', 'semi-colon': ';', 'comma': ','}
     if not isinstance(value, str):
-        raise TypeError(
-            "The SEPARATOR variable needs to be of type string", value)
+        raise TypeError("The SEPARATOR variable needs to be of type string", value)
     else:
         CONFIG_DATA.set('COMMON', 'SEPARATOR', separators[value])
+
 
 def set_working_dir(value=os.getcwd()):
     """Sets and updates the global WORKING_DIR variable.
@@ -146,26 +142,23 @@ def set_working_dir(value=os.getcwd()):
     Parameters
     ----------
     value : str, optional
-        The directory path to use when writing output files (default: the
-        current working directory).
+        The directory path to use when writing output files (default: the current working directory).
 
     Raises
     ------
     TypeError
         When the WORKING_DIR global variable is not of type string.
     IOError
-        When the WORKING_DIR global variable directory does not exist on the
-        system.
+        When the WORKING_DIR global variable directory does not exist on the system.
 
     """
     if not isinstance(value, str):
-        raise TypeError(
-            "The WORKING_DIR variable needs to be of type string", value)
+        raise TypeError("The WORKING_DIR variable needs to be of type string", value)
     if not os.path.isdir(value):
-        raise IOError(
-            "The WORKING_DIR variable needs to be an existing directory", value)
+        raise IOError("The WORKING_DIR variable needs to be an existing directory", value)
     else:
         CONFIG_DATA.set('COMMON', 'WORKING_DIR', value)
+
 
 def set_out_name(value=None):
     """Sets and updates the global OUT_NAME variable.
@@ -173,13 +166,13 @@ def set_out_name(value=None):
     Parameters
     ----------
     value : str, optional
-        The output file name string to use when writing output files or when
-        prefixing output files (default: None).
+        The output file name string to use when writing output files or when prefixing output files (default: None).
 
     """
     if value:
         value = re.sub(r'\s+', '', value)
     CONFIG_DATA.set('COMMON', 'OUT_NAME', value)
+
 
 # Set the default config data object.
 set_config_data()
