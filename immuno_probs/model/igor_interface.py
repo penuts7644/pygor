@@ -28,8 +28,7 @@ class IgorInterface(object):
     Parameters
     ----------
     command : list
-        A list with strings and nested lists that will be build into a
-        subprocess command.
+        A list with strings and nested lists that will be build into a subprocess command.
 
     Methods
     -------
@@ -51,14 +50,12 @@ class IgorInterface(object):
         Parameters
         ----------
         options : list
-            A Python nested sorted list with each value being a
-            command/options/flag. Items within a list are separated by a white
-            space in the output string. The depth of the nested lists will
-            determine the number '-' characters to add in front of the first
-            element for each list.
+            A Python nested sorted list with each value being a command/options/flag. Items within a list are separated by a
+            white-space in the output string. The depth of the nested lists will determine the number '-' characters to add in
+            front of the first element for each list.
         level : int, optional
-            The initial start depth level indication the number of '-'
-            characters to append to the first item in the lists. (default: 0)
+            The initial start depth level indication the number of '-' characters to append to the first item in the lists.
+            (default: 0)
 
         Returns
         -------
@@ -83,14 +80,12 @@ class IgorInterface(object):
         Returns
         -------
         tuple
-            A tuple containing the exit code, standard out, standard error and
-            the executed command as string.
+            A tuple containing the exit code, standard out, standard error and the executed command as string.
 
         """
         # Execute the commandline process and return the results.
         updated_command = 'igor ' + self.command
-        process = Popen(shlex.split(updated_command),
-                        stderr=PIPE, stdout=PIPE)
+        process = Popen(shlex.split(updated_command), stderr=PIPE, stdout=PIPE)
         (stdout, stderr) = process.communicate()
         return (process.returncode, stdout, stderr, updated_command)
 
@@ -111,8 +106,7 @@ class IgorInterface(object):
         Parameters
         ----------
         command : list
-            A list with strings and nested lists that will be build into a
-            subprocess command.
+            A list with strings and nested lists that will be build into a subprocess command.
 
         """
         self.command = self._subprocess_builder(options=command)

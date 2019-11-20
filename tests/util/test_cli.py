@@ -24,39 +24,64 @@ import pytest
 from immuno_probs.util.cli import dynamic_cli_options
 
 
-@pytest.mark.parametrize('options, commandline_input, expected', [
-    ({
-        'input': {
-            'metavar': 'I',
-            'type': 'str',
-            'help': 'Test input file'
-        },
-        'output': {
-            'metavar': 'O',
-            'type': 'str',
-            'help': 'Test output file'
-        },
-        'choice': {
-            'metavar': 'C',
-            'type': 'str',
-            'choices': ['A', 'B', 'C'],
-            'help': 'Test of some choices'
-        },
-        '--option-1': {
-            'type': 'int',
-            'nargs': '?',
-            'default': 1,
-            'help': "Test option 1 (default: 1)"
-        },
-        '--option-2': {
-            'type': 'int',
-            'nargs': '*',
-            'help': "Test option 2"
-        }
-    }, ['test/input/location', 'B', 'test/output/location',
-        '--option-1', '2', '--option-2', '5', '10'],
-     ['test/input/location', 'test/output/location', 'B', 2, [5, 10]])
-])
+@pytest.mark.parametrize(
+    'options, commandline_input, expected',
+    [
+        (
+            {
+                'input':
+                {
+                    'metavar': 'I',
+                    'type': 'str',
+                    'help': 'Test input file'
+                },
+                'output':
+                {
+                    'metavar': 'O',
+                    'type': 'str',
+                    'help': 'Test output file'
+                },
+                'choice':
+                {
+                    'metavar': 'C',
+                    'type': 'str',
+                    'choices': ['A', 'B', 'C'],
+                    'help': 'Test of some choices'
+                },
+                '--option-1':
+                {
+                    'type': 'int',
+                    'nargs': '?',
+                    'default': 1,
+                    'help': "Test option 1 (default: 1)"
+                },
+                '--option-2':
+                {
+                    'type': 'int',
+                    'nargs': '*',
+                    'help': "Test option 2"
+                }
+            },
+            [
+                'test/input/location',
+                'B',
+                'test/output/location',
+                '--option-1',
+                '2',
+                '--option-2',
+                '5',
+                '10'
+            ],
+            [
+                'test/input/location',
+                'test/output/location',
+                'B',
+                2,
+                [5, 10]
+            ]
+        )
+    ]
+)
 def test_dynamic_cli_parser(options, commandline_input, expected):
     """Test if the parser creates the arguments properly.
 

@@ -22,18 +22,15 @@ import logging
 import os
 
 import pandas
-import numpy
 
 from immuno_probs.convert.adaptive_sequence_convertor import AdaptiveSequenceConvertor
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
-write_dataframe_to_separated, read_fasta_as_dataframe, read_separated_to_dataframe
+from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, write_dataframe_to_separated, read_fasta_as_dataframe, read_separated_to_dataframe
 
 
 class ConvertAdaptiveSequences(object):
-    """Commandline tool for converting full and CDR3 sequences from a given
-    adaptive input sequence file.
+    """Commandline tool for converting full and CDR3 sequences from a given adaptive input sequence file.
 
     Parameters
     ----------
@@ -43,9 +40,8 @@ class ConvertAdaptiveSequences(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to convert the full
-        length (VDJ for productive, unproductive and the total) and CDR3
-        sequences from a given adaptive input sequence file.
+        Uses the given Namespace commandline arguments to convert the full length (VDJ for productive, unproductive and the
+        total) and CDR3 sequences from a given adaptive input sequence file.
 
     """
     def __init__(self, subparsers):
@@ -59,22 +55,19 @@ class ConvertAdaptiveSequences(object):
 
         Notes
         -----
-            Uses the class constructor's subparser object for appending the
-            tool's parser and options.
+            Uses the class constructor's subparser object for appending the tool's parser and options.
 
         """
         # Create the description and options for the parser.
-        description = "Converts the full length (VDJ for productive, " \
-            "unproductive and the total) and CDR3 sequences from a given " \
-            "adaptive input sequence file. The VDJ sequences can be used to " \
-            "build a new IGoR model and the CDR3 sequences can be evaluated."
+        description = "Converts the full length (VDJ for productive, unproductive and the total) and CDR3 sequences from a " \
+            "given adaptive input sequence file. The VDJ sequences can be used to build a new IGoR model and the CDR3 " \
+            "sequences can be evaluated."
         parser_options = {
             '-seqs': {
                 'metavar': '<separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input separated data file with sequences to " \
-                        "convert using the defined column names."
+                'help': "An input separated data file with sequences to convert using the defined column names."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -82,32 +75,25 @@ class ConvertAdaptiveSequences(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': "A gene (V or J) followed by a reference genome " \
-                        "FASTA file. Note: the FASTA reference genome files " \
-                        "needs to conform to IGMT annotation (separated by " \
-                        "'|' character)."
+                'help': "A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files "
+                        "needs to conform to IGMT annotation (separated by '|' character)."
             },
             '-n-random': {
                 'type': 'int',
                 'nargs': '?',
-                'help': "Number of random sequences (subset) to convert " \
-                        "from the given file (default: {}).".format(
-                            get_config_data('CONVERT', 'NUM_RANDOM', 'int'))
+                'help': "Number of random sequences (subset) to convert from the given file (default: {})."
+                        .format(get_config_data('CONVERT', 'NUM_RANDOM', 'int'))
             },
             '-use-allele': {
                 'action': 'store_true',
-                'help': "If specified (True), the allele information from " \
-                        "the resolved gene fields are used to when " \
-                        "reconstructing the gene choices (default: {}).".format(
-                            get_config_data('CONVERT', 'USE_ALLELE', 'bool'))
+                'help': "If specified (True), the allele information from the resolved gene fields are used to when "
+                        "reconstructing the gene choices (default: {}).".format(get_config_data('CONVERT', 'USE_ALLELE', 'bool'))
             },
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser(
-            'convert', help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool,
-                                          options=parser_options)
+        parser_tool = self.subparsers.add_parser('convert', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
     @staticmethod
     def _process_gene_df(filename, nt_col, resolved_col):
@@ -189,8 +175,8 @@ class ConvertAdaptiveSequences(object):
                 n_random = args.n_random
             if n_random != 0:
                 if len(seqs_df) < n_random:
-                    self.logger.warn(
-                        'Number of random sequences is higher then number of ' \
+                    self.logger.warning(
+                        'Number of random sequences is higher then number of '
                         'rows in file, all rows are used')
                     return
         except (IOError, KeyError, ValueError) as err:

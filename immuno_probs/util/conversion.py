@@ -18,13 +18,11 @@
 """Contains a collection of conversion functions."""
 
 
-
 def nucleotides_to_integers(seq):
     """Converts a nucleotide sequence to an interger representation.
 
-    The base characters in the nucleotide string (A, C, G and T) are converted
-    to the following: A -> 0, C -> 1, G -> 2 and T -> 3. The combined uppercase
-    string is returned.
+    The base characters in the nucleotide string (A, C, G and T) are converted to the following: A -> 0, C -> 1, G -> 2
+    and T -> 3. The combined uppercase string is returned.
 
     Parameters
     ----------
@@ -53,9 +51,8 @@ def nucleotides_to_integers(seq):
 def integers_to_nucleotides(int_seq):
     """Converts a integer sequence to an nucleotide representation.
 
-    The base characters in the integer string (0, 1, 2 and 3) are converted
-    to the following: 0 -> A, 1 -> C, 2 -> G and 3 -> T. The combined string
-    is returned.
+    The base characters in the integer string (0, 1, 2 and 3) are converted to the following: 0 -> A, 1 -> C, 2 -> G
+    and 3 -> T. The combined string is returned.
 
     Parameters
     ----------
@@ -82,8 +79,7 @@ def integers_to_nucleotides(int_seq):
 
 
 def nucleotides_to_aminoacids(seq):
-    """Converts a nucleotide sequence to an aminoacid sequence. Stop codons are
-    indicated as '*' characters.
+    """Converts a nucleotide sequence to an aminoacid sequence. Stop codons are indicated as '*' characters.
 
     Parameters
     ----------
@@ -97,34 +93,32 @@ def nucleotides_to_aminoacids(seq):
 
     """
     codon_aa_dict = {
-        'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M',
-        'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T',
-        'AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K',
-        'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R',
-        'CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L',
-        'CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P',
-        'CAC':'H', 'CAT':'H', 'CAA':'Q', 'CAG':'Q',
-        'CGA':'R', 'CGC':'R', 'CGG':'R', 'CGT':'R',
-        'GTA':'V', 'GTC':'V', 'GTG':'V', 'GTT':'V',
-        'GCA':'A', 'GCC':'A', 'GCG':'A', 'GCT':'A',
-        'GAC':'D', 'GAT':'D', 'GAA':'E', 'GAG':'E',
-        'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G',
-        'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S',
-        'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L',
-        'TAC':'Y', 'TAT':'Y', 'TAA':'*', 'TAG':'*',
-        'TGC':'C', 'TGT':'C', 'TGA':'*', 'TGG':'W',
+        'ATA': 'I', 'ATC': 'I', 'ATT': 'I', 'ATG': 'M',
+        'ACA': 'T', 'ACC': 'T', 'ACG': 'T', 'ACT': 'T',
+        'AAC': 'N', 'AAT': 'N', 'AAA': 'K', 'AAG': 'K',
+        'AGC': 'S', 'AGT': 'S', 'AGA': 'R', 'AGG': 'R',
+        'CTA': 'L', 'CTC': 'L', 'CTG': 'L', 'CTT': 'L',
+        'CCA': 'P', 'CCC': 'P', 'CCG': 'P', 'CCT': 'P',
+        'CAC': 'H', 'CAT': 'H', 'CAA': 'Q', 'CAG': 'Q',
+        'CGA': 'R', 'CGC': 'R', 'CGG': 'R', 'CGT': 'R',
+        'GTA': 'V', 'GTC': 'V', 'GTG': 'V', 'GTT': 'V',
+        'GCA': 'A', 'GCC': 'A', 'GCG': 'A', 'GCT': 'A',
+        'GAC': 'D', 'GAT': 'D', 'GAA': 'E', 'GAG': 'E',
+        'GGA': 'G', 'GGC': 'G', 'GGG': 'G', 'GGT': 'G',
+        'TCA': 'S', 'TCC': 'S', 'TCG': 'S', 'TCT': 'S',
+        'TTC': 'F', 'TTT': 'F', 'TTA': 'L', 'TTG': 'L',
+        'TAC': 'Y', 'TAT': 'Y', 'TAA': '*', 'TAG': '*',
+        'TGC': 'C', 'TGT': 'C', 'TGA': '*', 'TGG': 'W',
     }
     return ''.join([codon_aa_dict[''.join([seq[i], seq[i + 1], seq[i + 2]])]
-                    for i in range(0, len(seq), 3)
-                    if i + 2 < len(seq)])
+                    for i in range(0, len(seq), 3) if i + 2 < len(seq)])
 
 
 def reverse_complement(seq):
     """Converts a nucleotide sequence to reverse complement.
 
-    The base characters in the nucleotide string (A, C, G and T) are converted
-    to the following: A <-> T and C <-> G. The combined uppercase string is
-    returned.
+    The base characters in the nucleotide string (A, C, G and T) are converted to the following: A <-> T and C <-> G. The
+    combined uppercase string is returned.
 
     Parameters
     ----------
@@ -153,17 +147,15 @@ def reverse_complement(seq):
 def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=','):
     """Converts a string representation of an array to a python list.
 
-    Removes the given boundary characters from the string and separates the
-    individual items on the given seperator character. Each item is converted to
-    the given dtype. The python list is returned.
+    Removes the given boundary characters from the string and separates the individual items on the given seperator
+    character. Each item is converted to the given dtype. The python list is returned.
 
     Parameters
     ----------
     in_str : str
         A array representated as string.
     dtype : type, optional
-        The dtype to used for converting the individual the list elements. By
-        default uses float.
+        The dtype to used for converting the individual the list elements. By default uses float.
     l_bound : str, optional
         A string specifying the left boundary character(s) (default: '(').
     r_bound : str, optional
@@ -186,17 +178,12 @@ def string_array_to_list(in_str, dtype=float, l_bound='(', r_bound=')', sep=',')
 
         # Check if start and end of the string match the boundary characters.
         if in_str[: len(l_bound)] != l_bound:
-            raise ValueError(
-                "Start character not found: '{}'".format(l_bound))
-        elif in_str[len(in_str) - len(r_bound) :] != r_bound:
-            raise ValueError(
-                "End character not found: '{}'".format(r_bound))
+            raise ValueError("Start character not found: '{}'".format(l_bound))
+        elif in_str[len(in_str) - len(r_bound):] != r_bound:
+            raise ValueError("End character not found: '{}'".format(r_bound))
         elif in_str.find(sep) == -1:
-            raise ValueError(
-                "Seperator character not found: '{}'".format(sep))
+            raise ValueError("Seperator character not found: '{}'".format(sep))
 
         # Strip the boundary characters, split on seperator and small cleanup.
-        converted_str = [dtype(i.strip(' \"\''))
-                         for i in in_str[len(l_bound) : len(in_str) - len(r_bound)]
-                         .split(sep)]
+        converted_str = [dtype(i.strip(' \"\'')) for i in in_str[len(l_bound):(len(in_str) - len(r_bound))].split(sep)]
     return converted_str

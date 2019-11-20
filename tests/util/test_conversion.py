@@ -27,10 +27,20 @@ from immuno_probs.util.conversion import reverse_complement
 from immuno_probs.util.conversion import string_array_to_list
 
 
-@pytest.mark.parametrize('seq, expected', [
-    ('ACGT', '0123'),
-    pytest.param('ACGT', '1302', marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'seq, expected',
+    [
+        (
+            'ACGT',
+            '0123'
+        ),
+        pytest.param(
+            'ACGT',
+            '1302',
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_nucleotides_to_integers(seq, expected):
     """Test if nucleotide sequence can be converted to interger representation.
 
@@ -51,10 +61,20 @@ def test_nucleotides_to_integers(seq, expected):
     assert out == expected
 
 
-@pytest.mark.parametrize('int_seq, expected', [
-    ('0123', 'ACGT'),
-    pytest.param('1302', 'ACGT', marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'int_seq, expected',
+    [
+        (
+            '0123',
+            'ACGT'
+        ),
+        pytest.param(
+            '1302',
+            'ACGT',
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_integers_to_nucleotides(int_seq, expected):
     """Test if integer sequence can be converted to nucleotide representation.
 
@@ -75,10 +95,20 @@ def test_integers_to_nucleotides(int_seq, expected):
     assert out == expected
 
 
-@pytest.mark.parametrize('seq, expected', [
-    ('ACGTTAATCATCG', 'TLII'),
-    pytest.param('ACGTTAATCATCG', 'ACGT', marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'seq, expected',
+    [
+        (
+            'ACGTTAATCATCG',
+            'TLII'
+        ),
+        pytest.param(
+            'ACGTTAATCATCG',
+            'ACGT',
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_nucleotides_to_aminoacids(seq, expected):
     """Test if nucleotide sequence can be converted to aminoacid sequence.
 
@@ -99,10 +129,20 @@ def test_nucleotides_to_aminoacids(seq, expected):
     assert out == expected
 
 
-@pytest.mark.parametrize('seq, expected', [
-    ('ACGT', 'TGCA'),
-    pytest.param('CTAG', 'ACGT', marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'seq, expected',
+    [
+        (
+            'ACGT',
+            'TGCA'
+        ),
+        pytest.param(
+            'CTAG',
+            'ACGT',
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_reverse_complement(seq, expected):
     """Test if nucleotide sequence can be converted to reverse complement.
 
@@ -123,13 +163,54 @@ def test_reverse_complement(seq, expected):
     assert out == expected
 
 
-@pytest.mark.parametrize('in_str, dtype, l_bound, r_bound, sep, expected', [
-    ('(1, 2, 3, 4)', int, '(', ')', ',', [1, 2, 3, 4]),
-    ('(1, 2, 3, 4)', float, '(', ')', ',', [1.0, 2.0, 3.0, 4.0]),
-    pytest.param('((1, 2, 3, 4))', int, '(', ')', ',', [1, 2, 3, 4], marks=pytest.mark.xfail),
-    pytest.param('(1, 2, 3, 4)', int, '[', ']', ',', [1, 2, 3, 4], marks=pytest.mark.xfail),
-    pytest.param('[1, 2, 3, 4]', int, '[', ']', '.', [1, 2, 3, 4], marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'in_str, dtype, l_bound, r_bound, sep, expected',
+    [
+        (
+            '(1, 2, 3, 4)',
+            int,
+            '(',
+            ')',
+            ',',
+            [1, 2, 3, 4]
+        ),
+        (
+            '(1, 2, 3, 4)',
+            float,
+            '(',
+            ')',
+            ',',
+            [1.0, 2.0, 3.0, 4.0]
+        ),
+        pytest.param(
+            '((1, 2, 3, 4))',
+            int,
+            '(',
+            ')',
+            ',',
+            [1, 2, 3, 4],
+            marks=pytest.mark.xfail
+        ),
+        pytest.param(
+            '(1, 2, 3, 4)',
+            int,
+            '[',
+            ']',
+            ',',
+            [1, 2, 3, 4],
+            marks=pytest.mark.xfail
+        ),
+        pytest.param(
+            '[1, 2, 3, 4]',
+            int,
+            '[',
+            ']',
+            '.',
+            [1, 2, 3, 4],
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_string_array_to_list(in_str, dtype, l_bound, r_bound, sep, expected):
     """Test if integer sequence can be converted to nucleotide representation.
 

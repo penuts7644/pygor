@@ -28,16 +28,14 @@ def get_default_model_file_paths(name=None):
     Parameters
     ----------
     name : str, optional
-        A string value representing a model identifier name in the dictionary.
-        If name is not specified, returns a list containing all the available
-        model options.
+        A string value representing a model identifier name in the dictionary. If name is not specified, returns a list
+        containing all the available model options.
 
     Returns
     -------
     dict
-        Containing model marginals, model parameters, anchors and reference
-        genome file paths. If model name does not exist in the dictionary,
-        returns None instead.
+        Containing model marginals, model parameters, anchors and reference genome file paths. If model name does not exist
+        in the dictionary, returns None instead.
 
     """
     # Set the file paths for the models
