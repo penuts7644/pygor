@@ -1,7 +1,7 @@
 ImmunoProbs
 ===========
 
-|Build Status| |PyPI version| |PyPI pyversions| |PyPI license|
+|Test Status| |PyPI version| |PyPI pyversions| |PyPI license|
 
 Create IGoR models and calculate the generation probability of V(D)J and CDR3 sequences.
 
@@ -18,7 +18,7 @@ When using a forked copy ImmunoProbs, make sure to have the correct Python versi
 
 **Developed in collaboration with Sandve and Greiff labs.**
 
-.. |Build Status| image:: https://github.com/penuts7644/ImmunoProbs/workflows/build/badge.svg
+.. |Test Status| image:: https://github.com/penuts7644/ImmunoProbs/workflows/test/badge.svg
    :target: https://github.com/penuts7644/ImmunoProbs
 .. |PyPI version| image:: https://img.shields.io/pypi/v/immuno-probs
    :target: https://pypi.python.org/pypi/immuno-probs/
