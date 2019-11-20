@@ -25,6 +25,7 @@ from setuptools import setup
 def get_latest_git_tag():
     return os.popen('git tag | tail -1').read().strip()
 
+
 setup(
     version=get_latest_git_tag()
 )

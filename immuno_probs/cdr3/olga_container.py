@@ -56,8 +56,7 @@ class OlgaContainer(object):
         Returns the generation probability value for the given sequences.
 
     """
-    def __init__(self, igor_model, nt_col, nt_p_col, aa_col, aa_p_col,
-                 v_gene_choice_col, j_gene_choice_col):
+    def __init__(self, igor_model, nt_col, nt_p_col, aa_col, aa_p_col, v_gene_choice_col, j_gene_choice_col):
         super(OlgaContainer, self).__init__()
         self.igor_model = igor_model
         self.col_names = {
@@ -80,9 +79,8 @@ class OlgaContainer(object):
         Returns
         -------
         pandas.DataFrame
-            Containing columns with sequence index, nucleotide CDR3 sequence,
-            ammino acid CDR3 sequence, the index of the chosen V gene and the
-            index of the chosen J gene.
+            Containing columns with sequence index, nucleotide CDR3 sequence, amino acid CDR3 sequence, the index of the
+            chosen V gene and the index of the chosen J gene.
 
         Raises
         ------
@@ -105,9 +103,7 @@ class OlgaContainer(object):
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
         else:
-            raise TypeError(
-                "OLGA could not create a SequenceGeneration object since " \
-                "model is not of type 'VDJ' or 'VJ'")
+            raise TypeError("OLGA could not create a SequenceGeneration object since model is not of type 'VDJ' or 'VJ'")
 
         # Generate the sequences, add them to the dataframe and return.
         for _ in range(num_seqs):
@@ -115,10 +111,8 @@ class OlgaContainer(object):
             generated_seqs = generated_seqs.append({
                 self.col_names['NT_COL']: generated_seq[0],
                 self.col_names['AA_COL']: generated_seq[1],
-                self.col_names['V_GENE_CHOICE_COL']: self.igor_model. \
-                    get_genomic_data().genV[generated_seq[2]][0],
-                self.col_names['J_GENE_CHOICE_COL']: self.igor_model. \
-                    get_genomic_data().genJ[generated_seq[3]][0]
+                self.col_names['V_GENE_CHOICE_COL']: self.igor_model.get_genomic_data().genV[generated_seq[2]][0],
+                self.col_names['J_GENE_CHOICE_COL']: self.igor_model.get_genomic_data().genJ[generated_seq[3]][0]
             }, ignore_index=True)
         return generated_seqs
 
@@ -126,8 +120,8 @@ class OlgaContainer(object):
     def _locate_genes(genes, ref_genes, use_allele, default_allele):
         """Locates all the given gene values in the reference gene list.
 
-        If a gene family value is specified instead of the whole gene (family
-        + gene identifier), all possible genes within that family are located.
+        If a gene family value is specified instead of the whole gene (family + gene identifier), all possible genes within
+        that family are located.
 
         Parameters
         ----------
@@ -136,17 +130,15 @@ class OlgaContainer(object):
         ref_genes : list
             Containing reference gene string values.
         use_allele : bool
-            If True, the allele information from the input genes is used instead
-            of the 'default_allele' value.
+            If True, the allele information from the input genes is used instead of the 'default_allele' value.
         default_allele : str
-            A default allele value to use when spliting gene choices, and
-            'use_allele' option is False.
+            A default allele value to use when spliting gene choices, and 'use_allele' option is False.
 
         Returns
         -------
         list
-            A list with the genes that where located in the reference genes
-            list. If no genes where found, an empty list is returned.
+            A list with the genes that where located in the reference genes list. If no genes where found, an empty list
+            is returned.
 
         """
         # For each given gene, split up the name into family, gene and allele.
@@ -182,23 +174,19 @@ class OlgaContainer(object):
         return list(located_genes)
 
     def _evaluate(self, args):
-        """Private function for evaluating a given nucleotide CDR3 sequence by
-        using OLGA.
+        """Private function for evaluating a given nucleotide CDR3 sequence by using OLGA.
 
         Parameters
         ----------
         args : list
-            The arguments from the 'multiprocess_array' function. Consists of an
-            pandas.DataFrame and additional kwargs like a
-            GenerationProbability object, the column name containing the
-            nucleotide sequences and value to use as allele information.
+            The arguments from the 'multiprocess_array' function. Consists of an pandas.DataFrame and additional kwargs like
+            a GenerationProbability object, the column name containing the nucleotide sequences and value to use as allele information.
 
         Returns
         -------
         pandas.DataFrame
-            Containing columns sequence index number, the generation probability
-            of nucleotide sequence if given and the generation probability of
-            aminoacid sequence if given.
+            Containing columns sequence index number, the generation probability of nucleotide sequence if given and the
+            generation probability of aminoacid sequence if given.
 
         """
         # Set the arguments and pandas.DataFrame.
@@ -268,31 +256,26 @@ class OlgaContainer(object):
     def evaluate(self, seqs, num_threads, use_allele=True, default_allele=None):
         """Evaluate a given nucleotide CDR3 sequences using OLGA.
 
-        This function also checks if the given input sequence file contains the
-        gene index columns for the V and J gene. If so, then the V and J gene
-        masks in these columns are used to increase calculation accuracy of the
-        generation probabality values.
+        This function also checks if the given input sequence file contains the gene index columns for the V and J gene.
+        If so, then the V and J gene masks in these columns are used to increase calculation accuracy of the generation
+        probabality values.
 
         Parameters
         ----------
         seqs : pandas.DataFrame
-            A pandas dataframe object containing a column with nucleotide CDR3
-            sequences and/or amino acid sequences.
+            A pandas dataframe object containing a column with nucleotide CDR3 sequences and/or amino acid sequences.
         num_threads : int
             The number of threads to use when processing the sequences.
         use_allele : bool, optional
-            If True, the allele information from the input genes is used instead
-            of the 'default_allele' value (default: True).
+            If True, the allele information from the input genes is used instead of the 'default_allele' value (default: True).
         default_allele : str, optional
-            A default allele value to use when spliting gene choices, and
-            'use_allele' option is False (default: None).
+            A default allele value to use when spliting gene choices, and 'use_allele' option is False (default: None).
 
         Returns
         -------
         pandas.DataFrame
-            Containing the sequence index number, the generation probability
-            of nucleotide sequence if given and the generation probability of
-            aminoacid sequence if given.
+            Containing the sequence index number, the generation probability of nucleotide sequence if given and the
+            generation probability of aminoacid sequence if given.
 
         Raises
         ------
@@ -311,9 +294,7 @@ class OlgaContainer(object):
                 self.igor_model.get_generative_model(),
                 self.igor_model.get_genomic_data())
         else:
-            raise TypeError(
-                "OLGA could not create a GenerationProbability object since " \
-                "model is not of type 'VDJ' or 'VJ'")
+            raise TypeError("OLGA could not create a GenerationProbability object since model is not of type 'VDJ' or 'VJ'")
 
         # Insert amino acid sequence column if not existent.
         if (self.col_names['NT_COL'] in seqs.columns
@@ -324,11 +305,12 @@ class OlgaContainer(object):
                 .apply(nucleotides_to_aminoacids)
 
         # Use multiprocessing to evaluate the sequences in chunks and return.
-        result = multiprocess_array(ary=seqs,
-                                    func=self._evaluate,
-                                    num_workers=num_threads,
-                                    model=pgen_model,
-                                    use_allele=use_allele,
-                                    default_allele=default_allele)
+        result = multiprocess_array(
+            ary=seqs,
+            func=self._evaluate,
+            num_workers=num_threads,
+            model=pgen_model,
+            use_allele=use_allele,
+            default_allele=default_allele)
         result = pandas.concat(result, axis=0, copy=False)
         return result

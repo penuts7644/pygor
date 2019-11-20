@@ -27,20 +27,20 @@ clean:
 ##			Perform directory cleanup and setup the development enviroment.
 ##
 setup: clean
-	pip install -I -r requirements_travis.txt && pip install -e .[development]
+	pip install -I -r requirements.txt && pip install -e .[development]
 
 ##		make test
-##			Test immuno_probs source code with pytest.
+##			Test immuno_probs source code with flake8 linter and pytest.
 ##
 test:
-	python -m pytest -v tests
+	flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics && flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics && python -m pytest -v tests
 
 ##		make tag v=<*.*.*>
 ##			Generate changelog file, tag the latest commit with specified version
 ##			 and push the tag.
 ##
 tag:
-	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E --grep="^\[DEV\]|\[NEW\]|\[FIX\]|\[DOC\]" > change-log.txt && git tag $(v) && git push --tags; fi
+	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E > change-log.txt && git tag $(v) && git push --tags; fi
 
 ##		make docs
 ##			Build the documentation for ImmunoProbs.

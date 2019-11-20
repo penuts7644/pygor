@@ -18,11 +18,11 @@ When using a forked copy ImmunoProbs, make sure to have the correct Python versi
 
 **Developed in collaboration with Sandve and Greiff labs.**
 
-.. |Build Status| image:: https://img.shields.io/travis/penuts7644/ImmunoProbs/master?style=for-the-badge
+.. |Build Status| image:: https://github.com/penuts7644/ImmunoProbs/workflows/build/badge.svg
    :target: https://github.com/penuts7644/ImmunoProbs
-.. |PyPI version| image:: https://img.shields.io/pypi/v/immuno-probs?style=for-the-badge
+.. |PyPI version| image:: https://img.shields.io/pypi/v/immuno-probs
    :target: https://pypi.python.org/pypi/immuno-probs/
-.. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/immuno-probs?style=for-the-badge
+.. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/immuno-probs
    :target: https://pypi.python.org/pypi/immuno-probs/
-.. |PyPI license| image:: https://img.shields.io/pypi/l/immuno-probs?style=for-the-badge
+.. |PyPI license| image:: https://img.shields.io/pypi/l/immuno-probs
    :target: https://pypi.python.org/pypi/immuno-probs/

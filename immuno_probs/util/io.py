@@ -81,16 +81,14 @@ def is_separated(file, separator):
         A separator character used for separating the fields in the file.
 
     """
-    dataframe = pandas.read_csv(
-        file, sep=separator, comment='#', header=0, nrows=100, engine='python')
+    dataframe = pandas.read_csv(file, sep=separator, comment='#', header=0, nrows=100, engine='python')
     return not dataframe.empty
 
 
 def read_fasta_as_dataframe(file, col, header=None):
     """Creates a pandas.DataFrame from the FASTA file.
 
-    The dataframe contains header name and sequence columns containing the
-    corresponding FASTA data.
+    The dataframe contains header name and sequence columns containing the corresponding FASTA data.
 
     Parameters
     ----------
@@ -99,8 +97,7 @@ def read_fasta_as_dataframe(file, col, header=None):
     col : str
         The name of the FASTA sequence column.
     header : str, optional
-        The name of the FASTA header column. If not given, the header is not
-        included in the dataframe.
+        The name of the FASTA header column. If not given, the header is not included in the dataframe.
 
     """
     # Setup the column names.
@@ -127,8 +124,7 @@ def read_fasta_as_dataframe(file, col, header=None):
 def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
     """Read in a separated file as pandas.DataFrame object.
 
-    Comments ('#') in the file are skipped. If the given index column contains
-    NA values, the column is ignored.
+    Comments ('#') in the file are skipped. If the given index column contains NA values, the column is ignored.
 
     Parameters
     ----------
@@ -137,19 +133,16 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
     separator : str
         A separator character used for separating the fields in the file.
     index_col : str, optional
-        The name of the index column to use. If specified and given column is
-        not found in the dataframe, the index values are generated (default: no
-        index column).
+        The name of the index column to use. If specified and given column is not found in the dataframe, the index values
+        are generated (default: no index column).
     cols : list, optional
-        Containing column names to keep in the output file. The order will
-        change the output file column formatting (default: includes all
-        columns in the output file).
+        Containing column names to keep in the output file. The order will change the output file column formatting
+        (default: includes all columns in the output file).
 
     Raises
     -------
     KeyError
-        If DataFrame is empty or the specified columns were not found in the
-        input file.
+        If DataFrame is empty or the specified columns were not found in the input file.
 
     """
     # Read in columns of the given file.
@@ -161,8 +154,7 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
                                        na_values=['na', 'unknown', 'unresolved', 'no data'],
                                        engine='python')
         if separated_df.empty:
-            raise KeyError(
-                "DataFrame is empty, columns '{}' where not found".format(cols))
+            raise KeyError("DataFrame is empty, columns '{}' where not found".format(cols))
     else:
         separated_df = pandas.read_csv(file, sep=separator, comment='#', header=0,
                                        na_values=['na', 'unknown', 'unresolved', 'no data'],
@@ -181,9 +173,8 @@ def read_separated_to_dataframe(file, separator, index_col=None, cols=None):
 def write_dataframe_to_separated(dataframe, filename, directory, separator, index_name=None):
     """Writes a pandas.DataFrame to a separated formatted data file.
 
-    If the file already exists, a number will be appended to the filename. The
-    given output directory is created recursively if it does not exist. The
-    column names in the dataframe is used as first line in the file.
+    If the file already exists, a number will be appended to the filename. The given output directory is created recursively
+    if it does not exist. The column names in the dataframe is used as first line in the file.
 
     Parameters
     ----------
@@ -196,14 +187,12 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
     separator : str
         A separator character used for separating the fields in the file.
     index_name : str, optional
-        The output column name for the dataframe index (default: will not write
-        the index to the file).
+        The output column name for the dataframe index (default: will not write the index to the file).
 
     Returns
     -------
     tuple
-        Containing the output directory and the name of the file that has been
-        written to disk.
+        Containing the output directory and the name of the file that has been written to disk.
 
     """
     # Check if the filename is unique, modify name if necessary.
@@ -225,16 +214,19 @@ def write_dataframe_to_separated(dataframe, filename, directory, separator, inde
         enable_index = True
     dataframe.to_csv(
         path_or_buf=os.path.join(directory, updated_filename + extension),
-        sep=separator, index=enable_index, index_label=index_name, na_rep='NA')
+        sep=separator,
+        index=enable_index,
+        index_label=index_name,
+        na_rep='NA'
+    )
     return (directory, updated_filename + extension)
 
 
 def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, cols=None):
     """Formats the input sequence file for IGoR.
 
-    Returns the input file path if no changes will be applied to the file. This
-    means, the input seperator and output seperator are equal to each other and
-    the 'cols' attribute has not been specified.
+    Returns the input file path if no changes will be applied to the file. This means, the input seperator and output
+    seperator are equal to each other and the 'cols' attribute has not been specified.
 
     Parameters
     ----------
@@ -247,13 +239,11 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
     out_sep : str
         The wanted output file seperator.
     index_col : str, optional
-        The name of the index column to use. If specified and given column is
-        not found in the dataframe, the index values are generated (default: no
-        index column)
+        The name of the index column to use. If specified and given column is not found in the dataframe, the index values
+        are generated (default: no index column)
     cols : list, optional
-        Containing column names to keep in the output file. The order will
-        change the output file column formatting (default: includes all
-        columns in the output file).
+        Containing column names to keep in the output file. The order will change the output file column formatting
+        (default: includes all columns in the output file).
 
     Returns
     -------
@@ -270,11 +260,7 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
         os.makedirs(directory)
 
     # Open the sequence input file.
-    sequence_df = read_separated_to_dataframe(
-        file=file,
-        separator=in_sep,
-        index_col=index_col,
-        cols=cols)
+    sequence_df = read_separated_to_dataframe(file=file, separator=in_sep, index_col=index_col, cols=cols)
 
     # Write the new pandas dataframe to a separated file.
     directory, filename = write_dataframe_to_separated(
@@ -282,16 +268,16 @@ def preprocess_separated_file(directory, file, in_sep, out_sep, index_col=None, 
         filename=os.path.basename(str(file)),
         directory=directory,
         separator=out_sep,
-        index_name=index_col)
+        index_name=index_col
+    )
     return os.path.join(directory, filename)
 
 
 def preprocess_reference_file(directory, file, index=None):
     """Formats the IMGT reference genome files for IGoR.
 
-    The sequence is always formatted to uppercase and '.' characters are removed
-    from the sequence string. Make sure to use IMGT in and out-frame reference
-    files.
+    The sequence is always formatted to uppercase and '.' characters are removed from the sequence string. Make sure to use
+    IMGT in and out-frame reference files.
 
     Parameters
     ----------

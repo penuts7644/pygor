@@ -24,12 +24,22 @@ import pytest
 from immuno_probs.alignment.muscle_aligner import MuscleAligner
 
 
-@pytest.mark.parametrize('infile, cmd, expected', [
-    ('tests/data/human_t_beta/ref_genomes/TRBJ.fasta', 'muscle',
-     MultipleSeqAlignment),
-    pytest.param('tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
-                 'fake_command', MultipleSeqAlignment, marks=pytest.mark.xfail)
-])
+@pytest.mark.parametrize(
+    'infile, cmd, expected',
+    [
+        (
+            'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
+            'muscle',
+            MultipleSeqAlignment
+        ),
+        pytest.param(
+            'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
+            'fake_command',
+            MultipleSeqAlignment,
+            marks=pytest.mark.xfail
+        )
+    ]
+)
 def test_muscle_aligner(infile, cmd, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
