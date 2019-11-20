@@ -26,16 +26,46 @@ from immuno_probs.cdr3.olga_container import OlgaContainer
 from immuno_probs.model.igor_loader import IgorLoader
 
 
-@pytest.mark.parametrize('option, expected', [
-    ('generate', [['nt_sequence', str], ['aa_sequence', str],
-                  ['v_gene_choice', str], ['j_gene_choice', str]]),
-    ('evaluate', pandas.DataFrame(
-        [['TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC', numpy.nan, 0, numpy.nan],
-         ['TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT', numpy.nan, 6.022455403460228e-08, numpy.nan],
-         ['TGTGCATTGAACAGAGATGACAAGATCATCTTT', numpy.nan, 3.8690138672702246e-07, numpy.nan]],
-        columns=['nt_sequence', 'aa_sequence', 'nt_pgen_estimate', 'aa_pgen_estimate'])
-    )
-])
+@pytest.mark.parametrize(
+    'option, expected',
+    [
+        (
+            'generate',
+            [
+                ['nt_sequence', str],
+                ['aa_sequence', str],
+                ['v_gene_choice', str],
+                ['j_gene_choice', str]
+            ]
+        ),
+        (
+            'evaluate',
+            pandas.DataFrame(
+                [
+                    [
+                        'TGTGCCAGTAGTATAACAACCCAGGGCTTGTACGAGCAGTACTTC',
+                        numpy.nan,
+                        0,
+                        numpy.nan
+                    ],
+                    [
+                        'TGTGCAGGAATAAACTTTGGAAATGAGAAATTAACCTTT',
+                        numpy.nan,
+                        6.022455403460228e-08,
+                        numpy.nan
+                    ],
+                    [
+                        'TGTGCATTGAACAGAGATGACAAGATCATCTTT',
+                        numpy.nan,
+                        3.8690138672702246e-07,
+                        numpy.nan
+                    ]
+                ],
+                columns=['nt_sequence', 'aa_sequence', 'nt_pgen_estimate', 'aa_pgen_estimate']
+            )
+        )
+    ]
+)
 def test_olga_container(option, expected):
     """Test if the container class can generate and evaluate the CDR3's.
 

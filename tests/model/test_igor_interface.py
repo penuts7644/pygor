@@ -23,12 +23,23 @@ import pytest
 from immuno_probs.model.igor_interface import IgorInterface
 
 
-@pytest.mark.parametrize('options, expected', [
-    (['cmd', '1', '2'], 'cmd 1 2'),
-    (['cmd', ['sub', '1', '2'], '3'], 'cmd -sub 1 2 3'),
-    (['cmd', ['sub', ['sub-sub']], ['sub', '2', ['sub-sub', '3']]],
-     'cmd -sub --sub-sub -sub 2 --sub-sub 3'),
-])
+@pytest.mark.parametrize(
+    'options, expected',
+    [
+        (
+            ['cmd', '1', '2'],
+            'cmd 1 2'
+        ),
+        (
+            ['cmd', ['sub', '1', '2'], '3'],
+            'cmd -sub 1 2 3'
+        ),
+        (
+            ['cmd', ['sub', ['sub-sub']], ['sub', '2', ['sub-sub', '3']]],
+            'cmd -sub --sub-sub -sub 2 --sub-sub 3'
+        ),
+    ]
+)
 def test_igor_interface(options, expected):
     """Test if the IgorInterface class creates the subprocess command properly.
 

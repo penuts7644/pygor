@@ -24,16 +24,24 @@ import pytest
 from immuno_probs.util.io import read_fasta_as_dataframe
 
 
-@pytest.mark.parametrize('file, expected', [
-    ('tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
-     pandas.DataFrame(
-         [['TGAACACTGAAGCTTTCTTTGGACAAGGCACCAGACTCACAGTTGTAG'],
-          ['CTAACTATGGCTACACCTTCGGTTCGGGGACCAGGTTAACCGTTGTAG'],
-          ['CTCTGGAAACACCATATATTTTGGAGAGGGAAGTTGGCTCACTGTTGTAG'],
-          ['CAACTAATGAAAAACTGTTTTTTGGCAGTGGAACCCAGCTCTCTGTCTTGG'],
-          ['TAGCAATCAGCCCCAGCATTTTGGTGATGGGACTCGACTCTCCATCCTAG']],
-         columns=['nt_sequence']))
-])
+@pytest.mark.parametrize(
+    'file, expected',
+    [
+        (
+            'tests/data/human_t_beta/ref_genomes/TRBJ.fasta',
+            pandas.DataFrame(
+                [
+                    ['TGAACACTGAAGCTTTCTTTGGACAAGGCACCAGACTCACAGTTGTAG'],
+                    ['CTAACTATGGCTACACCTTCGGTTCGGGGACCAGGTTAACCGTTGTAG'],
+                    ['CTCTGGAAACACCATATATTTTGGAGAGGGAAGTTGGCTCACTGTTGTAG'],
+                    ['CAACTAATGAAAAACTGTTTTTTGGCAGTGGAACCCAGCTCTCTGTCTTGG'],
+                    ['TAGCAATCAGCCCCAGCATTTTGGTGATGGGACTCGACTCTCCATCCTAG']
+                ],
+                columns=['nt_sequence']
+            )
+        )
+    ]
+)
 def test_read_fasta_as_dataframe(file, expected):
     """Test if a FASTA file can be read as pandas.DataFrame.
 

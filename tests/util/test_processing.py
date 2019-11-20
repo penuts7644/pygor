@@ -29,11 +29,32 @@ def sum_integers_plus_value(args):
     return sum(ary) + kwargs['plus']
 
 
-@pytest.mark.parametrize('ary, func, num_workers, plus, expected', [
-    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 1, 10, [55]),
-    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 2, 5, [15, 40]),
-    ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], sum_integers_plus_value, 4, -4, [-1, 8, 9, 13])
-])
+@pytest.mark.parametrize(
+    'ary, func, num_workers, plus, expected',
+    [
+        (
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            sum_integers_plus_value,
+            1,
+            10,
+            [55]
+        ),
+        (
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            sum_integers_plus_value,
+            2,
+            5,
+            [15, 40]
+        ),
+        (
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            sum_integers_plus_value,
+            4,
+            -4,
+            [-1, 8, 9, 13]
+        )
+    ]
+)
 def test_multiprocess_array(ary, func, num_workers, plus, expected):
     """Test if fasta file can be aligned by MUSCLE commandline tool.
 
