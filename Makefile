@@ -40,7 +40,7 @@ test:
 ##			 and push the tag.
 ##
 tag:
-	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E --grep="^\[DEV\]|\[NEW\]|\[FIX\]|\[DOC\]" > change-log.txt && git tag $(v) && git push --tags; fi
+	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E > change-log.txt && git tag $(v) && git push --tags; fi
 
 ##		make build-docs
 ##			Build the documentation for ImmunoProbs.
