@@ -58,9 +58,8 @@ class IgorLoader(object):
 
     @staticmethod
     def _check_type(model_type, model_marginals):
-        """Private function to check the model marginals file for possible D
-        gene attributes. If these are found, the model classifies as VDJ else,
-        VJ.
+        """Private function to check the model marginals file for possible D gene attributes. If these are found, the model
+        classifies as VDJ else, VJ.
 
         Parameters
         ----------
@@ -96,12 +95,10 @@ class IgorLoader(object):
             return 'VDJ'
         if (v_choice and j_choice and not d_gene) and (model_type in ['alpha', 'light']):
             return 'VJ'
-        raise TypeError(
-            "Model is not compliant to the given type: '{}''".format(model_type))
+        raise TypeError("Model is not compliant to the given type: '{}''".format(model_type))
 
     def _load_params(self, model_params):
-        """Private function for loading in the genomic parameter data for the
-        IGoR model.
+        """Private function for loading in the genomic parameter data for the IGoR model.
 
         Parameters
         ----------
@@ -116,8 +113,7 @@ class IgorLoader(object):
         Raises
         ------
         TypeError
-            When the model input data cannot be loaded in as either a VJ or
-            VDJ model.
+            When the model input data cannot be loaded in as either a VJ or VDJ model.
         OSError
             When OLGA produces and system error with the input data.
 
@@ -131,8 +127,7 @@ class IgorLoader(object):
             elif self.type == 'VJ':
                 genomic_data = olga_load_model.GenomicDataVJ()
             else:
-                raise TypeError(
-                    "Model genomic data could not be loaded as 'VDJ' or 'VJ' type")
+                raise TypeError("Model genomic data could not be loaded as 'VDJ' or 'VJ' type")
 
             # Load the remainder of the data for the VJ model and return.
             genomic_data.genV = olga_load_model.read_igor_V_gene_parameters(model_params)
@@ -158,8 +153,7 @@ class IgorLoader(object):
         Raises
         ------
         TypeError
-            When the model input data cannot be loaded in as either a VJ or
-            VDJ model.
+            When the model input data cannot be loaded in as either a VJ or VDJ model.
         OSError
             When OLGA produces and system error with the input data.
 
@@ -172,8 +166,7 @@ class IgorLoader(object):
             elif self.type == "VJ":
                 generative_model = olga_load_model.GenerativeModelVJ()
             else:
-                raise TypeError(
-                    "Generative model could not be loaded as 'VDJ' or 'VJ' type")
+                raise TypeError("Generative model could not be loaded as 'VDJ' or 'VJ' type")
 
             # Load the generative VDJ or VJ model marginals and return.
             generative_model.load_and_process_igor_model(model_marginals)
@@ -188,8 +181,7 @@ class IgorLoader(object):
         Parameters
         ----------
         gene : str
-            A gene identifier, either 'V' or 'J', specifying the alignement's
-            origin gene.
+            A gene identifier, either 'V' or 'J', specifying the alignement's origin gene.
         file : str
             File path location for the CDR3 anchor positions for the given gene.
 
@@ -210,8 +202,7 @@ class IgorLoader(object):
         elif gene == "J":
             self.j_anchors = file
         else:
-            raise ValueError(
-                "Gene identifier should be either 'V' or 'J'", gene)
+            raise ValueError("Gene identifier should be either 'V' or 'J'", gene)
 
     def initialize_model(self):
         """Initializes the model data with CDR3 anchor position data files.
@@ -219,16 +210,14 @@ class IgorLoader(object):
         Raises
         ------
         TypeError
-            When the model input data cannot be loaded in as either a VJ or
-            VDJ model.
+            When the model input data cannot be loaded in as either a VJ or VDJ model.
         OSError
             When OLGA produces and system error with the input data.
 
         Notes
         -----
-        This function uses the model marginals and parameters data that has
-        already been loaded through trhe class constructor and updates this
-        model object with the CDR3 anchor files.
+        This function uses the model marginals and parameters data that has already been loaded through trhe class constructor
+        and updates this model object with the CDR3 anchor files.
 
         """
 
@@ -241,8 +230,7 @@ class IgorLoader(object):
             elif self.type == "VJ":
                 self.data.read_igor_VJ_palindrome_parameters(self.params)
             else:
-                raise TypeError(
-                    "Model type could not be identified as 'VDJ' or 'VJ'")
+                raise TypeError("Model type could not be identified as 'VDJ' or 'VJ'")
 
             # Load the remainder of the data model
             self.data.generate_cutV_genomic_CDR3_segs()

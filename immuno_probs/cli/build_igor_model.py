@@ -26,8 +26,7 @@ from immuno_probs.model.default_models import get_default_model_file_paths
 from immuno_probs.model.igor_interface import IgorInterface
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import preprocess_separated_file, \
-preprocess_reference_file, is_fasta, is_separated, copy_to_dir
+from immuno_probs.util.io import preprocess_separated_file, preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
 class BuildIgorModel(object):
@@ -41,8 +40,7 @@ class BuildIgorModel(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to execute IGoR
-        for creating a custom model.
+        Uses the given Namespace commandline arguments to execute IGoR for creating a custom model.
 
     """
     def __init__(self, subparsers):
@@ -56,21 +54,18 @@ class BuildIgorModel(object):
 
         Notes
         -----
-            Uses the class constructor's subparser object for appending the
-            tool's parser and options.
+            Uses the class constructor's subparser object for appending the tool's parser and options.
 
         """
         # Create the description and options for the parser.
-        description = "Create a VDJ or VJ model by executing IGoR's " \
-            "commandline tool via a python subprocess using default model " \
-            "parameters."
+        description = "Create a VDJ or VJ model by executing IGoR's commandline tool via a python subprocess using default " \
+            "model parameters."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or separated data file with " \
-                        "sequences for training the model."
+                'help': "An input FASTA or separated data file with sequences for training the model."
             },
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -78,32 +73,26 @@ class BuildIgorModel(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': "A gene (V, D or J) followed by a reference genome " \
-                        "FASTA file. Note: the FASTA reference genome files " \
-                        "needs to conform to IGMT annotation (separated by " \
-                        "'|' character)."
+                'help': "A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files "
+                        "needs to conform to IGMT annotation (separated by '|' character)."
             },
             '-type': {
                 'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': 'True',
-                'help': 'The type of model to create. (select one: ' \
-                        '%(choices)s).'
+                'help': 'The type of model to create. (select one: %(choices)s).'
             },
             '-n-iter': {
                 'type': 'int',
                 'nargs': '?',
-                'help': 'The number of inference iterations to perform when ' \
-                        'creating the model (default: {}).'.format(
-                            get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))
+                'help': 'The number of inference iterations to perform when creating the model (default: {}).'
+                        .format(get_config_data('BUILD', 'NUM_ITERATIONS', 'int'))
             }
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser(
-            'build', help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool,
-                                          options=parser_options)
+        parser_tool = self.subparsers.add_parser('build', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
     @staticmethod
     def _copy_file_to_output(file, filename, directory):
@@ -216,7 +205,7 @@ class BuildIgorModel(object):
                     return
             else:
                 self.logger.error(
-                    'Given input sequence file could not be detected as ' \
+                    'Given input sequence file could not be detected as '
                     'FASTA file or separated data type')
                 return
         except (IOError, KeyError) as err:
@@ -239,7 +228,7 @@ class BuildIgorModel(object):
             exit_code, _, stderr, _ = igor_cline.call()
             if exit_code != 0:
                 self.logger.error(
-                    "An error occurred during execution of IGoR command " \
+                    "An error occurred during execution of IGoR command "
                     "(exit code %s):\n%s", exit_code, stderr)
                 return
         except OSError as err:

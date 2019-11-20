@@ -26,16 +26,13 @@ def dynamic_cli_options(parser, options):
     parser : argparse.ArgumentParser
         ArgumentParser to use for appending options.
     options : dict
-        A Python dict with key being the full name of the option. The value
-        is a dict that corresponds to input arguments of the
-        ArgumentParser.add_argument function. Make sure surround the 'type'
-        argument value with quotes.
+        A Python dict with key being the full name of the option. The value is a dict that corresponds to input arguments of
+        the ArgumentParser.add_argument function. Make sure surround the 'type' argument value with quotes.
 
     Returns
     -------
     argparse.ArgumentParser
-        Containing the expected commandline arguments. Note that the commandline
-        arguments are not yet parsed.
+        Containing the expected commandline arguments. Note that the commandline arguments are not yet parsed.
 
     """
     # Semi-dynamically create the argparse arguments from given inputs.

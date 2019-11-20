@@ -27,8 +27,7 @@ from immuno_probs.alignment.muscle_aligner import MuscleAligner
 from immuno_probs.cdr3.anchor_locator import AnchorLocator
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, \
-write_dataframe_to_separated
+from immuno_probs.util.io import copy_to_dir, preprocess_reference_file, write_dataframe_to_separated
 
 
 class LocateCdr3Anchors(object):
@@ -42,8 +41,7 @@ class LocateCdr3Anchors(object):
     Methods
     -------
     run(args)
-        Uses the given Namespace commandline arguments to locate the CDR3
-        anchors and write them to a file.
+        Uses the given Namespace commandline arguments to locate the CDR3 anchors and write them to a file.
 
     """
     def __init__(self, subparsers):
@@ -57,14 +55,12 @@ class LocateCdr3Anchors(object):
 
         Notes
         -----
-            Uses the class constructor's subparser object for appending the
-            tool's parser and options.
+            Uses the class constructor's subparser object for appending the tool's parser and options.
 
         """
         # Create the description and options for the parser.
-        description = "Create an alignment for the given reference genome " \
-            "FASTA files and seach the given alignment for conserved motif " \
-            "regions. The located CDR3 anchors can be used for the other tools."
+        description = "Create an alignment for the given reference genome FASTA files and seach the given alignment for " \
+            "conserved motif regions. The located CDR3 anchors can be used for the other tools."
         parser_options = {
             '-ref': {
                 'metavar': ('<gene>', '<fasta>'),
@@ -72,26 +68,21 @@ class LocateCdr3Anchors(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': 'True',
-                'help': "A gene (V or J) followed by a reference genome " \
-                        "FASTA file. Note: the FASTA reference genome files " \
-                        "needs to conform to IGMT annotation (separated by " \
-                        "'|' character)."
+                'help': "A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files "
+                        "needs to conform to IGMT annotation (separated by '|' character)."
             },
             '-motif': {
                 'type': 'str.upper',
                 'action': 'append',
-                'help': "The motifs to look for (default: 'V' {} and 'J' {} " \
-                        "respectivly).".format(
-                            get_config_data('LOCATE', 'V_MOTIFS').split(','),
-                            get_config_data('LOCATE', 'J_MOTIFS').split(','))
+                'help': "The motifs to look for (default: 'V' {} and 'J' {} respectivly)."
+                        .format(get_config_data('LOCATE', 'V_MOTIFS').split(','),
+                                get_config_data('LOCATE', 'J_MOTIFS').split(','))
             }
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser(
-            'locate', help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool,
-                                          options=parser_options)
+        parser_tool = self.subparsers.add_parser('locate', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
     def run(self, args, output_dir):
         """Function to execute the commandline tool.
@@ -109,9 +100,7 @@ class LocateCdr3Anchors(object):
 
         # Create the alignment and locate the motifs.
         for gene in args.ref:
-            self.logger.info(
-                'Processing genomic reference template for %s and building ' \
-                'MUSCLE alignment', gene[0])
+            self.logger.info('Processing genomic reference template for %s and building MUSCLE alignment', gene[0])
             try:
                 filename = preprocess_reference_file(
                     os.path.join(working_dir, 'genomic_templates'),
@@ -152,9 +141,9 @@ class LocateCdr3Anchors(object):
                     lambda value: (value.split('|')[1], value.split('|')[3])))
             except (IndexError, ValueError):
                 self.logger.error(
-                    "FASTA header needs to be separated by '|', needs to have " \
-                    "gene name on index position 1 and function on index " \
-                    "position 3: '%s'", anchors_df['gene'])
+                    "FASTA header needs to be separated by '|', needs to have gene name on index position 1 and function "
+                    "on index position 3: '%s'", anchors_df['gene']
+                )
                 return
 
             # Write the pandas dataframe to a separated file with prefix.

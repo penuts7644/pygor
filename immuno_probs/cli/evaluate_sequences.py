@@ -22,7 +22,6 @@ import logging
 import os
 import sys
 
-import pandas
 import numpy
 
 from immuno_probs.cdr3.olga_container import OlgaContainer
@@ -32,9 +31,7 @@ from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import read_separated_to_dataframe, \
-read_fasta_as_dataframe, write_dataframe_to_separated, preprocess_separated_file, \
-preprocess_reference_file, is_fasta, is_separated, copy_to_dir
+from immuno_probs.util.io import read_separated_to_dataframe, read_fasta_as_dataframe, write_dataframe_to_separated, preprocess_separated_file, preprocess_reference_file, is_fasta, is_separated, copy_to_dir
 
 
 class EvaluateSequences(object):
@@ -62,29 +59,24 @@ class EvaluateSequences(object):
 
         Notes
         -----
-            Uses the class constructor's subparser object for appending the
-            tool's parser and options.
+            Uses the class constructor's subparser object for appending the tool's parser and options.
 
         """
         # Create the description and options for the parser.
-        description = "Evaluate VDJ or VJ sequences given a custom IGoR " \
-            "model (or build-in) through IGoR's commandline tool via python " \
-            "subprocess. Or evaluate CDR3 sequences with the model by using " \
-            "OLGA."
+        description = "Evaluate VDJ or VJ sequences given a custom IGoR model (or build-in) through IGoR's commandline " \
+            "tool via python subprocess. Or evaluate CDR3 sequences with the model by using OLGA."
         parser_options = {
             '-seqs': {
                 'metavar': '<fasta/separated>',
                 'required': 'True',
                 'type': 'str',
-                'help': "An input FASTA or separated data file with " \
-                        "sequences to evaluate."
+                'help': "An input FASTA or separated data file with sequences to evaluate."
             },
             '-model': {
                 'type': 'str.lower',
                 'choices': get_default_model_file_paths(),
                 'required': '-custom-model' not in sys.argv,
-                'help': "Specify a pre-installed model for evaluation. " \
-                        "(required if -custom-model NOT specified) " \
+                'help': "Specify a pre-installed model for evaluation. (required if -custom-model NOT specified) "
                         "(select one: %(choices)s)."
             },
             '-ref': {
@@ -93,25 +85,21 @@ class EvaluateSequences(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' not in sys.argv and '-custom-model' in sys.argv),
-                'help': "A gene (V, D or J) followed by a reference genome " \
-                        "FASTA file. Note: the FASTA reference genome files " \
-                        "needs to conform to IGMT annotation (separated by " \
-                        "'|' character). (required for -custom-model without " \
-                        "-cdr3)"
+                'help': "A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files "
+                        "needs to conform to IGMT annotation (separated by '|' character). (required for -custom-model "
+                        "without -cdr3)"
             },
             '-type': {
                 'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
-                'help': 'The type of the custom model to use. (select one: ' \
-                        '%(choices)s) (required for -custom-model).'
+                'help': 'The type of the custom model to use. (select one: %(choices)s) (required for -custom-model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
                 'nargs': 2,
-                'help': 'A IGoR parameters file followed by an IGoR ' \
-                        'marginals file.'
+                'help': 'A IGoR parameters file followed by an IGoR marginals file.'
             },
             '-anchor': {
                 'metavar': ('<gene>', '<separated>'),
@@ -119,33 +107,26 @@ class EvaluateSequences(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor separated ' \
-                        'data file. Note: need to contain gene in the first ' \
-                        'column, anchor index in the second and gene function ' \
-                        'in the third (required for -cdr3 and -custom-model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the '
+                        'first column, anchor index in the second and gene function in the third (required for -cdr3 and '
+                        '-custom-model).'
             },
             '-cdr3': {
                 'action': 'store_true',
-                'help': 'If specified (True), CDR3 sequences should be ' \
-                        'evaluated, otherwise V(D)J sequences (default: ' \
-                        '{}).'.format(
-                            get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'))
+                'help': 'If specified (True), CDR3 sequences should be evaluated, otherwise V(D)J sequences (default: {}).'
+                        .format(get_config_data('EVALUATE', 'EVAL_CDR3', 'bool'))
             },
             '-use-allele': {
                 'action': 'store_true',
-                'help': "If specified (True), in combination with the '-cdr3' " \
-                        " flag, the allele information from the gene choice " \
-                        "fields is used to calculate the generation " \
-                        "probability (default: {}).".format(
-                            get_config_data('EVALUATE', 'USE_ALLELE', 'bool'))
+                'help': "If specified (True), in combination with the '-cdr3' flag, the allele information from the gene "
+                        "choice fields is used to calculate the generation probability (default: {})."
+                        .format(get_config_data('EVALUATE', 'USE_ALLELE', 'bool'))
             },
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser(
-            'evaluate', help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool,
-                                          options=parser_options)
+        parser_tool = self.subparsers.add_parser('evaluate', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
     def run(self, args, output_dir):
         """Function to execute the commandline tool.
@@ -231,7 +212,7 @@ class EvaluateSequences(object):
                     command_list.append(['read_seqs', input_seqs])
                 else:
                     self.logger.error(
-                        'Given input sequence file could not be detected as ' \
+                        'Given input sequence file could not be detected as '
                         'FASTA file or separated data type')
                     return
             except (IOError, KeyError, ValueError) as err:
@@ -251,7 +232,7 @@ class EvaluateSequences(object):
                 exit_code, _, stderr, _ = igor_cline.call()
                 if exit_code != 0:
                     self.logger.error(
-                        "An error occurred during execution of IGoR command " \
+                        "An error occurred during execution of IGoR command "
                         "(exit code %s):\n%s", exit_code, stderr)
                     return
             except OSError as err:
@@ -291,8 +272,7 @@ class EvaluateSequences(object):
                 seqs_df.insert(
                     seqs_df.columns.get_loc(get_config_data('COMMON', 'NT_COL')) + 1,
                     get_config_data('COMMON', 'AA_COL'), numpy.nan)
-                seqs_df[get_config_data('COMMON', 'AA_COL')] = \
-                    seqs_df[get_config_data('COMMON', 'NT_COL')].apply(nucleotides_to_aminoacids)
+                seqs_df[get_config_data('COMMON', 'AA_COL')] = seqs_df[get_config_data('COMMON', 'NT_COL')].apply(nucleotides_to_aminoacids)
 
             # Merge IGoR generated sequence output dataframes.
             full_pgen_df = seqs_df.merge(full_pgen_df, left_index=True, right_index=True)
@@ -370,9 +350,7 @@ class EvaluateSequences(object):
                         separator=get_config_data('COMMON', 'SEPARATOR'),
                         index_col=get_config_data('COMMON', 'I_COL'))
                 else:
-                    self.logger.error(
-                        'Given input sequence file could not be detected as ' \
-                        'FASTA file or separated data type')
+                    self.logger.error('Given input sequence file could not be detected as FASTA file or separated data type')
                     return
             except (IOError, KeyError, ValueError) as err:
                 self.logger.error(str(err))

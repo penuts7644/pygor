@@ -28,16 +28,15 @@ from immuno_probs.util.processing import multiprocess_array
 
 
 class AdaptiveSequenceConvertor(object):
-    """Converts the full length (VDJ for productive, unproductive and the total)
-    and CDR3 sequences from a given adaptive sequence input file.
+    """Converts the full length (VDJ for productive, unproductive and the total) and CDR3 sequences from a given adaptive
+    sequence input file.
 
     Methods
     -------
     build_resolved_pattern(value, use_allele, default_allele)
         Splits the resolved gene value in an IMGT formated regex pattern.
     find_longest_substring(full, partial)
-        Finds the longest overlap between a full length sequences and a
-        partial length sequence.
+        Finds the longest overlap between a full length sequences and a partial length sequence.
     convert(num_threads, seqs, use_allele=True, default_allele=None)
         Convert sequence data to an ImmunoProbs compatible format.
 
@@ -54,27 +53,21 @@ class AdaptiveSequenceConvertor(object):
         value : str
             The string value to split and format.
         use_allele : bool
-            If True, the allele information from the input genes is used instead
-            of the 'default_allele' value.
+            If True, the allele information from the input genes is used instead of the 'default_allele' value.
         default_allele : str
-            A default allele value to use when spliting gene choices, and
-            'use_allele' option is False.
+            A default allele value to use when spliting gene choices, and 'use_allele' option is False.
 
         Returns
         -------
         list
-            Containing all the 'family-gene*allele' regex pattern combinations
-            for the given value string in IMGT format.
+            Containing all the 'family-gene*allele' regex pattern combinations for the given value string in IMGT format.
 
         Notes
         -----
-        This function assumes the following: If 'use_allele' is True, the allele
-        from the input value is used, if this can't be found, 'default_allele'
-        is used for that value. The function always requires a family to be
-        found. If there is no gene, only the allele is inserted. If there is
-        a gene, the family, gene and allele values are recombined. In addition
-        if that gene value equals 1, an extra pattern is attached with only the
-        family and allele.
+        This function assumes the following: If 'use_allele' is True, the allele from the input value is used, if this can't
+        be found, 'default_allele' is used for that value. The function always requires a family to be found. If there is no
+        gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition
+        if that gene value equals 1, an extra pattern is attached with only the family and allele.
 
         """
         # Setup output list, match correct group and split from allele.
@@ -119,16 +112,14 @@ class AdaptiveSequenceConvertor(object):
 
     @staticmethod
     def find_longest_substring(full, partial):
-        """Finds the longest overlap between a full length sequences and a
-        partial length sequence.
+        """Finds the longest overlap between a full length sequences and a partial length sequence.
 
         Parameters
         ----------
         full : str
             A full length sequence string.
         partial : str
-            A partial length sequence string to compare against the full length
-            sequence.
+            A partial length sequence string to compare against the full length sequence.
 
         Returns
         -------
@@ -136,36 +127,34 @@ class AdaptiveSequenceConvertor(object):
             The longest substring from the compared input strings.
 
         """
-        t = [[0] * (1 + len(partial)) for i in range(1 + len(full))]
-        l, xl = 0, 0
+        var_1 = [[0] * (1 + len(partial)) for i in range(1 + len(full))]
+        index_1, index_2 = 0, 0
         for x in range(1, 1 + len(full)):
             for y in range(1, 1 + len(partial)):
                 if full[x - 1] == partial[y - 1]:
-                    t[x][y] = t[x - 1][y - 1] + 1
-                    if t[x][y] > l:
-                        l = t[x][y]
-                        xl = x
+                    var_1[x][y] = var_1[x - 1][y - 1] + 1
+                    if var_1[x][y] > index_1:
+                        index_1 = var_1[x][y]
+                        index_2 = x
                 else:
-                    t[x][y] = 0
-        return full[xl - l: xl]
+                    var_1[x][y] = 0
+        return full[index_2 - index_1: index_2]
 
     def _convert(self, args):
-        """Private function for converting the adaptive dataframe data by
-        striping the CDR3's as well as creating full length VDJ sequences using
-        recombination.
+        """Private function for converting the adaptive dataframe data by striping the CDR3's as well as creating full length
+        VDJ sequences using recombination.
 
         Parameters
         ----------
         args : list
-            A collection of arguments containing the dataframe to process for
-            the thread, reference V and J gene dataframes, column names,
-            default allele value and number of random sequences to use.
+            A collection of arguments containing the dataframe to process for the thread, reference V and J gene dataframes,
+            column names, default allele value and number of random sequences to use.
 
         Returns
         -------
         list
-            Three pandas dataframes containing the reassembled data, full length
-            productive VDJ sequences and full length unproductive VDJ sequences.
+            Three pandas dataframes containing the reassembled data, full length productive VDJ sequences and full length
+            unproductive VDJ sequences.
 
         """
         # Setup the initial dataframe.
@@ -180,10 +169,8 @@ class AdaptiveSequenceConvertor(object):
             col_names['ROW_ID_COL'], col_names['NT_COL'], col_names['AA_COL'],
             col_names['V_GENE_CHOICE_COL'], col_names['J_GENE_CHOICE_COL']
         ])
-        full_length_prod_df = pandas.DataFrame(
-            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
-        full_length_unprod_df = pandas.DataFrame(
-            columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
+        full_length_prod_df = pandas.DataFrame(columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
+        full_length_unprod_df = pandas.DataFrame(columns=[col_names['ROW_ID_COL'], col_names['NT_COL']])
 
         # Shuffle the dataframe and iterate over the rows with index value.
         ary = ary.sample(frac=1)
@@ -192,14 +179,11 @@ class AdaptiveSequenceConvertor(object):
             # Exit loop if prod and reached max number of sequences, do not add
             # sequences when max is reached for a dataframe.
             if n_random > 0:
-                if (len(full_length_prod_df) >= n_random
-                        and len(full_length_unprod_df) >= n_random):
+                if (len(full_length_prod_df) >= n_random and len(full_length_unprod_df) >= n_random):
                     break
-                if (row[col_names['FRAME_TYPE_COL']].lower() == 'in'
-                        and len(full_length_prod_df) >= n_random):
+                if (row[col_names['FRAME_TYPE_COL']].lower() == 'in' and len(full_length_prod_df) >= n_random):
                     continue
-                elif ((row[col_names['FRAME_TYPE_COL']].lower() == 'out'
-                       or row[col_names['FRAME_TYPE_COL']].lower() == 'stop')
+                elif ((row[col_names['FRAME_TYPE_COL']].lower() == 'out' or row[col_names['FRAME_TYPE_COL']].lower() == 'stop')
                       and len(full_length_unprod_df) >= n_random):
                     continue
 
@@ -209,15 +193,15 @@ class AdaptiveSequenceConvertor(object):
             if isinstance(row[col_names['V_RESOLVED_COL']], str):
                 v_resolved = self.build_resolved_pattern(
                     value=row[col_names['V_RESOLVED_COL']],
-                    use_allele=use_allele, default_allele=default_allele)
+                    use_allele=use_allele,
+                    default_allele=default_allele
+                )
                 for resolved in v_resolved:
-                    imgt_v_gene = ref_v_genes.loc[ref_v_genes[
-                        col_names['V_RESOLVED_COL']].str.contains(resolved), :]
+                    imgt_v_gene = ref_v_genes.loc[ref_v_genes[col_names['V_RESOLVED_COL']].str.contains(resolved), :]
 
                     # Assemble the output dataframe gene choices for the V genes.
                     if not imgt_v_gene.empty:
-                        v_gene_choices.append(
-                            imgt_v_gene[col_names['V_RESOLVED_COL']].values[0])
+                        v_gene_choices.append(imgt_v_gene[col_names['V_RESOLVED_COL']].values[0])
             if v_gene_choices:
                 v_gene_choices = '|'.join(v_gene_choices)
             else:
@@ -229,23 +213,22 @@ class AdaptiveSequenceConvertor(object):
             if isinstance(row[col_names['J_RESOLVED_COL']], str):
                 j_resolved = self.build_resolved_pattern(
                     value=row[col_names['J_RESOLVED_COL']],
-                    use_allele=use_allele, default_allele=default_allele)
+                    use_allele=use_allele,
+                    default_allele=default_allele
+                )
                 for resolved in j_resolved:
-                    imgt_j_gene = ref_j_genes.loc[ref_j_genes[
-                        col_names['J_RESOLVED_COL']].str.contains(resolved), :]
+                    imgt_j_gene = ref_j_genes.loc[ref_j_genes[col_names['J_RESOLVED_COL']].str.contains(resolved), :]
 
                     # Assemble the output dataframe gene choices for the J genes.
                     if not imgt_j_gene.empty:
-                        j_gene_choices.append(
-                            imgt_j_gene[col_names['J_RESOLVED_COL']].values[0])
+                        j_gene_choices.append(imgt_j_gene[col_names['J_RESOLVED_COL']].values[0])
             if j_gene_choices:
                 j_gene_choices = '|'.join(j_gene_choices)
             else:
                 j_gene_choices = numpy.nan
 
             # Create the trimmed NT sequence (removing primers).
-            trimmed_nt_seq = row[col_names['NT_COL']][
-                (81 - int(row[col_names['CDR3_LENGTH_COL']])): 81]
+            trimmed_nt_seq = row[col_names['NT_COL']][(81 - int(row[col_names['CDR3_LENGTH_COL']])): 81]
 
             # Add data row of reassembled data to the dataframe.
             reassembled_df = reassembled_df.append({
@@ -258,10 +241,8 @@ class AdaptiveSequenceConvertor(object):
 
             # Create the VDJ full length sequence
             if (not imgt_v_gene.empty and not imgt_j_gene.empty):
-                vd_segment = self.find_longest_substring(
-                    imgt_v_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
-                dj_segment = self.find_longest_substring(
-                    imgt_j_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
+                vd_segment = self.find_longest_substring(imgt_v_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
+                dj_segment = self.find_longest_substring(imgt_j_gene[col_names['NT_COL']].values[0], trimmed_nt_seq)
                 split_v = imgt_v_gene[col_names['NT_COL']].values[0].rsplit(vd_segment, 1)
                 split_j = imgt_j_gene[col_names['NT_COL']].values[0].split(dj_segment, 1)
                 if (len(split_v[1]) >= len(split_v[0])) or (len(split_j[0]) >= len(split_j[1])):
@@ -277,23 +258,19 @@ class AdaptiveSequenceConvertor(object):
                     col_names['ROW_ID_COL']: i,
                     col_names['NT_COL']: vdj_sequence
                 }, ignore_index=True)
-            elif (row[col_names['FRAME_TYPE_COL']].lower() == 'out'
-                  or row[col_names['FRAME_TYPE_COL']].lower() == 'stop'):
+            elif (row[col_names['FRAME_TYPE_COL']].lower() == 'out' or row[col_names['FRAME_TYPE_COL']].lower() == 'stop'):
                 full_length_unprod_df = full_length_unprod_df.append({
                     col_names['ROW_ID_COL']: i,
                     col_names['NT_COL']: vdj_sequence
                 }, ignore_index=True)
         return reassembled_df, full_length_prod_df, full_length_unprod_df
 
-    def convert(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col,
-                nt_col, aa_col, frame_type_col, cdr3_length_col, v_resolved_col,
-                v_gene_choice_col, j_resolved_col, j_gene_choice_col,
-                default_allele, use_allele=True, n_random=0):
-        """Convert the full length VDJ and CDR3 sequences from the given
-        adaptive dataframe to ImmunoProbs format.
+    def convert(self, num_threads, seqs, ref_v_genes, ref_j_genes, row_id_col, nt_col, aa_col, frame_type_col,
+                cdr3_length_col, v_resolved_col, v_gene_choice_col, j_resolved_col, j_gene_choice_col, default_allele,
+                use_allele=True, n_random=0):
+        """Convert the full length VDJ and CDR3 sequences from the given adaptive dataframe to ImmunoProbs format.
 
-        The function needs to reassemble the full length VDJ sequences with the
-        given reference V and J gene sequences first.
+        The function needs to reassemble the full length VDJ sequences with the given reference V and J gene sequences first.
 
         Parameters
         ----------
@@ -302,11 +279,9 @@ class AdaptiveSequenceConvertor(object):
         seqs : pandas.DataFrame
             Dataframe containing the sequences that need to be converted.
         ref_v_genes : pandas.DataFrame
-            A dataframe containing the reference V gene sequences from IMGT as well
-            as V family and V gene names.
+            A dataframe containing the reference V gene sequences from IMGT as well as V family and V gene names.
         ref_j_genes : pandas.DataFrame
-            A dataframe containing the reference J gene sequences from IMGT as well
-            as J family and J gene names.
+            A dataframe containing the reference J gene sequences from IMGT as well as J family and J gene names.
         row_id_col : str
             The name of the column containing the row identiefiers.
         nt_col : str
@@ -326,27 +301,22 @@ class AdaptiveSequenceConvertor(object):
         j_gene_choice_col : str
             The name of the J gene choice column to use.
         default_allele : str
-            A default allele value to use when spliting gene choices, and
-            'use_allele' option is False or when allele is not found.
+            A default allele value to use when spliting gene choices, and 'use_allele' option is False or when allele is not
+            found.
         use_allele : bool, optional
-            If True, the allele information from the input genes is used instead
-            of the 'default_allele' value (default: True).
+            If True, the allele information from the input genes is used instead of the 'default_allele' value (default: True).
         n_random : int, optional
-            If given, a random subsample of sequences is taken for the full
-            length VDJ productive and unproductive. The total full length VDJ
-            data will contain a subset of the productive and unproductive
-            sequences in order to get the same number of sequences. The
-            reassembled data will contain all sequences used for the full length
-            VDJ datasets. If the given number is too larger than the size of a
-            dataframe, the value is adjusted to the smallest value.
+            If given, a random subsample of sequences is taken for the full length VDJ productive and unproductive. The total
+            full length VDJ data will contain a subset of the productive and unproductive sequences in order to get the same
+            number of sequences. The reassembled data will contain all sequences used for the full length VDJ datasets. If the
+            given number is too larger than the size of a dataframe, the value is adjusted to the smallest value.
             (default: 0, all sequences are included).
 
         Returns
         -------
         list
-            Four pandas dataframes containing the reassembled data, full length
-            productive VDJ sequences, full length unproductive VDJ sequences and
-            one with the total full length VDJ sequences.
+            Four pandas dataframes containing the reassembled data, full length productive VDJ sequences, full length
+            unproductive VDJ sequences and one with the total full length VDJ sequences.
 
         """
         # Setup the column names and outputr dataframes.
@@ -369,15 +339,17 @@ class AdaptiveSequenceConvertor(object):
         full_unprod = pandas.DataFrame()
 
         # Set and perform the multiprocessing task.
-        results = multiprocess_array(ary=seqs,
-                                     func=self._convert,
-                                     num_workers=num_threads,
-                                     ref_v_genes=ref_v_genes,
-                                     ref_j_genes=ref_j_genes,
-                                     col_names=col_names,
-                                     use_allele=use_allele,
-                                     default_allele=default_allele,
-                                     n_random=n_random_thread)
+        results = multiprocess_array(
+            ary=seqs,
+            func=self._convert,
+            num_workers=num_threads,
+            ref_v_genes=ref_v_genes,
+            ref_j_genes=ref_j_genes,
+            col_names=col_names,
+            use_allele=use_allele,
+            default_allele=default_allele,
+            n_random=n_random_thread
+        )
 
         # Process the resulted dataframes.
         for processed in results:
@@ -394,7 +366,8 @@ class AdaptiveSequenceConvertor(object):
         reassembled = tmp[tmp[col_names['ROW_ID_COL']].isin(full_prod[col_names['ROW_ID_COL']])]
         reassembled = reassembled.append(
             tmp[tmp[col_names['ROW_ID_COL']].isin(full_unprod[col_names['ROW_ID_COL']])],
-            ignore_index=True)
+            ignore_index=True
+        )
 
         # Build the dataframe with the total full length sequences.
         full = pandas.concat([full_prod, full_unprod])

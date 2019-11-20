@@ -31,8 +31,7 @@ from immuno_probs.model.igor_loader import IgorLoader
 from immuno_probs.util.cli import dynamic_cli_options
 from immuno_probs.util.conversion import nucleotides_to_aminoacids
 from immuno_probs.util.constant import get_config_data
-from immuno_probs.util.io import read_separated_to_dataframe, \
-write_dataframe_to_separated, preprocess_separated_file, copy_to_dir
+from immuno_probs.util.io import read_separated_to_dataframe, write_dataframe_to_separated, preprocess_separated_file, copy_to_dir
 
 
 class GenerateSequences(object):
@@ -65,25 +64,21 @@ class GenerateSequences(object):
 
         """
         # Create the description and options for the parser.
-        description = "Generate VDJ or VJ sequences given a custom IGoR " \
-            "model (or build-in) by executing IGoR's commandline tool via " \
-            "python subprocess. Or generate CDR3 sequences from the model by " \
-            "using OLGA."
+        description = "Generate VDJ or VJ sequences given a custom IGoR model (or build-in) by executing IGoR's " \
+            "commandline tool via python subprocess. Or generate CDR3 sequences from the model by using OLGA."
         parser_options = {
             '-model': {
                 'type': 'str.lower',
                 'choices': get_default_model_file_paths(),
                 'required': '-custom-model' not in sys.argv,
-                'help': "Specify a pre-installed model for generation. " \
-                        "(required if -custom-model NOT specified) " \
+                'help': "Specify a pre-installed model for generation. (required if -custom-model NOT specified) "
                         "(select one: %(choices)s)."
             },
             '-type': {
                 'type': 'str.lower',
                 'choices': ['alpha', 'beta', 'light', 'heavy'],
                 'required': ('-custom-model' in sys.argv),
-                'help': 'The type of the custom model to use. (select one: ' \
-                        '%(choices)s) (required for -custom-model).'
+                'help': 'The type of the custom model to use. (select one: %(choices)s) (required for -custom-model).'
             },
             '-anchor': {
                 'metavar': ('<gene>', '<separated>'),
@@ -91,39 +86,32 @@ class GenerateSequences(object):
                 'action': 'append',
                 'nargs': 2,
                 'required': ('-cdr3' in sys.argv and '-custom-model' in sys.argv),
-                'help': 'A gene (V or J) followed by a CDR3 anchor separated '
-                        'data file. Note: need to contain gene in the first ' \
-                        'column, anchor index in the second and gene function ' \
-                        'in the third (required for -cdr3 and -custom-model).'
+                'help': 'A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the '
+                        'first column, anchor index in the second and gene function in the third (required for -cdr3 and '
+                        '-custom-model).'
             },
             '-custom-model': {
                 'metavar': ('<parameters>', '<marginals>'),
                 'type': 'str',
                 'nargs': 2,
-                'help': 'A IGoR parameters file followed by an IGoR ' \
-                        'marginals file.'
+                'help': 'A IGoR parameters file followed by an IGoR marginals file.'
             },
             '-n-gen': {
                 'type': 'int',
                 'nargs': '?',
-                'help': 'The number of sequences to generate (default: ' \
-                        '{}).'.format(
-                            get_config_data('GENERATE', 'NUM_GENERATE', 'int'))
+                'help': 'The number of sequences to generate (default: {}).'
+                        .format(get_config_data('GENERATE', 'NUM_GENERATE', 'int'))
             },
             '-cdr3': {
                 'action': 'store_true',
-                'help': 'If specified (True), CDR3 sequences are ' \
-                        'generated, otherwise V(D)J sequences (default: ' \
-                        '{}).'.format(
-                            get_config_data('GENERATE', 'EVAL_CDR3', 'bool'))
+                'help': 'If specified (True), CDR3 sequences are generated, otherwise V(D)J sequences (default: {}).'
+                        .format(get_config_data('GENERATE', 'EVAL_CDR3', 'bool'))
             },
         }
 
         # Add the options to the parser and return the updated parser.
-        parser_tool = self.subparsers.add_parser(
-            'generate', help=description, description=description)
-        parser_tool = dynamic_cli_options(parser=parser_tool,
-                                          options=parser_options)
+        parser_tool = self.subparsers.add_parser('generate', help=description, description=description)
+        parser_tool = dynamic_cli_options(parser=parser_tool, options=parser_options)
 
     @staticmethod
     def _process_realizations(data, model, v_gene_choice_col,
@@ -146,8 +134,8 @@ class GenerateSequences(object):
         Returns
         -------
         pandas.DataFrame
-            A pandas dataframe object with sequence index, the V(D)J gene
-            choice columns containing the names of the selected genes.
+            A pandas dataframe object with sequence index, the V(D)J gene choice columns containing the names of the
+            selected genes.
 
         """
         # If the suplied model is VDJ, locate important columns and update index values.
@@ -157,14 +145,13 @@ class GenerateSequences(object):
                                      data.filter(regex=("GeneChoice_D_gene_.*"))],
                                     axis=1, sort=False)
             real_df.columns = [v_gene_choice_col, j_gene_choice_col, d_gene_choice_col]
-            real_df[v_gene_choice_col], \
-            real_df[j_gene_choice_col], \
-            real_df[d_gene_choice_col] = zip(
-                *real_df.apply(lambda row: (
-                    model.get_genomic_data().genV[int(row[v_gene_choice_col].strip('()'))][0],
-                    model.get_genomic_data().genJ[int(row[j_gene_choice_col].strip('()'))][0],
-                    model.get_genomic_data().genD[int(row[d_gene_choice_col].strip('()'))][0]
-                ), axis=1))
+            real_df[v_gene_choice_col], real_df[j_gene_choice_col], \
+                real_df[d_gene_choice_col] = zip(
+                    *real_df.apply(lambda row: (
+                        model.get_genomic_data().genV[int(row[v_gene_choice_col].strip('()'))][0],
+                        model.get_genomic_data().genJ[int(row[j_gene_choice_col].strip('()'))][0],
+                        model.get_genomic_data().genD[int(row[d_gene_choice_col].strip('()'))][0]
+                    ), axis=1))
 
         # Or do the same if the model is VJ.
         elif model.get_type() == "VJ":
@@ -172,8 +159,7 @@ class GenerateSequences(object):
                                      data.filter(regex=("GeneChoice_J_gene_.*"))],
                                     axis=1, sort=False)
             real_df.columns = [v_gene_choice_col, j_gene_choice_col]
-            real_df[v_gene_choice_col], \
-            real_df[j_gene_choice_col] = zip(
+            real_df[v_gene_choice_col], real_df[j_gene_choice_col] = zip(
                 *real_df.apply(lambda row: (
                     model.get_genomic_data().genV[int(row[v_gene_choice_col].strip('()'))][0],
                     model.get_genomic_data().genJ[int(row[j_gene_choice_col].strip('()'))][0]
@@ -230,8 +216,7 @@ class GenerateSequences(object):
             if args.n_gen:
                 command_list.append(['generate', str(args.n_gen), ['noerr']])
             else:
-                command_list.append(['generate', \
-                    str(get_config_data('GENERATE', 'NUM_GENERATE', 'int')), ['noerr']])
+                command_list.append(['generate', str(get_config_data('GENERATE', 'NUM_GENERATE', 'int')), ['noerr']])
 
             # Execute IGoR through command line and catch error code.
             self.logger.info('Executing IGoR (this might take a while)')
@@ -240,8 +225,9 @@ class GenerateSequences(object):
                 exit_code, _, stderr, _ = igor_cline.call()
                 if exit_code != 0:
                     self.logger.error(
-                        "An error occurred during execution of IGoR command " \
-                        "(exit code %s):\n%s", exit_code, stderr)
+                        "An error occurred during execution of IGoR command (exit code %s):\n%s",
+                        exit_code, stderr
+                    )
                     return
             except OSError as err:
                 self.logger.error(str(err))
