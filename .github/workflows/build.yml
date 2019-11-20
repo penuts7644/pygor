@@ -1,4 +1,4 @@
-name: ImmunoProbs package
+name: build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - /^issue-[0-9]+.*$/
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     strategy:
@@ -26,7 +26,7 @@ jobs:
         sudo apt-get install muscle
         python -m pip install --upgrade pip
         pip install --upgrade setuptools
-        pip install -I -r requirements.txt
+        pip install -r requirements.txt
     - name: Test with flake8 and pytest
       run: |
         make test
