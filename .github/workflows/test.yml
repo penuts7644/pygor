@@ -9,13 +9,16 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
+
     strategy:
       max-parallel: 1
       matrix:
         python-version: [2.7]
 
     steps:
-    - uses: actions/checkout@v1
+
+    - name: Checkout branch
+      uses: actions/checkout@v1
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
@@ -30,8 +33,10 @@ jobs:
         pip install numpy==1.16.5 # to resolve pandas install issue for now...
         pip install -r requirements.txt
 
-    - name: Test with flake8 and pytest
+    - name: Test with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        python -m pytest -v tests
+
+    - name: Test with pytest
+      run: python -m pytest -v tests

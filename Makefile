@@ -27,12 +27,6 @@ clean:
 setup: clean
 	pip install -I -r requirements.txt && pip install -e .[development]
 
-##		make docs
-##			Build the documentation for ImmunoProbs.
-##
-docs: clean
-	cd docs && make html
-
 ##		make build
 ##			Perfom tests, a directory cleanup and a build of the ImmunoProbs python	distribution package.
 ##
