@@ -4,8 +4,6 @@
 ##		Copyright (C) 2019 Wout van Helvoirt
 ##
 
-VERSION = $(shell git tag | tail -1)
-
 default: help
 
 ##	COMMANDS
@@ -28,12 +26,6 @@ clean:
 ##
 setup: clean
 	pip install -I -r requirements.txt && pip install -e .[development]
-
-##		make tag v=<v*.*.*>
-##			Generate changelog file, tag the latest commit with specified version and push the tag.
-##
-tag:
-	if [ -z "$v" ]; then echo "Argument missing or empty: 'v=v*.*.*'"; else git log $(VERSION)..HEAD --pretty=format:"%s" -i -E > change-log.txt && git tag $(v) && git push --tags; fi
 
 ##		make docs
 ##			Build the documentation for ImmunoProbs.
