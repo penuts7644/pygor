@@ -24,7 +24,7 @@ copyright = u'2019, Wout van Helvoirt'
 author = u'Wout van Helvoirt'
 
 # The short X.Y version
-version = os.popen('git tag | tail -1').read().strip()
+version = os.popen('git tag | tail -1').read().strip()[1:]
 
 # The full version, including alpha/beta/rc tags
 release = version

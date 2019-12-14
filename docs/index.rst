@@ -8,7 +8,6 @@ Welcome to the ImmunoProbs documentation!
    readme
    installation
    usage
-   tutorial
    use_cases
    models
 

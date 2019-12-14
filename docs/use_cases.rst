@@ -7,9 +7,9 @@ General options are described below:
 +--------------------------------+-----------------------------------------------------------------------------+------------------------------+-----------------------------------------+
 | Desire                         | Required input                                                              | Additional input             | Output                                  |
 +================================+=============================================================================+==============================+=========================================+
-| Building an IGoR model         | Reference genomic templates for V(D)J (IMGT), Type (VDJ or VJ), Sequences   | Number training iterations   | IGoR model (marginals and parameters)   |
+| Building an IGoR model         | Reference germline templates for V(D)J (IMGT), Type (VDJ or VJ), Sequences  | Number training iterations   | IGoR model (marginals and parameters)   |
 +--------------------------------+-----------------------------------------------------------------------------+------------------------------+-----------------------------------------+
-| Locate CDR3 anchor positions   | Reference genomic templates for VJ (IMGT)                                   | Motifs                       | Anchor positions (VJ)                   |
+| Locate CDR3 anchor positions   | Reference germline templates for VJ (IMGT)                                  | Motifs                       | Anchor positions (VJ)                   |
 +--------------------------------+-----------------------------------------------------------------------------+------------------------------+-----------------------------------------+
 
 Using pre-trained IGoR models from ImmunoProbs
@@ -37,7 +37,7 @@ With your own custom IGoR model files
 +=====================================================+===========================================================================================================================+==================================+====================================+
 | Generate V(D)J sequences                            | Type (VDJ or VJ), IGoR model (marginals and parameters)                                                                   | Generation number of sequences   | V(D)J sequences and gene choices   |
 +-----------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+----------------------------------+------------------------------------+
-| What are the probabilities of my V(D)J sequences?   | Type (VDJ or VJ), IGoR model (marginals and parameters), V(D)J sequences, Reference genomic templates for V(D)J (IMGT)    |                                  | V(D)J sequences and Pgen           |
+| What are the probabilities of my V(D)J sequences?   | Type (VDJ or VJ), IGoR model (marginals and parameters), V(D)J sequences, Reference germline templates for V(D)J (IMGT)   |                                  | V(D)J sequences and Pgen           |
 +-----------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+----------------------------------+------------------------------------+
 | Generate CDR3 sequences                             | Type (VDJ or VJ), IGoR model (marginals and parameters), ``-cdr3`` flag, CDR3 anchor positions (VJ)                       | Generation number of sequences   | CDR3 sequences and gene choices    |
 +-----------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------+----------------------------------+------------------------------------+

@@ -168,8 +168,6 @@ class EvaluateSequences(object):
                     for gene, filename in files['reference'].items():
                         ref_list.append([gene, filename])
                     command_list.append(ref_list)
-                    if args.model == 'tutorial-model':
-                        args.seqs = files['seqs']
                 elif args.custom_model:
                     model_type = args.type
                     command_list.append([
@@ -313,8 +311,6 @@ class EvaluateSequences(object):
                                        model_marginals=files['marginals'])
                     args.anchor = [['V', files['v_anchors']],
                                    ['J', files['j_anchors']]]
-                    if args.model == 'tutorial-model':
-                        args.seqs = files['cdr3']
                     separator = '\t'
                 elif args.custom_model:
                     model_type = args.type

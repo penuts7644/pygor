@@ -1,0 +1,31 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout branch
+      uses: actions/checkout@v1
+
+    - name: Set enviroment variable
+      run: echo ::set-env name=PREVIOUS_VERSION::$(git describe --abbrev=0 --tags --always ${GITHUB_REF:10})
+
+    - name: Build release notes
+      run: |
+        echo '### Changes in this release:' > change-log.txt
+        git log ${{ env.PREVIOUS_VERSION }}..HEAD --pretty=format:"- %s" -i -E >> change-log.txt
+
+    - name: Deploy GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: change-log.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

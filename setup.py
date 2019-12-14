@@ -23,7 +23,9 @@ from setuptools import setup
 
 
 def get_latest_git_tag():
-    return os.popen('git tag | tail -1').read().strip()
+
+    # Trim white-spaces and first character from left
+    return os.popen('git tag | tail -1').read().strip()[1:]
 
 
 setup(

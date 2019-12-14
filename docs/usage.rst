@@ -5,7 +5,7 @@ Usage
 Tools
 ^^^^^
 
-ImmunoProbs has four tools: for converting adaptive sequence files, building IGoR models, locating the CDR3 anchor positions in sequences, generating and evaluating sequences. For the generate and evaluate options, ImmunoProbs can be used with one of the four pre-trained IGoR models that are included in the package. These models are described in the :ref:`models:Pre-trained` models section. Have a look at the :ref:`tutorial:Using pre-trained models` tutorial for some in-depth usage on ImmunoProbs with one of the included models or the :ref:`tutorial:Building your own model` tutorial for building your own model IGoR model.
+ImmunoProbs has four tools: for converting adaptive sequence files, building IGoR models, locating the CDR3 anchor positions in sequences, generating and evaluating sequences. For the generate and evaluate options, ImmunoProbs can be used with one of the four pre-trained IGoR models that are included in the package. These models are described in the :ref:`models:Pre-trained` models section.
 
 ImmunoProbs has a number of global options that are used throughout the other ImmunoProbs tools. The command is followed by the tool name and its respective options.
 
@@ -23,7 +23,7 @@ ImmunoProbs has a number of global options that are used throughout the other Im
 Converting adaptive file format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can convert adaptive sequence data to ImmunoProbs's standard by specifying the reference genomic template FASTA files (``ref``) for the V and J gene as well as the adaptive input sequence data to be converted (``seqs``). The template files can be downloaded from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__.
+You can convert adaptive sequence data to ImmunoProbs's standard by specifying the reference germline template FASTA files (``ref``) for the V and J gene as well as the adaptive input sequence data to be converted (``seqs``). The template files can be downloaded from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__.
 There are 4 output data files for 1 run of the tool: full length productive VDJ sequences, full length unproductive VDJ sequences, the total full length VDJ sequences and finally one with CDR3 sequences. The full length sequences can be used for training of new models and the CDR3 extract can be evaluated.
 Some assumptions are made when converting the resolved genes. If ``use-allele`` is True, the allele from the input value is used, if this can't be found, the default allele in the config is used instead. The resolved column always requires a family to be found. If there is no gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition if that gene value equals 1, an extra pattern is attached with only the family and allele.
 
@@ -39,7 +39,7 @@ You can convert a random subset of sequences from the given input file. Just spe
 Building a model
 ~~~~~~~~~~~~~~~~
 
-You can create your own IGoR model by specifying the reference genomic template FASTA files (``ref``) for the V, D and J gene as well as some input sequences for the training of the model (``seqs``). The template files can be downloaded from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__. Finally, specify the number of training rounds (``n-iter``) and the desired type of the model you would like to build (``type``).
+You can create your own IGoR model by specifying the reference IMGT germline template files (``ref``) for the V, D and J gene as well as some input sequences for the training of the model (``seqs``). The template files can be downloaded from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__. Finally, specify the number of training rounds (``n-iter``) and the desired type of the model you would like to build (``type``).
 
 .. code-block:: none
 
@@ -53,7 +53,7 @@ You can create your own IGoR model by specifying the reference genomic template 
 Locate CDR3 anchors positions for CDR3 sequence generation and evaluation steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CDR3 anchor positions are required in order to accurately generate and evaluate CDR3 sequences. Specify the V and J genomic reference files with the ``ref`` option. You can download the genomic templates from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__. Optionally, you could specify multiple motif parameters (``motif``).
+CDR3 anchor positions are required in order to accurately generate and evaluate CDR3 sequences. Specify the V and J germline reference files with the ``ref`` option. You can download the templates from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__. Optionally, you could specify multiple motif parameters (``motif``).
 
 .. code-block:: none
 
@@ -102,7 +102,7 @@ With the included models, we calculate the generation probability by specifying 
         -model <MODEL NAME> \
         -seqs <SEPARATED/FASTA>
 
-With a custom model: select the sequences (``seqs``), the model parameters and marginals (``custom-model``), the type of the input model and the genomic templates (``ref``) from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__.
+With a custom model: select the sequences (``seqs``), the model parameters and marginals (``custom-model``), the type of the input model and the germline templates (``ref``) from `IMGT <http://www.imgt.org/vquest/refseqh.html>`__.
 
 .. code-block:: none
 
@@ -113,7 +113,7 @@ With a custom model: select the sequences (``seqs``), the model parameters and m
         -ref <GENE> <FASTA> \
         -type <MODEL TYPE>
 
-Both of the scenarios above can be used for evaluating VJ or VDJ sequences. If your input data consists of CDR3 sequences, you'll need to add the ``cdr3`` flag at the end of either of the commands. You can also use ``use-allele`` flag to use allele information from the input data to calculate the generation probability. When using a custom model, you also want to replace the ``ref`` command with ``anchor <GENE> <SEPARATED>``. Note that for CDR3, we don't need genomic templates.
+Both of the scenarios above can be used for evaluating VJ or VDJ sequences. If your input data consists of CDR3 sequences, you'll need to add the ``cdr3`` flag at the end of either of the commands. You can also use ``use-allele`` flag to use allele information from the input data to calculate the generation probability. When using a custom model, you also want to replace the ``ref`` command with ``anchor <GENE> <SEPARATED>``. Note that for CDR3, we don't need germline templates.
 
 Parameters
 ^^^^^^^^^^
@@ -151,7 +151,7 @@ Parameters
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``locate``   | ``motif``             | The motif to look for. Can be used multiple times.                                                                                                                                | ``V`` (Cystein - TGT and TGC) or ``J`` (Tryptophan - TGG, Phenylalanine - TTC and TTT)   |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
-| ``generate`` | ``model``             | Specify a pre-installed model for generation. (select one: ``tutorial-model``, ``human-t-alpha``, ``human-t-beta``, ``human-b-heavy`` or ``mouse-t-beta``).                       |                                                                                          | If ``custom-model`` NOT specified                |
+| ``generate`` | ``model``             | Specify a pre-installed model for generation. (select one: ``human-t-alpha``, ``human-t-beta``, ``human-b-heavy`` or ``mouse-t-beta``).                                           |                                                                                          | If ``custom-model`` NOT specified                |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``generate`` | ``custom-model``      | A IGoR parameters file followed by an IGoR marginals file.                                                                                                                        |                                                                                          |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
@@ -163,7 +163,7 @@ Parameters
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``generate`` | ``anchor``            | A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the first column, anchor index in the second and gene function in the third.         |                                                                                          | If ``cdr3`` and ``custom-model`` specified       |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
-| ``evaluate`` | ``model``             | Specify a pre-installed model for generation. (select one: ``tutorial-model``, ``human-t-alpha``, ``human-t-beta``, ``human-b-heavy`` or ``mouse-t-beta``).                       |                                                                                          | If ``custom-model`` NOT specified                |
+| ``evaluate`` | ``model``             | Specify a pre-installed model for generation. (select one: ``human-t-alpha``, ``human-t-beta``, ``human-b-heavy`` or ``mouse-t-beta``).                                           |                                                                                          | If ``custom-model`` NOT specified                |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
 | ``evaluate`` | ``custom-model``      | A IGoR parameters file followed by an IGoR marginals file.                                                                                                                        |                                                                                          |                                                  |
 +--------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------+--------------------------------------------------+
