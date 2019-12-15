@@ -14,8 +14,6 @@ If you would like to see new features, please open a new `issue <https://github.
 
 It is also possible to help out ImmunoProbs development by forking this project and creating a `pull request <https://github.com/penuts7644/immuno-probs/compare>`__ to submit new features.
 
-When using a forked copy ImmunoProbs, make sure to have the correct Python version installed. Install the local Python development requirements using the ``make setup`` command.
-
 **Developed in collaboration with Sandve and Greiff labs.**
 
 .. |Test Status| image:: https://github.com/penuts7644/immuno-probs/workflows/test/badge.svg
