@@ -27,8 +27,8 @@ For more information you can have a look at the following pages. These pages exp
 
 **Developed in collaboration with Sandve and Greiff labs.**
 
-.. |Test Status| image:: https://github.com/penuts7644/ImmunoProbs/workflows/test/badge.svg
-   :target: https://github.com/penuts7644/ImmunoProbs
+.. |Test Status| image:: https://github.com/penuts7644/immuno-probs/workflows/test/badge.svg
+   :target: https://github.com/penuts7644/immuno-probs
 .. |PyPI version| image:: https://img.shields.io/pypi/v/immuno-probs
    :target: https://pypi.python.org/pypi/immuno-probs/
 .. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/immuno-probs
