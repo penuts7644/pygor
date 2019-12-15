@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cli.convert_adaptive_sequences &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.cli.convert_adaptive_sequences</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.cli.convert_adaptive_sequences</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Commandline tool for converting VDJ sequences (and CDR3) from adaptive format.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.convert.adaptive_sequence_convertor</span> <span class="kn">import</span> <span class="n">AdaptiveSequenceConvertor</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.cli</span> <span class="kn">import</span> <span class="n">dynamic_cli_options</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.constant</span> <span class="kn">import</span> <span class="n">get_config_data</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.io</span> <span class="kn">import</span> <span class="n">copy_to_dir</span><span class="p">,</span> <span class="n">preprocess_reference_file</span><span class="p">,</span> <span class="n">write_dataframe_to_separated</span><span class="p">,</span> <span class="n">read_fasta_as_dataframe</span><span class="p">,</span> <span class="n">read_separated_to_dataframe</span>
+
+
+<div class="viewcode-block" id="ConvertAdaptiveSequences"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences">[docs]</a><span class="k">class</span> <span class="nc">ConvertAdaptiveSequences</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Commandline tool for converting full and CDR3 sequences from a given adaptive input sequence file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subparsers : argparse.ArgumentParser</span>
+<span class="sd">        A subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run(args)</span>
+<span class="sd">        Uses the given Namespace commandline arguments to convert the full length (VDJ for productive, unproductive and the</span>
+<span class="sd">        total) and CDR3 sequences from a given adaptive input sequence file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparsers</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvertAdaptiveSequences</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span> <span class="o">=</span> <span class="n">subparsers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_options</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function for adding the parser/options to the input ArgumentParser.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Uses the class constructor&#39;s subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the description and options for the parser.</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Converts the full length (VDJ for productive, unproductive and the total) and CDR3 sequences from a &quot;</span> \
+            <span class="s2">&quot;given adaptive input sequence file. The VDJ sequences can be used to build a new IGoR model and the CDR3 &quot;</span> \
+            <span class="s2">&quot;sequences can be evaluated.&quot;</span>
+        <span class="n">parser_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;-seqs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;separated&gt;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;An input separated data file with sequences to convert using the defined column names.&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-ref&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&lt;gene&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;fasta&gt;&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files &quot;</span>
+                        <span class="s2">&quot;needs to conform to IGMT annotation (separated by &#39;|&#39; character).&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-n-random&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;Number of random sequences (subset) to convert from the given file (default: </span><span class="si">{}</span><span class="s2">).&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;CONVERT&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_RANDOM&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">))</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-use-allele&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;If specified (True), the allele information from the resolved gene fields are used to when &quot;</span>
+                        <span class="s2">&quot;reconstructing the gene choices (default: </span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;CONVERT&#39;</span><span class="p">,</span> <span class="s1">&#39;USE_ALLELE&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">))</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add the options to the parser and return the updated parser.</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;convert&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="n">dynamic_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">parser_tool</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">parser_options</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_gene_df</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">nt_col</span><span class="p">,</span> <span class="n">resolved_col</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function for processing the given gene FASTA file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            File path FASTA of the gene to process.</span>
+<span class="sd">        nt_col : str</span>
+<span class="sd">            The column name containing the sequences.</span>
+<span class="sd">        resolved_col : str</span>
+<span class="sd">            The column name containing the resolved values.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Read in the seperated file as dataframe.</span>
+        <span class="n">gene_df</span> <span class="o">=</span> <span class="n">read_fasta_as_dataframe</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="n">nt_col</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;info&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Modify the dataframe to have gene resolved column, remove the old</span>
+        <span class="c1"># info column and return.</span>
+        <span class="n">gene_df</span><span class="p">[</span><span class="n">resolved_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">gene_df</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="n">gene_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gene_df</span>
+
+<div class="viewcode-block" id="ConvertAdaptiveSequences.run"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to execute the commandline tool.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : Namespace</span>
+<span class="sd">            Object containing our parsed commandline arguments.</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            A directory path for writing output files to.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the working directory.</span>
+        <span class="n">working_dir</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;WORKING_DIR&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Collect and read in the corresponding reference genomic templates.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Processing genomic reference templates&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">preprocess_reference_file</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;genomic_templates&#39;</span><span class="p">),</span>
+                    <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="n">gene</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;fasta&#39;</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">gene</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span>
+                    <span class="n">v_gene_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_gene_df</span><span class="p">(</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                        <span class="n">nt_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">),</span>
+                        <span class="n">resolved_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">gene</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;J&#39;</span><span class="p">:</span>
+                    <span class="n">j_gene_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_gene_df</span><span class="p">(</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                        <span class="n">nt_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">),</span>
+                        <span class="n">resolved_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Read in the sequence data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-processing input sequence file&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">seqs_df</span> <span class="o">=</span> <span class="n">read_separated_to_dataframe</span><span class="p">(</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">),</span>
+                      <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">),</span>
+                      <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">),</span>
+                      <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;CDR3_LENGTH_COL&#39;</span><span class="p">),</span>
+                      <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">),</span>
+                      <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">)])</span>
+
+            <span class="c1"># Take a random subsample of sequences in the file.</span>
+            <span class="n">n_random</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;CONVERT&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_RANDOM&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">n_random</span><span class="p">:</span>
+                <span class="n">n_random</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">n_random</span>
+            <span class="k">if</span> <span class="n">n_random</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seqs_df</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_random</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Number of random sequences is higher then number of &#39;</span>
+                        <span class="s1">&#39;rows in file, all rows are used&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Setup the data convertor class and convert data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Converting adaptive file format&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">use_allele</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;CONVERT&#39;</span><span class="p">,</span> <span class="s1">&#39;USE_ALLELE&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">use_allele</span><span class="p">:</span>
+                <span class="n">use_allele</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_allele</span>
+            <span class="n">asc</span> <span class="o">=</span> <span class="n">AdaptiveSequenceConvertor</span><span class="p">()</span>
+            <span class="n">cdr3_df</span><span class="p">,</span> <span class="n">full_prod_df</span><span class="p">,</span> <span class="n">full_unprod_df</span><span class="p">,</span> <span class="n">full_df</span> <span class="o">=</span> <span class="n">asc</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span>
+                <span class="n">num_threads</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_THREADS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">),</span>
+                <span class="n">seqs</span><span class="o">=</span><span class="n">seqs_df</span><span class="p">,</span>
+                <span class="n">ref_v_genes</span><span class="o">=</span><span class="n">v_gene_df</span><span class="p">,</span>
+                <span class="n">ref_j_genes</span><span class="o">=</span><span class="n">j_gene_df</span><span class="p">,</span>
+                <span class="n">row_id_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">),</span>
+                <span class="n">nt_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">),</span>
+                <span class="n">aa_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">),</span>
+                <span class="n">frame_type_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">),</span>
+                <span class="n">cdr3_length_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;CDR3_LENGTH_COL&#39;</span><span class="p">),</span>
+                <span class="n">v_resolved_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">),</span>
+                <span class="n">v_gene_choice_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">),</span>
+                <span class="n">j_resolved_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">),</span>
+                <span class="n">j_gene_choice_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">),</span>
+                <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                <span class="n">default_allele</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;CONVERT&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_ALLELE&#39;</span><span class="p">),</span>
+                <span class="n">n_random</span><span class="o">=</span><span class="n">n_random</span><span class="p">)</span>
+            <span class="n">cdr3_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FILE_NAME_ID_COL&#39;</span><span class="p">),</span>
+                           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">full_prod_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FILE_NAME_ID_COL&#39;</span><span class="p">),</span>
+                                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">full_unprod_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FILE_NAME_ID_COL&#39;</span><span class="p">),</span>
+                                  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">full_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;FILE_NAME_ID_COL&#39;</span><span class="p">),</span>
+                           <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Copy the output files to the output directory with prefix.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing converted files to file system&#39;</span><span class="p">)</span>
+            <span class="n">output_prefix</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;OUT_NAME&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">output_prefix</span><span class="p">:</span>
+                <span class="n">output_prefix</span> <span class="o">=</span> <span class="s1">&#39;converted&#39;</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_1</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                <span class="n">dataframe</span><span class="o">=</span><span class="n">cdr3_df</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_CDR3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_1</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_2</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                <span class="n">dataframe</span><span class="o">=</span><span class="n">full_prod_df</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_full_length_productive&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_2</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_3</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                <span class="n">dataframe</span><span class="o">=</span><span class="n">full_unprod_df</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_full_length_unproductive&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_3</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_4</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                <span class="n">dataframe</span><span class="o">=</span><span class="n">full_df</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_full_length&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_4</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.convert_adaptive_sequences.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Function to be called when file executed via terminal.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

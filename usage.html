@@ -1,0 +1,607 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Use cases" href="use_cases.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tools">Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#converting-adaptive-file-format">Converting adaptive file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-a-model">Building a model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#locate-cdr3-anchors-positions-for-cdr3-sequence-generation-and-evaluation-steps">Locate CDR3 anchors positions for CDR3 sequence generation and evaluation steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-vj-vdj-or-cdr3-sequences">Generate VJ, VDJ or CDR3 sequences</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#calculate-the-generation-probabilities-for-vj-vdj-or-cdr3-sequences">Calculate the generation probabilities for VJ, VDJ or CDR3 sequences</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file-setup">Configuration file setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="tools">
+<h2>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h2>
+<p>ImmunoProbs has four tools: for converting adaptive sequence files, building IGoR models, locating the CDR3 anchor positions in sequences, generating and evaluating sequences. For the generate and evaluate options, ImmunoProbs can be used with one of the four pre-trained IGoR models that are included in the package. These models are described in the <a class="reference internal" href="models.html#pre-trained"><span class="std std-ref">Pre-trained</span></a> models section.</p>
+<p>ImmunoProbs has a number of global options that are used throughout the other ImmunoProbs tools. The command is followed by the tool name and its respective options.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  -separator &lt;SEPARATOR CHARS&gt; \
+  -threads &lt;NUM THREADS&gt; \
+  -set-wd &lt;DIRECTORY&gt; \
+  -out-name &lt;OUTPUT NAME&gt;
+  -config-file &lt;CONFIG FILE&gt;
+    [TOOL NAME] \
+      &lt;TOOL OPTIONS&gt;
+</pre></div>
+</div>
+<div class="section" id="converting-adaptive-file-format">
+<h3>Converting adaptive file format<a class="headerlink" href="#converting-adaptive-file-format" title="Permalink to this headline">¶</a></h3>
+<p>You can convert adaptive sequence data to ImmunoProbs’s standard by specifying the reference germline template FASTA files (<code class="docutils literal notranslate"><span class="pre">ref</span></code>) for the V and J gene as well as the adaptive input sequence data to be converted (<code class="docutils literal notranslate"><span class="pre">seqs</span></code>). The template files can be downloaded from <a class="reference external" href="http://www.imgt.org/vquest/refseqh.html">IMGT</a>.
+There are 4 output data files for 1 run of the tool: full length productive VDJ sequences, full length unproductive VDJ sequences, the total full length VDJ sequences and finally one with CDR3 sequences. The full length sequences can be used for training of new models and the CDR3 extract can be evaluated.
+Some assumptions are made when converting the resolved genes. If <code class="docutils literal notranslate"><span class="pre">use-allele</span></code> is True, the allele from the input value is used, if this can’t be found, the default allele in the config is used instead. The resolved column always requires a family to be found. If there is no gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition if that gene value equals 1, an extra pattern is attached with only the family and allele.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  convert \
+    -ref &lt;GENE&gt; &lt;FASTA&gt; \
+    -seqs &lt;SEPARATED&gt;
+</pre></div>
+</div>
+<p>You can convert a random subset of sequences from the given input file. Just specify the <code class="docutils literal notranslate"><span class="pre">n-random</span></code> flag, followed by a number. You can also use <code class="docutils literal notranslate"><span class="pre">use-allele</span></code> flag to use the allele information from the input data file during conversion. You might want to have a look at the <a class="reference internal" href="#configuration-file-setup"><span class="std std-ref">Configuration file setup</span></a> for ImmunoProbs in order to specify you own file column names.</p>
+</div>
+<div class="section" id="building-a-model">
+<h3>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline">¶</a></h3>
+<p>You can create your own IGoR model by specifying the reference IMGT germline template files (<code class="docutils literal notranslate"><span class="pre">ref</span></code>) for the V, D and J gene as well as some input sequences for the training of the model (<code class="docutils literal notranslate"><span class="pre">seqs</span></code>). The template files can be downloaded from <a class="reference external" href="http://www.imgt.org/vquest/refseqh.html">IMGT</a>. Finally, specify the number of training rounds (<code class="docutils literal notranslate"><span class="pre">n-iter</span></code>) and the desired type of the model you would like to build (<code class="docutils literal notranslate"><span class="pre">type</span></code>).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  build \
+    -ref &lt;GENE&gt; &lt;FASTA&gt; \
+    -seqs &lt;SEPARATED/FASTA&gt; \
+    -n-iter &lt;NUM ITERATIONS&gt; \
+    -type &lt;MODEL TYPE&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="locate-cdr3-anchors-positions-for-cdr3-sequence-generation-and-evaluation-steps">
+<h3>Locate CDR3 anchors positions for CDR3 sequence generation and evaluation steps<a class="headerlink" href="#locate-cdr3-anchors-positions-for-cdr3-sequence-generation-and-evaluation-steps" title="Permalink to this headline">¶</a></h3>
+<p>CDR3 anchor positions are required in order to accurately generate and evaluate CDR3 sequences. Specify the V and J germline reference files with the <code class="docutils literal notranslate"><span class="pre">ref</span></code> option. You can download the templates from <a class="reference external" href="http://www.imgt.org/vquest/refseqh.html">IMGT</a>. Optionally, you could specify multiple motif parameters (<code class="docutils literal notranslate"><span class="pre">motif</span></code>).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  locate \
+    -ref &lt;GENE&gt; &lt;FASTA&gt;
+    -motif &lt;MOTIF&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-vj-vdj-or-cdr3-sequences">
+<h3>Generate VJ, VDJ or CDR3 sequences<a class="headerlink" href="#generate-vj-vdj-or-cdr3-sequences" title="Permalink to this headline">¶</a></h3>
+<p>Generation of sequences can be done with either an included model (<code class="docutils literal notranslate"><span class="pre">model</span></code>) or by selecting your own model marginals and parameters files (<code class="docutils literal notranslate"><span class="pre">custom-model</span></code>).</p>
+<p>Generating sequences with a predefined IGoR model can be done by specifying the model you would like to use in combination with the number of sequences to generate (<code class="docutils literal notranslate"><span class="pre">n-gen</span></code>).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  generate \
+    -model &lt;MODEL NAME&gt; \
+    -n-gen &lt;NUM SEQUENCES&gt;
+</pre></div>
+</div>
+<p>When using one of your now IGoR models, you’ll have to specify the model with parameters and marginals and the type of the input model (<code class="docutils literal notranslate"><span class="pre">type</span></code>).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  generate \
+    -custom-model &lt;PARAMETERS&gt; &lt;MARGINALS&gt; \
+    -n-gen &lt;NUM SEQUENCES&gt; \
+    -type &lt;MODEL TYPE&gt;
+</pre></div>
+</div>
+<p>Both of the scenarios above will generate VJ or VDJ sequences. If you rather want CDR3 sequences, you’ll need to add the <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> flag at the end of either of the commands. When using a custom model, you also want to specify the anchor position files created in section <strong>b</strong> by adding: <code class="docutils literal notranslate"><span class="pre">anchor</span> <span class="pre">&lt;GENE&gt;</span> <span class="pre">&lt;SEPARATED&gt;</span></code>.</p>
+</div>
+<div class="section" id="calculate-the-generation-probabilities-for-vj-vdj-or-cdr3-sequences">
+<h3>Calculate the generation probabilities for VJ, VDJ or CDR3 sequences<a class="headerlink" href="#calculate-the-generation-probabilities-for-vj-vdj-or-cdr3-sequences" title="Permalink to this headline">¶</a></h3>
+<p>The evaluation of sequences can be done with either an included model (<code class="docutils literal notranslate"><span class="pre">model</span></code>) or by selecting your own model marginals and parameters files (<code class="docutils literal notranslate"><span class="pre">custom-model</span></code>).</p>
+<p>With the included models, we calculate the generation probability by specifying the sequences through the <code class="docutils literal notranslate"><span class="pre">seqs</span></code> command as well as the model files.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  evaluate \
+    -model &lt;MODEL NAME&gt; \
+    -seqs &lt;SEPARATED/FASTA&gt;
+</pre></div>
+</div>
+<p>With a custom model: select the sequences (<code class="docutils literal notranslate"><span class="pre">seqs</span></code>), the model parameters and marginals (<code class="docutils literal notranslate"><span class="pre">custom-model</span></code>), the type of the input model and the germline templates (<code class="docutils literal notranslate"><span class="pre">ref</span></code>) from <a class="reference external" href="http://www.imgt.org/vquest/refseqh.html">IMGT</a>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>immuno-probs \
+  evaluate \
+    -custom-model &lt;PARAMETERS&gt; &lt;MARGINALS&gt; \
+    -seqs &lt;SEPARATED/FASTA&gt; \
+    -ref &lt;GENE&gt; &lt;FASTA&gt; \
+    -type &lt;MODEL TYPE&gt;
+</pre></div>
+</div>
+<p>Both of the scenarios above can be used for evaluating VJ or VDJ sequences. If your input data consists of CDR3 sequences, you’ll need to add the <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> flag at the end of either of the commands. You can also use <code class="docutils literal notranslate"><span class="pre">use-allele</span></code> flag to use allele information from the input data to calculate the generation probability. When using a custom model, you also want to replace the <code class="docutils literal notranslate"><span class="pre">ref</span></code> command with <code class="docutils literal notranslate"><span class="pre">anchor</span> <span class="pre">&lt;GENE&gt;</span> <span class="pre">&lt;SEPARATED&gt;</span></code>. Note that for CDR3, we don’t need germline templates.</p>
+</div>
+</div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="6%" />
+<col width="50%" />
+<col width="25%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Tool</th>
+<th class="head">Option</th>
+<th class="head">Description</th>
+<th class="head">Default</th>
+<th class="head">Required</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">separator</span></code></td>
+<td>The separator character used for input files and for writing new files.</td>
+<td>Tab character (<code class="docutils literal notranslate"><span class="pre">\t</span></code>)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">threads</span></code></td>
+<td>The number of threads the program is allowed to use.</td>
+<td>Max available threads in system</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">set-wd</span></code></td>
+<td>An optional location for writing files.</td>
+<td>The current working directory</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">out-name</span></code></td>
+<td>An optional output file name. If multiple files are created, the value is used as a prefix for the file.</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">config-file</span></code></td>
+<td>An optional configuration file path for ImmunoProbs. This file is combined with the default configuration to make up missing values.</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">convert</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">ref</span></code></td>
+<td>A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">convert</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">seqs</span></code></td>
+<td>An input FASTA or separated data file with sequences for training the model.</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">convert</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">n-random</span></code></td>
+<td>The number of random sequences to convert from the input adaptive data file (only if higher than 0).</td>
+<td>0</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">convert</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">use-allele</span></code></td>
+<td>If specified, the allele information from the gene resolved fields is used into the converted output file.</td>
+<td>Allele <code class="docutils literal notranslate"><span class="pre">01</span></code> is used for each gene.</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">build</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">ref</span></code></td>
+<td>A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">build</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">seqs</span></code></td>
+<td>An input FASTA or separated data file with sequences for training the model.</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">build</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">n-iter</span></code></td>
+<td>The number of inference iterations to perform when creating the model.</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">build</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">type</span></code></td>
+<td>The type of model to create. (select one: <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">light</span></code> or <code class="docutils literal notranslate"><span class="pre">heavy</span></code>.</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">locate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">ref</span></code></td>
+<td>A gene (V or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">locate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">motif</span></code></td>
+<td>The motif to look for. Can be used multiple times.</td>
+<td><code class="docutils literal notranslate"><span class="pre">V</span></code> (Cystein - TGT and TGC) or <code class="docutils literal notranslate"><span class="pre">J</span></code> (Tryptophan - TGG, Phenylalanine - TTC and TTT)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">model</span></code></td>
+<td>Specify a pre-installed model for generation. (select one: <code class="docutils literal notranslate"><span class="pre">human-t-alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">human-t-beta</span></code>, <code class="docutils literal notranslate"><span class="pre">human-b-heavy</span></code> or <code class="docutils literal notranslate"><span class="pre">mouse-t-beta</span></code>).</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> NOT specified</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">custom-model</span></code></td>
+<td>A IGoR parameters file followed by an IGoR marginals file.</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">n-gen</span></code></td>
+<td>The number of sequences to generate.</td>
+<td>1</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">type</span></code></td>
+<td>The type of model to create. (select one: <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">light</span></code> or <code class="docutils literal notranslate"><span class="pre">heavy</span></code>.</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> specified</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">cdr3</span></code></td>
+<td>Generate CDR3 sequences instead.</td>
+<td>Generate V(D)J full length sequences.</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">generate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">anchor</span></code></td>
+<td>A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the first column, anchor index in the second and gene function in the third.</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> and <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> specified</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">model</span></code></td>
+<td>Specify a pre-installed model for generation. (select one: <code class="docutils literal notranslate"><span class="pre">human-t-alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">human-t-beta</span></code>, <code class="docutils literal notranslate"><span class="pre">human-b-heavy</span></code> or <code class="docutils literal notranslate"><span class="pre">mouse-t-beta</span></code>).</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> NOT specified</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">custom-model</span></code></td>
+<td>A IGoR parameters file followed by an IGoR marginals file.</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">seqs</span></code></td>
+<td>An input FASTA or separated data file with sequences for training the model.</td>
+<td>&#160;</td>
+<td>Yes</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">ref</span></code></td>
+<td>A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files needs to conform to IGMT annotation (separated by vertical bar character).</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> without <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> specified</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">type</span></code></td>
+<td>The type of model to create. (select one: <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code>, <code class="docutils literal notranslate"><span class="pre">light</span></code> or <code class="docutils literal notranslate"><span class="pre">heavy</span></code>.</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> specified</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">cdr3</span></code></td>
+<td>Generate CDR3 sequences instead.</td>
+<td>Generate V(D)J full length sequences.</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">anchor</span></code></td>
+<td>A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the first column, anchor index in the second and gene function in the third.</td>
+<td>&#160;</td>
+<td>If <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> and <code class="docutils literal notranslate"><span class="pre">custom-model</span></code> specified</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">evaluate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">use-allele</span></code></td>
+<td>If specified in combination with the <code class="docutils literal notranslate"><span class="pre">cdr3</span></code> flag, the allele information from the gene resolved fields is used to calculate the generation probability.</td>
+<td>Allele <code class="docutils literal notranslate"><span class="pre">01</span></code> is used for each gene.</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration-file-setup">
+<h2>Configuration file setup<a class="headerlink" href="#configuration-file-setup" title="Permalink to this headline">¶</a></h2>
+<p>ImmunoProbs supports user specified run configurations to modify additional settings that are not available to the user via the commandline tools. When a user specifies a configuration file to ImmunoProbs is will be merged with ImmunoProbs default configuration to make sure that all variables are set. The configuration is separated into a number of general sections:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">COMMON</span></code> - Parameters that are common to all ImmunoProbs tools. Note that the flags given in the commandline will overwrite the ones in the configuration file (priority: <code class="docutils literal notranslate"><span class="pre">default</span> <span class="pre">ImmunoProbs</span> <span class="pre">configuration</span> <span class="pre">&lt;</span> <span class="pre">user</span> <span class="pre">specified</span> <span class="pre">configuration</span> <span class="pre">&lt;</span> <span class="pre">commandline</span> <span class="pre">parameters</span></code>).</li>
+<li><code class="docutils literal notranslate"><span class="pre">EXPERT</span></code> - Parameters that will likely never get modified. These could solve some system depending (e.g a compute cluster) issues when executing ImmunoProbs.</li>
+</ul>
+<p>Additionally to the general sections, there are sections for each tool (e.g <code class="docutils literal notranslate"><span class="pre">LOCATE</span></code>). These contain variables that are only used within that specific tool. The complete default configuration file of ImmunoProbs is shown in the code block below. Remember that the user does not have to specify each section and variable in their own configuration file. Only the variables with corresponding section that are of interest.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1">; Contains common parameters used throughout ImmunoProbs and its tools.</span>
+<span class="k">[COMMON]</span>
+<span class="c1">; The number of threads the system can use. By default max threads to system.</span>
+<span class="na">NUM_THREADS</span>
+<span class="c1">; The separator character for file in/out. Default tab character.</span>
+<span class="na">SEPARATOR</span>
+<span class="c1">; The directory for ImmunoProbs for writing files to. Default current directory.</span>
+<span class="na">WORKING_DIR</span>
+<span class="c1">; The output filename (or prefix value) that should be used for any given ImmunoProbs tool. Default None</span>
+<span class="na">OUT_NAME</span>
+<span class="c1">; The name of the column to use that identifies the each row in the input file.</span>
+<span class="na">ROW_ID_COL</span> <span class="o">=</span> <span class="s">row_id</span>
+<span class="c1">; The column name to use for the sequence filename idetifier.</span>
+<span class="na">FILE_NAME_ID_COL</span> <span class="o">=</span> <span class="s">file_name_id</span>
+<span class="c1">; Name of the column containing the sequence indices.</span>
+<span class="na">I_COL</span> <span class="o">=</span> <span class="s">seq_index</span>
+<span class="c1">; Name of the column containing the nucleotide sequences.</span>
+<span class="na">NT_COL</span> <span class="o">=</span> <span class="s">nt_sequence</span>
+<span class="c1">; Name of the column containing the nucleotide pgen scores.</span>
+<span class="na">NT_P_COL</span> <span class="o">=</span> <span class="s">nt_pgen_estimate</span>
+<span class="c1">; Name of the column containing the amino acid sequences.</span>
+<span class="na">AA_COL</span> <span class="o">=</span> <span class="s">aa_sequence</span>
+<span class="c1">; Name of the column containing the amino acid pgen scores.</span>
+<span class="na">AA_P_COL</span> <span class="o">=</span> <span class="s">aa_pgen_estimate</span>
+<span class="c1">; Name of the column specifying the frame type of the sequences.</span>
+<span class="na">FRAME_TYPE_COL</span> <span class="o">=</span> <span class="s">frame_type</span>
+<span class="c1">; Name of the column specifying the length of the CDR3 sequences.</span>
+<span class="na">CDR3_LENGTH_COL</span> <span class="o">=</span> <span class="s">cdr3_length</span>
+<span class="c1">; Name of the column containing the resolved V gene name string.</span>
+<span class="na">V_RESOLVED_COL</span> <span class="o">=</span> <span class="s">v_resolved</span>
+<span class="c1">; Name of the column containing the resolved J gene name string.</span>
+<span class="na">J_RESOLVED_COL</span> <span class="o">=</span> <span class="s">j_resolved</span>
+<span class="c1">; Name of the column containing the V gene choice string.</span>
+<span class="na">V_GENE_CHOICE_COL</span> <span class="o">=</span> <span class="s">v_gene_choice</span>
+<span class="c1">; Name of the column containing the D gene choice string.</span>
+<span class="na">D_GENE_CHOICE_COL</span> <span class="o">=</span> <span class="s">d_gene_choice</span>
+<span class="c1">; Name of the column containing the J gene choice string.</span>
+<span class="na">J_GENE_CHOICE_COL</span> <span class="o">=</span> <span class="s">j_gene_choice</span>
+
+<span class="c1">; Parameters specific for the &#39;convert&#39; tool.</span>
+<span class="k">[CONVERT]</span>
+<span class="c1">; The number of random sequences to convert.</span>
+<span class="na">NUM_RANDOM</span> <span class="o">=</span> <span class="s">0</span>
+<span class="c1">; The default allele value to use when USE_ALLELE = false.</span>
+<span class="na">DEFAULT_ALLELE</span> <span class="o">=</span> <span class="s">01</span>
+<span class="c1">; If true, use the the allele information from the input file</span>
+<span class="na">USE_ALLELE</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1">; Parameters specific for the &#39;build&#39; tool.</span>
+<span class="k">[BUILD]</span>
+<span class="c1">; The default number of inference iteration for training a model.</span>
+<span class="na">NUM_ITERATIONS</span> <span class="o">=</span> <span class="s">1</span>
+
+<span class="c1">; Parameters specific for the &#39;locate&#39; tool.</span>
+<span class="k">[LOCATE]</span>
+<span class="c1">; The default search motifs for the V gene.</span>
+<span class="na">V_MOTIFS</span> <span class="o">=</span> <span class="s">TGT,TGC</span>
+<span class="c1">; The default search motifs for the J gene.</span>
+<span class="na">J_MOTIFS</span> <span class="o">=</span> <span class="s">TGG,TTC,TTT</span>
+
+<span class="c1">; Parameters specific for the &#39;generate&#39; tool.</span>
+<span class="k">[GENERATE]</span>
+<span class="c1">; The number of sequences to generate.</span>
+<span class="na">NUM_GENERATE</span> <span class="o">=</span> <span class="s">1</span>
+<span class="c1">; If the tool should evaluate CDR3 sequnces instead of VDJ ones.</span>
+<span class="na">EVAL_CDR3</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1">; Parameters specific for the &#39;evaluate&#39; tool.</span>
+<span class="k">[EVALUATE]</span>
+<span class="c1">; If the tool should evaluate CDR3 sequnces instead of VDJ ones.</span>
+<span class="na">EVAL_CDR3</span> <span class="o">=</span> <span class="s">false</span>
+<span class="c1">; The default allele value to use when USE_ALLELE = false.</span>
+<span class="na">DEFAULT_ALLELE</span> <span class="o">=</span> <span class="s">01</span>
+<span class="c1">; If true, use the the allele information from the input file</span>
+<span class="na">USE_ALLELE</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1">; Contains expert parameters that should never have to be modified with normal usage of ImmunoProbs.</span>
+<span class="k">[EXPERT]</span>
+<span class="c1">; Should ImmunoProbs use the system&#39;s temporary directory (default) or use the WORKING_DIR location?</span>
+<span class="na">USE_SYSTEM_TEMP</span> <span class="o">=</span> <span class="s">true</span>
+<span class="c1">; Should ImmunoProbs use remove the temporary working directory after execution?</span>
+<span class="na">REMOVE_TEMP_DIR</span> <span class="o">=</span> <span class="s">true</span>
+<span class="c1">; The name of the temporary directory used by ImmunoProbs.</span>
+<span class="na">TEMP_DIR</span> <span class="o">=</span> <span class="s">immuno_probs_tmp</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="use_cases.html" class="btn btn-neutral float-right" title="Use cases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

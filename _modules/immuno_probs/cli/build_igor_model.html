@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cli.build_igor_model &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.cli.build_igor_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.cli.build_igor_model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Commandline tool for creating a custom IGoR V(D)J model.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy2</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.model.default_models</span> <span class="kn">import</span> <span class="n">get_default_model_file_paths</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.model.igor_interface</span> <span class="kn">import</span> <span class="n">IgorInterface</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.cli</span> <span class="kn">import</span> <span class="n">dynamic_cli_options</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.constant</span> <span class="kn">import</span> <span class="n">get_config_data</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.io</span> <span class="kn">import</span> <span class="n">preprocess_separated_file</span><span class="p">,</span> <span class="n">preprocess_reference_file</span><span class="p">,</span> <span class="n">is_fasta</span><span class="p">,</span> <span class="n">is_separated</span><span class="p">,</span> <span class="n">copy_to_dir</span>
+
+
+<div class="viewcode-block" id="BuildIgorModel"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.build_igor_model.BuildIgorModel">[docs]</a><span class="k">class</span> <span class="nc">BuildIgorModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Commandline tool for creating custom IGoR V(D)J models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subparsers : argparse.ArgumentParser</span>
+<span class="sd">        A subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run(args)</span>
+<span class="sd">        Uses the given Namespace commandline arguments to execute IGoR for creating a custom model.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparsers</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BuildIgorModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span> <span class="o">=</span> <span class="n">subparsers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_options</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function for adding the parser and options to the given ArgumentParser.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Uses the class constructor&#39;s subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the description and options for the parser.</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Create a VDJ or VJ model by executing IGoR&#39;s commandline tool via a python subprocess using default &quot;</span> \
+            <span class="s2">&quot;model parameters.&quot;</span>
+        <span class="n">parser_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;-seqs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;fasta/separated&gt;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;An input FASTA or separated data file with sequences for training the model.&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-ref&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&lt;gene&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;fasta&gt;&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files &quot;</span>
+                        <span class="s2">&quot;needs to conform to IGMT annotation (separated by &#39;|&#39; character).&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-type&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str.lower&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;choices&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;light&#39;</span><span class="p">,</span> <span class="s1">&#39;heavy&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;The type of model to create. (select one: </span><span class="si">%(choices)s</span><span class="s1">).&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-n-iter&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;The number of inference iterations to perform when creating the model (default: </span><span class="si">{}</span><span class="s1">).&#39;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;BUILD&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_ITERATIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">))</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add the options to the parser and return the updated parser.</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="n">dynamic_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">parser_tool</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">parser_options</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_copy_file_to_output</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copies a txt file to the given directory.</span>
+
+<span class="sd">        If the file already exists, a number will be appended to the filename.</span>
+<span class="sd">        The given output directory is created recursively if it does not exist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file : str</span>
+<span class="sd">            A string path to the file to copy over to the directory</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Base filename for writting the file, excluding the extension.</span>
+<span class="sd">        directory : str</span>
+<span class="sd">            A directory path location to write the file to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Containing the output directory and the name of the file that has</span>
+<span class="sd">            been written to disk.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if the filename is unique, modify name if necessary.</span>
+        <span class="n">file_count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">updated_filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="c1"># Keep modifying the filename until it doesn&#39;t exist.</span>
+        <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)):</span>
+            <span class="n">updated_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_count</span><span class="p">)</span>
+            <span class="n">file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Copy input file to new location and return info.</span>
+        <span class="n">copy2</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BuildIgorModel.run"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.build_igor_model.BuildIgorModel.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to execute the commandline tool.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : Namespace</span>
+<span class="sd">            Object containing our parsed commandline arguments.</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            A directory path for writing output files to.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Add general igor commands.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting up initial IGoR command (1/5)&#39;</span><span class="p">)</span>
+        <span class="n">command_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">working_dir</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;WORKING_DIR&#39;</span><span class="p">)</span>
+        <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;set_wd&#39;</span><span class="p">,</span> <span class="n">working_dir</span><span class="p">])</span>
+        <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;threads&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_THREADS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">))])</span>
+
+        <span class="c1"># Add sequence and file paths commands.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Processing genomic reference templates (2/5)&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ref_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;set_genomic&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">preprocess_reference_file</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;genomic_templates&#39;</span><span class="p">),</span>
+                    <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;fasta&#39;</span><span class="p">),</span>
+                    <span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="n">ref_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filename</span><span class="p">])</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref_list</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Set the initial model parameters using a build-in model.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting initial model parameters (3/5)&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;heavy&#39;</span><span class="p">]:</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="s1">&#39;set_custom_model&#39;</span><span class="p">,</span>
+                <span class="n">get_default_model_file_paths</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;human-t-beta&#39;</span><span class="p">)[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+            <span class="p">])</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;light&#39;</span><span class="p">]:</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="s1">&#39;set_custom_model&#39;</span><span class="p">,</span>
+                <span class="n">get_default_model_file_paths</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;human-t-alpha&#39;</span><span class="p">)[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
+            <span class="p">])</span>
+
+        <span class="c1"># Add the sequence command after pre-processing of the input file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-processing input sequence file (4/5)&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_fasta</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;FASTA input file extension detected&#39;</span><span class="p">)</span>
+                <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                    <span class="s1">&#39;read_seqs&#39;</span><span class="p">,</span>
+                    <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">),</span> <span class="s1">&#39;fasta&#39;</span><span class="p">)</span>
+                <span class="p">])</span>
+            <span class="k">elif</span> <span class="n">is_separated</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Separated input file type detected&#39;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">input_seqs</span> <span class="o">=</span> <span class="n">preprocess_separated_file</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">),</span>
+                        <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">),</span> <span class="s1">&#39;csv&#39;</span><span class="p">),</span>
+                        <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                        <span class="s1">&#39;;&#39;</span><span class="p">,</span>
+                        <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">),</span>
+                        <span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">)]</span>
+                    <span class="p">)</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;read_seqs&#39;</span><span class="p">,</span> <span class="n">input_seqs</span><span class="p">])</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Given input sequence file does not have a &#39;</span><span class="si">%s</span><span class="s2">&#39; column&quot;</span><span class="p">,</span>
+                        <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">))</span>
+                    <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Given input sequence file could not be detected as &#39;</span>
+                    <span class="s1">&#39;FASTA file or separated data type&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Add alignment command and inference commands.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding additional variables to IGoR command (5/5)&#39;</span><span class="p">)</span>
+        <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;align&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]])</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">n_iter</span><span class="p">:</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;infer&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;N_iter&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">n_iter</span><span class="p">)]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;infer&#39;</span><span class="p">,</span> <span class="p">[</span>
+                <span class="s1">&#39;N_iter&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;BUILD&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_ITERATIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">))]])</span>
+
+        <span class="c1"># Execute IGoR through command line and catch error code.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Executing IGoR (this might take a while)&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">igor_cline</span> <span class="o">=</span> <span class="n">IgorInterface</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">command_list</span><span class="p">)</span>
+            <span class="n">exit_code</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">igor_cline</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;An error occurred during execution of IGoR command &quot;</span>
+                    <span class="s2">&quot;(exit code </span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exit_code</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Copy the output files to the output directory with prefix.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing model files to file system&#39;</span><span class="p">)</span>
+            <span class="n">output_prefix</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;OUT_NAME&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">output_prefix</span><span class="p">:</span>
+                <span class="n">output_prefix</span> <span class="o">=</span> <span class="s1">&#39;model&#39;</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file_to_output</span><span class="p">(</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;inference&#39;</span><span class="p">,</span> <span class="s1">&#39;final_marginals.txt&#39;</span><span class="p">),</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_marginals&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_1</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">filename_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_file_to_output</span><span class="p">(</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;inference&#39;</span><span class="p">,</span> <span class="s1">&#39;final_parms.txt&#39;</span><span class="p">),</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_params&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">),</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename_2</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.build_igor_model.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Function to be called when file executed via terminal.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

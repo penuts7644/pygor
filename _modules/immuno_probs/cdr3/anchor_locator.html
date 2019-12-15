@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cdr3.anchor_locator &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.cdr3.anchor_locator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.cdr3.anchor_locator</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains AnchorLocator class for locating CDR3 anchors of given sequences.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.util.processing</span> <span class="kn">import</span> <span class="n">multiprocess_array</span>
+
+
+<div class="viewcode-block" id="AnchorLocator"><a class="viewcode-back" href="../../../source/immuno_probs.cdr3.html#immuno_probs.cdr3.anchor_locator.AnchorLocator">[docs]</a><span class="k">class</span> <span class="nc">AnchorLocator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Locates all possibile CDR3 start and end positions within the given nucleotide alignment.</span>
+
+<span class="sd">    This class followes OLGA&#39;s formatting standard for the outputed CDR3 anchor files. The gene names in the reference genomic</span>
+<span class="sd">    sequence alignment should be located in the second position and the function of the gene on the fourth position in the</span>
+<span class="sd">    sequence header (separated by &#39;|&#39;). The header needs to follow IMGT standards.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    alignment : Bio.AlignIO</span>
+<span class="sd">        An biopython MUSCLE alignement object created with the alignment.MuscleAligner class.</span>
+<span class="sd">    gene : str</span>
+<span class="sd">        A gene identifier, either V or J, specifying the alignment&#39;s origin gene.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    get_indices_motifs(num_threads, *motifs)</span>
+<span class="sd">        Returns a pandas.DataFrame containing CDR3 anchors.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AnchorLocator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">alignment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_gene</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_set_gene</span><span class="p">(</span><span class="n">gene</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function for setting the gene identifier value in the class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gene : str</span>
+<span class="sd">            A gene identifier, either V or J, specifying the alignment&#39;s origin gene.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The input gene character value after passing the validation test.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            When the given gene character does not equal &#39;V&#39; or &#39;J&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gene</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gene</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="s2">&quot;J&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gene identifier should be either &#39;V&#39; or &#39;J&#39;&quot;</span><span class="p">,</span> <span class="n">gene</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gene</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_find_conserved_motif_indices</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the most conserved motif region within the MUSCLE alignment.</span>
+
+<span class="sd">        The regions are located for each given motif using the provided V or J gene sequence alignment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : list</span>
+<span class="sd">            The arguments from the &#39;multiprocess_array&#39; function. Consists of an list and additional kwargs with the</span>
+<span class="sd">            Bio.AlignIO alignment object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            Containing start index values for each sequence identifier in the alignment. Each motif has its own row in the dataframe.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the arguments and pandas.DataFrame.</span>
+        <span class="n">ary</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">alignment</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;alignment&quot;</span><span class="p">]</span>
+        <span class="n">seq_motif_indices</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;anchor_index&#39;</span><span class="p">,</span> <span class="s1">&#39;motif&#39;</span><span class="p">])</span>
+
+        <span class="c1"># For each of the motifs in the input array.</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">ary</span><span class="p">:</span>
+
+            <span class="c1"># Loop over alignment (codon len) and collect occurences of motif.</span>
+            <span class="n">motif_index_occurances</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">alignment</span><span class="o">.</span><span class="n">get_alignment_length</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">motif</span><span class="p">)):</span>
+                <span class="n">motif_counts</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">alignment</span><span class="p">))</span>
+                <span class="n">alignment_codon</span> <span class="o">=</span> <span class="n">alignment</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">motif</span><span class="p">)]</span>
+
+                <span class="c1"># For the motif alignment, count motif occurences and add to</span>
+                <span class="c1"># the counts.</span>
+                <span class="k">for</span> <span class="n">seq_record</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">alignment_codon</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">alignment_codon</span><span class="p">))):</span>
+                    <span class="n">motif_counts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">seq_record</span><span class="o">.</span><span class="n">seq</span> <span class="o">==</span> <span class="n">motif</span><span class="p">)</span>
+
+                <span class="c1"># Calculate average of occurences (between 0 and 1) and add to</span>
+                <span class="c1"># start index.</span>
+                <span class="n">motif_index_occurances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">motif_counts</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">alignment_codon</span><span class="p">))</span>
+
+            <span class="c1"># Collect index with highest value attached.</span>
+            <span class="n">max_index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">motif_index_occurances</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">seq_record</span> <span class="ow">in</span> <span class="n">alignment</span><span class="p">:</span>
+
+                <span class="c1"># Only process sequences that contain the motif at the conserved</span>
+                <span class="c1"># index location.</span>
+                <span class="k">if</span> <span class="n">seq_record</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="n">max_index</span><span class="p">:</span><span class="n">max_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">motif</span><span class="p">)]</span> <span class="o">==</span> <span class="n">motif</span><span class="p">:</span>
+                    <span class="n">start_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq_record</span><span class="o">.</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">max_index</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                    <span class="n">seq_motif_indices</span> <span class="o">=</span> <span class="n">seq_motif_indices</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">seq_record</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                        <span class="s1">&#39;anchor_index&#39;</span><span class="p">:</span> <span class="n">start_index</span><span class="p">,</span>
+                        <span class="s1">&#39;motif&#39;</span><span class="p">:</span> <span class="n">motif</span><span class="p">,</span>
+                    <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">seq_motif_indices</span>
+
+<div class="viewcode-block" id="AnchorLocator.get_indices_motifs"><a class="viewcode-back" href="../../../source/immuno_probs.cdr3.html#immuno_probs.cdr3.anchor_locator.AnchorLocator.get_indices_motifs">[docs]</a>    <span class="k">def</span> <span class="nf">get_indices_motifs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">,</span> <span class="o">*</span><span class="n">motifs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Collects and returns the CDR3 anchors for each motif from the sequence alignment.</span>
+
+<span class="sd">        The function locates the most common V (Cysteine - TGT and TGC by default) or J (Tryptophan - TGG,</span>
+<span class="sd">        Phenylalanine - TTC and TTT by default) gene index that best covers all sequences in the alignment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_threads : int</span>
+<span class="sd">            The number of threads to use when processing the motif list.</span>
+<span class="sd">        *motifs : str</span>
+<span class="sd">            Various motif strings (combined into a list) to process. At least motif needs to be specified.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            Containing columns with sequence identifier, start index values for the anchors, function of the gene and motifs.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            When no motifs have been specified in the function call.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            This function uses the given MUSCLE alignment and gene identifier from the class constructor.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the motifs arrays and perform the multiprocessing task.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">motifs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No motifs are given in function call, one is required&#39;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">multiprocess_array</span><span class="p">(</span>
+            <span class="n">ary</span><span class="o">=</span><span class="n">motifs</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_find_conserved_motif_indices</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+            <span class="n">alignment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

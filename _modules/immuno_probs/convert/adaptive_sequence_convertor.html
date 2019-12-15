@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.convert.adaptive_sequence_convertor &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.convert.adaptive_sequence_convertor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.convert.adaptive_sequence_convertor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains AdaptiveSequenceConvertor class for converting adaptive data sequences.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.util.processing</span> <span class="kn">import</span> <span class="n">multiprocess_array</span>
+
+
+<div class="viewcode-block" id="AdaptiveSequenceConvertor"><a class="viewcode-back" href="../../../source/immuno_probs.convert.html#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor">[docs]</a><span class="k">class</span> <span class="nc">AdaptiveSequenceConvertor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts the full length (VDJ for productive, unproductive and the total) and CDR3 sequences from a given adaptive</span>
+<span class="sd">    sequence input file.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    build_resolved_pattern(value, use_allele, default_allele)</span>
+<span class="sd">        Splits the resolved gene value in an IMGT formated regex pattern.</span>
+<span class="sd">    find_longest_substring(full, partial)</span>
+<span class="sd">        Finds the longest overlap between a full length sequences and a partial length sequence.</span>
+<span class="sd">    convert(num_threads, seqs, use_allele=True, default_allele=None)</span>
+<span class="sd">        Convert sequence data to an ImmunoProbs compatible format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AdaptiveSequenceConvertor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AdaptiveSequenceConvertor.build_resolved_pattern"><a class="viewcode-back" href="../../../source/immuno_probs.convert.html#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.build_resolved_pattern">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_resolved_pattern</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">use_allele</span><span class="p">,</span> <span class="n">default_allele</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Splits the resolved gene value in an IMGT formated regex pattern.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : str</span>
+<span class="sd">            The string value to split and format.</span>
+<span class="sd">        use_allele : bool</span>
+<span class="sd">            If True, the allele information from the input genes is used instead of the &#39;default_allele&#39; value.</span>
+<span class="sd">        default_allele : str</span>
+<span class="sd">            A default allele value to use when spliting gene choices, and &#39;use_allele&#39; option is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Containing all the &#39;family-gene*allele&#39; regex pattern combinations for the given value string in IMGT format.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This function assumes the following: If &#39;use_allele&#39; is True, the allele from the input value is used, if this can&#39;t</span>
+<span class="sd">        be found, &#39;default_allele&#39; is used for that value. The function always requires a family to be found. If there is no</span>
+<span class="sd">        gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition</span>
+<span class="sd">        if that gene value equals 1, an extra pattern is attached with only the family and allele.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup output list, match correct group and split from allele.</span>
+        <span class="n">resolved_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[a-zA-Z]+[V|D|J](.*)$&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+        <span class="n">allele</span> <span class="o">=</span> <span class="n">default_allele</span>
+
+        <span class="c1"># When using allele from file update variable or raise error.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">use_allele</span><span class="p">:</span>
+            <span class="n">allele</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Get possible gene combinations, loop over each and return final list.</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">tmp_gene</span> <span class="o">=</span> <span class="n">gene</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Only add when there is gene information.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_gene</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">tmp_gene_re</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="sa">r</span><span class="s1">&#39;\*&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                        <span class="sa">r</span><span class="s1">&#39;\-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                            <span class="n">tmp_gene</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                            <span class="n">tmp_gene</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+                        <span class="p">]),</span>
+                        <span class="n">allele</span>
+                    <span class="p">])]</span>
+
+                <span class="c1"># If gene info is &#39;01&#39;, also add version without gene name.</span>
+                <span class="k">if</span> <span class="n">tmp_gene</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;01&#39;</span><span class="p">:</span>
+                    <span class="n">tmp_gene_re</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\*&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                        <span class="n">tmp_gene</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                        <span class="n">allele</span>
+                    <span class="p">]))</span>
+                <span class="n">resolved_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_gene_re</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">resolved_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\*&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                    <span class="n">tmp_gene</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">),</span>
+                    <span class="n">allele</span>
+                <span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resolved_list</span></div>
+
+<div class="viewcode-block" id="AdaptiveSequenceConvertor.find_longest_substring"><a class="viewcode-back" href="../../../source/immuno_probs.convert.html#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.find_longest_substring">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_longest_substring</span><span class="p">(</span><span class="n">full</span><span class="p">,</span> <span class="n">partial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds the longest overlap between a full length sequences and a partial length sequence.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        full : str</span>
+<span class="sd">            A full length sequence string.</span>
+<span class="sd">        partial : str</span>
+<span class="sd">            A partial length sequence string to compare against the full length sequence.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The longest substring from the compared input strings.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var_1</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">partial</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">full</span><span class="p">))]</span>
+        <span class="n">index_1</span><span class="p">,</span> <span class="n">index_2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">full</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">partial</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">full</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">partial</span><span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">var_1</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_1</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">var_1</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">index_1</span><span class="p">:</span>
+                        <span class="n">index_1</span> <span class="o">=</span> <span class="n">var_1</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span>
+                        <span class="n">index_2</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">var_1</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">full</span><span class="p">[</span><span class="n">index_2</span> <span class="o">-</span> <span class="n">index_1</span><span class="p">:</span> <span class="n">index_2</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function for converting the adaptive dataframe data by striping the CDR3&#39;s as well as creating full length</span>
+<span class="sd">        VDJ sequences using recombination.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : list</span>
+<span class="sd">            A collection of arguments containing the dataframe to process for the thread, reference V and J gene dataframes,</span>
+<span class="sd">            column names, default allele value and number of random sequences to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Three pandas dataframes containing the reassembled data, full length productive VDJ sequences and full length</span>
+<span class="sd">            unproductive VDJ sequences.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup the initial dataframe.</span>
+        <span class="n">ary</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">ref_v_genes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_v_genes&#39;</span><span class="p">]</span>
+        <span class="n">ref_j_genes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ref_j_genes&#39;</span><span class="p">]</span>
+        <span class="n">col_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;col_names&#39;</span><span class="p">]</span>
+        <span class="n">use_allele</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;use_allele&#39;</span><span class="p">]</span>
+        <span class="n">default_allele</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;default_allele&#39;</span><span class="p">]</span>
+        <span class="n">n_random</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;n_random&#39;</span><span class="p">]</span>
+        <span class="n">reassembled_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">],</span> <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">],</span> <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">],</span>
+            <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">],</span> <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]</span>
+        <span class="p">])</span>
+        <span class="n">full_length_prod_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">],</span> <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]])</span>
+        <span class="n">full_length_unprod_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">],</span> <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]])</span>
+
+        <span class="c1"># Shuffle the dataframe and iterate over the rows with index value.</span>
+        <span class="n">ary</span> <span class="o">=</span> <span class="n">ary</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+            <span class="c1"># Exit loop if prod and reached max number of sequences, do not add</span>
+            <span class="c1"># sequences when max is reached for a dataframe.</span>
+            <span class="k">if</span> <span class="n">n_random</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_length_prod_df</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_random</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_length_unprod_df</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_random</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_length_prod_df</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_random</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;out&#39;</span> <span class="ow">or</span> <span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;stop&#39;</span><span class="p">)</span>
+                      <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_length_unprod_df</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">n_random</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+            <span class="c1"># Pre-process the resolved V genes.</span>
+            <span class="n">v_gene_choices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">imgt_v_gene</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">v_resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_resolved_pattern</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">]],</span>
+                    <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                    <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">resolved</span> <span class="ow">in</span> <span class="n">v_resolved</span><span class="p">:</span>
+                    <span class="n">imgt_v_gene</span> <span class="o">=</span> <span class="n">ref_v_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ref_v_genes</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span> <span class="p">:]</span>
+
+                    <span class="c1"># Assemble the output dataframe gene choices for the V genes.</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">imgt_v_gene</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">v_gene_choices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imgt_v_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">v_gene_choices</span><span class="p">:</span>
+                <span class="n">v_gene_choices</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v_gene_choices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v_gene_choices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="c1"># Pre-process the resolved J genes.</span>
+            <span class="n">j_gene_choices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">imgt_j_gene</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">j_resolved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_resolved_pattern</span><span class="p">(</span>
+                    <span class="n">value</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">]],</span>
+                    <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                    <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">resolved</span> <span class="ow">in</span> <span class="n">j_resolved</span><span class="p">:</span>
+                    <span class="n">imgt_j_gene</span> <span class="o">=</span> <span class="n">ref_j_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ref_j_genes</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span> <span class="p">:]</span>
+
+                    <span class="c1"># Assemble the output dataframe gene choices for the J genes.</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">imgt_j_gene</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">j_gene_choices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imgt_j_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">j_gene_choices</span><span class="p">:</span>
+                <span class="n">j_gene_choices</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j_gene_choices</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">j_gene_choices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="c1"># Create the trimmed NT sequence (removing primers).</span>
+            <span class="n">trimmed_nt_seq</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]][(</span><span class="mi">81</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;CDR3_LENGTH_COL&#39;</span><span class="p">]])):</span> <span class="mi">81</span><span class="p">]</span>
+
+            <span class="c1"># Add data row of reassembled data to the dataframe.</span>
+            <span class="n">reassembled_df</span> <span class="o">=</span> <span class="n">reassembled_df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]:</span> <span class="n">i</span><span class="p">,</span>
+                <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]:</span> <span class="n">trimmed_nt_seq</span><span class="p">,</span>
+                <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]:</span> <span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]],</span>
+                <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">]:</span> <span class="n">v_gene_choices</span><span class="p">,</span>
+                <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]:</span> <span class="n">j_gene_choices</span><span class="p">,</span>
+            <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Create the VDJ full length sequence</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">imgt_v_gene</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">imgt_j_gene</span><span class="o">.</span><span class="n">empty</span><span class="p">):</span>
+                <span class="n">vd_segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_longest_substring</span><span class="p">(</span><span class="n">imgt_v_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trimmed_nt_seq</span><span class="p">)</span>
+                <span class="n">dj_segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_longest_substring</span><span class="p">(</span><span class="n">imgt_j_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trimmed_nt_seq</span><span class="p">)</span>
+                <span class="n">split_v</span> <span class="o">=</span> <span class="n">imgt_v_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">vd_segment</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">split_j</span> <span class="o">=</span> <span class="n">imgt_j_gene</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dj_segment</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split_v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split_j</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_j</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                    <span class="k">continue</span>
+                <span class="n">vdj_sequence</span> <span class="o">=</span> <span class="n">split_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">trimmed_nt_seq</span> <span class="o">+</span> <span class="n">split_j</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Add data row of full length data to the dataframe for productive and</span>
+            <span class="c1"># unproductive sequences.</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+                <span class="n">full_length_prod_df</span> <span class="o">=</span> <span class="n">full_length_prod_df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]:</span> <span class="n">i</span><span class="p">,</span>
+                    <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]:</span> <span class="n">vdj_sequence</span>
+                <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;out&#39;</span> <span class="ow">or</span> <span class="n">row</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;stop&#39;</span><span class="p">):</span>
+                <span class="n">full_length_unprod_df</span> <span class="o">=</span> <span class="n">full_length_unprod_df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]:</span> <span class="n">i</span><span class="p">,</span>
+                    <span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]:</span> <span class="n">vdj_sequence</span>
+                <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reassembled_df</span><span class="p">,</span> <span class="n">full_length_prod_df</span><span class="p">,</span> <span class="n">full_length_unprod_df</span>
+
+<div class="viewcode-block" id="AdaptiveSequenceConvertor.convert"><a class="viewcode-back" href="../../../source/immuno_probs.convert.html#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">,</span> <span class="n">seqs</span><span class="p">,</span> <span class="n">ref_v_genes</span><span class="p">,</span> <span class="n">ref_j_genes</span><span class="p">,</span> <span class="n">row_id_col</span><span class="p">,</span> <span class="n">nt_col</span><span class="p">,</span> <span class="n">aa_col</span><span class="p">,</span> <span class="n">frame_type_col</span><span class="p">,</span>
+                <span class="n">cdr3_length_col</span><span class="p">,</span> <span class="n">v_resolved_col</span><span class="p">,</span> <span class="n">v_gene_choice_col</span><span class="p">,</span> <span class="n">j_resolved_col</span><span class="p">,</span> <span class="n">j_gene_choice_col</span><span class="p">,</span> <span class="n">default_allele</span><span class="p">,</span>
+                <span class="n">use_allele</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_random</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the full length VDJ and CDR3 sequences from the given adaptive dataframe to ImmunoProbs format.</span>
+
+<span class="sd">        The function needs to reassemble the full length VDJ sequences with the given reference V and J gene sequences first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_threads : int</span>
+<span class="sd">            The number of threads to use when processing the data.</span>
+<span class="sd">        seqs : pandas.DataFrame</span>
+<span class="sd">            Dataframe containing the sequences that need to be converted.</span>
+<span class="sd">        ref_v_genes : pandas.DataFrame</span>
+<span class="sd">            A dataframe containing the reference V gene sequences from IMGT as well as V family and V gene names.</span>
+<span class="sd">        ref_j_genes : pandas.DataFrame</span>
+<span class="sd">            A dataframe containing the reference J gene sequences from IMGT as well as J family and J gene names.</span>
+<span class="sd">        row_id_col : str</span>
+<span class="sd">            The name of the column containing the row identiefiers.</span>
+<span class="sd">        nt_col : str</span>
+<span class="sd">            The name of the nucleotide sequence column to use.</span>
+<span class="sd">        aa_col : str</span>
+<span class="sd">            The name of the aminoacid sequence column to use.</span>
+<span class="sd">        frame_type_col : str</span>
+<span class="sd">            The name of the column containing the frame type of the sequence.</span>
+<span class="sd">        cdr3_length_col : str</span>
+<span class="sd">            The name of the column specifying the length of the CDR3 sequence.</span>
+<span class="sd">        v_resolved_col : str</span>
+<span class="sd">            The name of the column containing the resolved V gene name.</span>
+<span class="sd">        v_gene_choice_col : str</span>
+<span class="sd">            The name of the V gene choice column to use.</span>
+<span class="sd">        j_resolved_col : str</span>
+<span class="sd">            The name of the column containing the resolved J gene name.</span>
+<span class="sd">        j_gene_choice_col : str</span>
+<span class="sd">            The name of the J gene choice column to use.</span>
+<span class="sd">        default_allele : str</span>
+<span class="sd">            A default allele value to use when spliting gene choices, and &#39;use_allele&#39; option is False or when allele is not</span>
+<span class="sd">            found.</span>
+<span class="sd">        use_allele : bool, optional</span>
+<span class="sd">            If True, the allele information from the input genes is used instead of the &#39;default_allele&#39; value (default: True).</span>
+<span class="sd">        n_random : int, optional</span>
+<span class="sd">            If given, a random subsample of sequences is taken for the full length VDJ productive and unproductive. The total</span>
+<span class="sd">            full length VDJ data will contain a subset of the productive and unproductive sequences in order to get the same</span>
+<span class="sd">            number of sequences. The reassembled data will contain all sequences used for the full length VDJ datasets. If the</span>
+<span class="sd">            given number is too larger than the size of a dataframe, the value is adjusted to the smallest value.</span>
+<span class="sd">            (default: 0, all sequences are included).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Four pandas dataframes containing the reassembled data, full length productive VDJ sequences, full length</span>
+<span class="sd">            unproductive VDJ sequences and one with the total full length VDJ sequences.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup the column names and outputr dataframes.</span>
+        <span class="n">col_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">:</span> <span class="n">row_id_col</span><span class="p">,</span>
+            <span class="s1">&#39;NT_COL&#39;</span><span class="p">:</span> <span class="n">nt_col</span><span class="p">,</span>
+            <span class="s1">&#39;AA_COL&#39;</span><span class="p">:</span> <span class="n">aa_col</span><span class="p">,</span>
+            <span class="s1">&#39;FRAME_TYPE_COL&#39;</span><span class="p">:</span> <span class="n">frame_type_col</span><span class="p">,</span>
+            <span class="s1">&#39;CDR3_LENGTH_COL&#39;</span><span class="p">:</span> <span class="n">cdr3_length_col</span><span class="p">,</span>
+            <span class="s1">&#39;V_RESOLVED_COL&#39;</span><span class="p">:</span> <span class="n">v_resolved_col</span><span class="p">,</span>
+            <span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">:</span> <span class="n">v_gene_choice_col</span><span class="p">,</span>
+            <span class="s1">&#39;J_RESOLVED_COL&#39;</span><span class="p">:</span> <span class="n">j_resolved_col</span><span class="p">,</span>
+            <span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">:</span> <span class="n">j_gene_choice_col</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">n_random_thread</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">n_random</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_random_thread</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">n_random</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">full_prod</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">full_unprod</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c1"># Set and perform the multiprocessing task.</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">multiprocess_array</span><span class="p">(</span>
+            <span class="n">ary</span><span class="o">=</span><span class="n">seqs</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_convert</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+            <span class="n">ref_v_genes</span><span class="o">=</span><span class="n">ref_v_genes</span><span class="p">,</span>
+            <span class="n">ref_j_genes</span><span class="o">=</span><span class="n">ref_j_genes</span><span class="p">,</span>
+            <span class="n">col_names</span><span class="o">=</span><span class="n">col_names</span><span class="p">,</span>
+            <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+            <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span><span class="p">,</span>
+            <span class="n">n_random</span><span class="o">=</span><span class="n">n_random_thread</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Process the resulted dataframes.</span>
+        <span class="k">for</span> <span class="n">processed</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">full_prod</span> <span class="o">=</span> <span class="n">full_prod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">full_unprod</span> <span class="o">=</span> <span class="n">full_unprod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processed</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_random</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_prod</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_random</span><span class="p">:</span>
+                <span class="n">n_random</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_prod</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_unprod</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_random</span><span class="p">:</span>
+                <span class="n">n_random</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_unprod</span><span class="p">)</span>
+            <span class="n">full_prod</span> <span class="o">=</span> <span class="n">full_prod</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_random</span><span class="p">)</span>
+            <span class="n">full_unprod</span> <span class="o">=</span> <span class="n">full_unprod</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_random</span><span class="p">)</span>
+        <span class="n">reassembled</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">full_prod</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]])]</span>
+        <span class="n">reassembled</span> <span class="o">=</span> <span class="n">reassembled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">tmp</span><span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">full_unprod</span><span class="p">[</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;ROW_ID_COL&#39;</span><span class="p">]])],</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Build the dataframe with the total full length sequences.</span>
+        <span class="n">full</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">full_prod</span><span class="p">,</span> <span class="n">full_unprod</span><span class="p">])</span>
+        <span class="n">full</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_random</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">full</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_prod</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">reassembled</span><span class="p">,</span> <span class="n">full_prod</span><span class="p">,</span> <span class="n">full_unprod</span><span class="p">,</span> <span class="n">full</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

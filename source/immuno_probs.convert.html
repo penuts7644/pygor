@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.convert package &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="immuno_probs.model package" href="immuno_probs.model.html" />
+    <link rel="prev" title="immuno_probs.cli package" href="immuno_probs.cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">immuno_probs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="immuno_probs.html">immuno_probs package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.alignment.html">immuno_probs.alignment package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cdr3.html">immuno_probs.cdr3 package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cli.html">immuno_probs.cli package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">immuno_probs.convert package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.convert.adaptive_sequence_convertor">immuno_probs.convert.adaptive_sequence_convertor module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.model.html">immuno_probs.model package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.util.html">immuno_probs.util package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">immuno_probs</a> &raquo;</li>
+        
+          <li><a href="immuno_probs.html">immuno_probs package</a> &raquo;</li>
+        
+      <li>immuno_probs.convert package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="immuno-probs-convert-package">
+<h1>immuno_probs.convert package<a class="headerlink" href="#immuno-probs-convert-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-immuno_probs.convert.adaptive_sequence_convertor">
+<span id="immuno-probs-convert-adaptive-sequence-convertor-module"></span><h2>immuno_probs.convert.adaptive_sequence_convertor module<a class="headerlink" href="#module-immuno_probs.convert.adaptive_sequence_convertor" title="Permalink to this headline">¶</a></h2>
+<p>Contains AdaptiveSequenceConvertor class for converting adaptive data sequences.</p>
+<dl class="class">
+<dt id="immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor">
+<em class="property">class </em><code class="descclassname">immuno_probs.convert.adaptive_sequence_convertor.</code><code class="descname">AdaptiveSequenceConvertor</code><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Converts the full length (VDJ for productive, unproductive and the total) and CDR3 sequences from a given adaptive
+sequence input file.</p>
+<dl class="method">
+<dt id="immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.build_resolved_pattern">
+<code class="descname">build_resolved_pattern</code><span class="sig-paren">(</span><em>value</em>, <em>use_allele</em>, <em>default_allele</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.build_resolved_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.build_resolved_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits the resolved gene value in an IMGT formated regex pattern.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.find_longest_substring">
+<code class="descname">find_longest_substring</code><span class="sig-paren">(</span><em>full</em>, <em>partial</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.find_longest_substring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.find_longest_substring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the longest overlap between a full length sequences and a partial length sequence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.convert">
+<code class="descname">convert</code><span class="sig-paren">(</span><em>num_threads</em>, <em>seqs</em>, <em>use_allele=True</em>, <em>default_allele=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.convert.adaptive_sequence_convertor.AdaptiveSequenceConvertor.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert sequence data to an ImmunoProbs compatible format.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">build_resolved_pattern</code><span class="sig-paren">(</span><em>value</em>, <em>use_allele</em>, <em>default_allele</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.build_resolved_pattern"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Splits the resolved gene value in an IMGT formated regex pattern.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>value</strong> (<em>str</em>) – The string value to split and format.</li>
+<li><strong>use_allele</strong> (<em>bool</em>) – If True, the allele information from the input genes is used instead of the ‘default_allele’ value.</li>
+<li><strong>default_allele</strong> (<em>str</em>) – A default allele value to use when spliting gene choices, and ‘use_allele’ option is False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Containing all the ‘family-gene*allele’ regex pattern combinations for the given value string in IMGT format.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function assumes the following: If ‘use_allele’ is True, the allele from the input value is used, if this can’t
+be found, ‘default_allele’ is used for that value. The function always requires a family to be found. If there is no
+gene, only the allele is inserted. If there is a gene, the family, gene and allele values are recombined. In addition
+if that gene value equals 1, an extra pattern is attached with only the family and allele.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">convert</code><span class="sig-paren">(</span><em>num_threads</em>, <em>seqs</em>, <em>ref_v_genes</em>, <em>ref_j_genes</em>, <em>row_id_col</em>, <em>nt_col</em>, <em>aa_col</em>, <em>frame_type_col</em>, <em>cdr3_length_col</em>, <em>v_resolved_col</em>, <em>v_gene_choice_col</em>, <em>j_resolved_col</em>, <em>j_gene_choice_col</em>, <em>default_allele</em>, <em>use_allele=True</em>, <em>n_random=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.convert"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Convert the full length VDJ and CDR3 sequences from the given adaptive dataframe to ImmunoProbs format.</p>
+<p>The function needs to reassemble the full length VDJ sequences with the given reference V and J gene sequences first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_threads</strong> (<em>int</em>) – The number of threads to use when processing the data.</li>
+<li><strong>seqs</strong> (<em>pandas.DataFrame</em>) – Dataframe containing the sequences that need to be converted.</li>
+<li><strong>ref_v_genes</strong> (<em>pandas.DataFrame</em>) – A dataframe containing the reference V gene sequences from IMGT as well as V family and V gene names.</li>
+<li><strong>ref_j_genes</strong> (<em>pandas.DataFrame</em>) – A dataframe containing the reference J gene sequences from IMGT as well as J family and J gene names.</li>
+<li><strong>row_id_col</strong> (<em>str</em>) – The name of the column containing the row identiefiers.</li>
+<li><strong>nt_col</strong> (<em>str</em>) – The name of the nucleotide sequence column to use.</li>
+<li><strong>aa_col</strong> (<em>str</em>) – The name of the aminoacid sequence column to use.</li>
+<li><strong>frame_type_col</strong> (<em>str</em>) – The name of the column containing the frame type of the sequence.</li>
+<li><strong>cdr3_length_col</strong> (<em>str</em>) – The name of the column specifying the length of the CDR3 sequence.</li>
+<li><strong>v_resolved_col</strong> (<em>str</em>) – The name of the column containing the resolved V gene name.</li>
+<li><strong>v_gene_choice_col</strong> (<em>str</em>) – The name of the V gene choice column to use.</li>
+<li><strong>j_resolved_col</strong> (<em>str</em>) – The name of the column containing the resolved J gene name.</li>
+<li><strong>j_gene_choice_col</strong> (<em>str</em>) – The name of the J gene choice column to use.</li>
+<li><strong>default_allele</strong> (<em>str</em>) – A default allele value to use when spliting gene choices, and ‘use_allele’ option is False or when allele is not
+found.</li>
+<li><strong>use_allele</strong> (<em>bool, optional</em>) – If True, the allele information from the input genes is used instead of the ‘default_allele’ value (default: True).</li>
+<li><strong>n_random</strong> (<em>int, optional</em>) – If given, a random subsample of sequences is taken for the full length VDJ productive and unproductive. The total
+full length VDJ data will contain a subset of the productive and unproductive sequences in order to get the same
+number of sequences. The reassembled data will contain all sequences used for the full length VDJ datasets. If the
+given number is too larger than the size of a dataframe, the value is adjusted to the smallest value.
+(default: 0, all sequences are included).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Four pandas dataframes containing the reassembled data, full length productive VDJ sequences, full length
+unproductive VDJ sequences and one with the total full length VDJ sequences.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt>
+<em class="property">static </em><code class="descname">find_longest_substring</code><span class="sig-paren">(</span><em>full</em>, <em>partial</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/convert/adaptive_sequence_convertor.html#AdaptiveSequenceConvertor.find_longest_substring"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Finds the longest overlap between a full length sequences and a partial length sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>full</strong> (<em>str</em>) – A full length sequence string.</li>
+<li><strong>partial</strong> (<em>str</em>) – A partial length sequence string to compare against the full length sequence.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The longest substring from the compared input strings.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="immuno_probs.model.html" class="btn btn-neutral float-right" title="immuno_probs.model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="immuno_probs.cli.html" class="btn btn-neutral float-left" title="immuno_probs.cli package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

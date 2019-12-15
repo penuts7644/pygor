@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.model.default_models &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.model.default_models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.model.default_models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains function for loading in and using pre-trained V(D)J models.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">resource_filename</span>
+
+
+<div class="viewcode-block" id="get_default_model_file_paths"><a class="viewcode-back" href="../../../source/immuno_probs.model.html#immuno_probs.model.default_models.get_default_model_file_paths">[docs]</a><span class="k">def</span> <span class="nf">get_default_model_file_paths</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a directory with file paths for a given model identifier name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        A string value representing a model identifier name in the dictionary. If name is not specified, returns a list</span>
+<span class="sd">        containing all the available model options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Containing model marginals, model parameters, anchors and reference genome file paths. If model name does not exist</span>
+<span class="sd">        in the dictionary, returns None instead.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set the file paths for the models</span>
+    <span class="n">pkg_name</span> <span class="o">=</span> <span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">default_models</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;human-t-alpha&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;alpha&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;model_marginals.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;model_params.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;v_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;V_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;j_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;J_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;TRAV.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;J&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;TRAJ.fasta&#39;</span><span class="p">)),</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;human-t-beta&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;model_marginals.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;model_params.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;v_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;V_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;j_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;J_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBV.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBD.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;J&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBJ.fasta&#39;</span><span class="p">)),</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;human-b-heavy&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;heavy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;model_marginals.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;model_params.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;v_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;V_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;j_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;J_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;IGHV.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;IGHD.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;J&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;human_b_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;IGHJ.fasta&#39;</span><span class="p">)),</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;mouse-t-beta&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;model_marginals.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;parameters&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;model_params.txt&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;v_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;V_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;j_anchors&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;J_gene_CDR3_anchors.tsv&#39;</span><span class="p">)),</span>
+            <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBV.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBD.fasta&#39;</span><span class="p">)),</span>
+                <span class="s1">&#39;J&#39;</span><span class="p">:</span> <span class="n">resource_filename</span><span class="p">(</span>
+                    <span class="n">pkg_name</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;mouse_t_beta&#39;</span><span class="p">,</span> <span class="s1">&#39;TRBJ.fasta&#39;</span><span class="p">)),</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="c1"># If name given, for the species and chain return dict with file paths</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">file_paths</span> <span class="ow">in</span> <span class="n">default_models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">file_paths</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">default_models</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

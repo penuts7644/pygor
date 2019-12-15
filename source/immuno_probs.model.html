@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.model package &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="immuno_probs.util package" href="immuno_probs.util.html" />
+    <link rel="prev" title="immuno_probs.convert package" href="immuno_probs.convert.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">immuno_probs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="immuno_probs.html">immuno_probs package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.alignment.html">immuno_probs.alignment package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cdr3.html">immuno_probs.cdr3 package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cli.html">immuno_probs.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.convert.html">immuno_probs.convert package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">immuno_probs.model package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.model.default_models">immuno_probs.model.default_models module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.model.igor_interface">immuno_probs.model.igor_interface module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.model.igor_loader">immuno_probs.model.igor_loader module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.util.html">immuno_probs.util package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">immuno_probs</a> &raquo;</li>
+        
+          <li><a href="immuno_probs.html">immuno_probs package</a> &raquo;</li>
+        
+      <li>immuno_probs.model package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="immuno-probs-model-package">
+<h1>immuno_probs.model package<a class="headerlink" href="#immuno-probs-model-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-immuno_probs.model.default_models">
+<span id="immuno-probs-model-default-models-module"></span><h2>immuno_probs.model.default_models module<a class="headerlink" href="#module-immuno_probs.model.default_models" title="Permalink to this headline">¶</a></h2>
+<p>Contains function for loading in and using pre-trained V(D)J models.</p>
+<dl class="function">
+<dt id="immuno_probs.model.default_models.get_default_model_file_paths">
+<code class="descclassname">immuno_probs.model.default_models.</code><code class="descname">get_default_model_file_paths</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/default_models.html#get_default_model_file_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.default_models.get_default_model_file_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a directory with file paths for a given model identifier name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str, optional</em>) – A string value representing a model identifier name in the dictionary. If name is not specified, returns a list
+containing all the available model options.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Containing model marginals, model parameters, anchors and reference genome file paths. If model name does not exist
+in the dictionary, returns None instead.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.model.igor_interface">
+<span id="immuno-probs-model-igor-interface-module"></span><h2>immuno_probs.model.igor_interface module<a class="headerlink" href="#module-immuno_probs.model.igor_interface" title="Permalink to this headline">¶</a></h2>
+<p>Contains IgorInterface class for interfacing with IGoR’s commandline tool.</p>
+<dl class="class">
+<dt id="immuno_probs.model.igor_interface.IgorInterface">
+<em class="property">class </em><code class="descclassname">immuno_probs.model.igor_interface.</code><code class="descname">IgorInterface</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_interface.IgorInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Executes IGoR commands via new commandline subprocess.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>command</strong> (<em>list</em>) – A list with strings and nested lists that will be build into a subprocess command.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.model.igor_interface.IgorInterface.call">
+<code class="descname">call</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_interface.IgorInterface.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the IGoR program and return stdout and stderr messages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_interface.IgorInterface.get_command">
+<code class="descname">get_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.get_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_interface.IgorInterface.get_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the created commandline subprocess string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_interface.IgorInterface.set_command">
+<code class="descname">set_command</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.set_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_interface.IgorInterface.set_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a new commandline string using a nested list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">call</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.call"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Calls IGoR via commandline via the subprocess command string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A tuple containing the exit code, standard out, standard error and the executed command as string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_command</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.get_command"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Collect and returns the string formatted IGoR command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A command formatted as string to be used by the call function.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">set_command</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_interface.html#IgorInterface.set_command"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Sets a new IGoR command by processing teh input lists into a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>command</strong> (<em>list</em>) – A list with strings and nested lists that will be build into a subprocess command.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.model.igor_loader">
+<span id="immuno-probs-model-igor-loader-module"></span><h2>immuno_probs.model.igor_loader module<a class="headerlink" href="#module-immuno_probs.model.igor_loader" title="Permalink to this headline">¶</a></h2>
+<p>Contains IgorLoader class for loading in a IGoR model files.</p>
+<dl class="class">
+<dt id="immuno_probs.model.igor_loader.IgorLoader">
+<em class="property">class </em><code class="descclassname">immuno_probs.model.igor_loader.</code><code class="descname">IgorLoader</code><span class="sig-paren">(</span><em>model_type</em>, <em>model_params</em>, <em>model_marginals</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Loads in an IGoR model as well as corresponding with CDR3 anchor files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model_type</strong> (<em>str</em>) – The type of the input model, either ‘VJ’ or ‘VDJ’.</li>
+<li><strong>model_params</strong> (<em>str</em>) – A file path location for the IGoR parameters model file.</li>
+<li><strong>model_marginals</strong> (<em>str</em>) – A file path location for the IGoR marginals model file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.model.igor_loader.IgorLoader.set_anchor">
+<code class="descname">set_anchor</code><span class="sig-paren">(</span><em>gene</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.set_anchor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader.set_anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the model’s CDR3 V or J gene anchors.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_loader.IgorLoader.initialize_model">
+<code class="descname">initialize_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.initialize_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader.initialize_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the model including the anchor files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_loader.IgorLoader.get_type">
+<code class="descname">get_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the type of the model (‘VDJ’ or ‘VJ’).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_loader.IgorLoader.get_genomic_data">
+<code class="descname">get_genomic_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_genomic_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader.get_genomic_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the OLGA’s GenomicData object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="immuno_probs.model.igor_loader.IgorLoader.get_generative_model">
+<code class="descname">get_generative_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_generative_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.model.igor_loader.IgorLoader.get_generative_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the OLGA’s GenerativeModel object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_generative_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_generative_model"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Collects and returns the GenerativeModel OLGA object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The IGoR generative model object class for a VJ or VDJ model.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">GenerativeModelVJ or GenerativeModelVDJ OLGA object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_genomic_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_genomic_data"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Collects and returns the GenomicData OLGA object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The genomic data object class for a VJ or VDJ model.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">GenomicDataVJ or GenomicDataVDJ OLGA object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">get_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.get_type"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Collects and returns the type of the model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Indicates the model type, either ‘VDJ’ or ‘VJ’.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">initialize_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.initialize_model"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Initializes the model data with CDR3 anchor position data files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – When the model input data cannot be loaded in as either a VJ or VDJ model.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OSError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> – When OLGA produces and system error with the input data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function uses the model marginals and parameters data that has already been loaded through trhe class constructor
+and updates this model object with the CDR3 anchor files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">set_anchor</code><span class="sig-paren">(</span><em>gene</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/model/igor_loader.html#IgorLoader.set_anchor"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Sets the CDR3 anchor file path for a given gene.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gene</strong> (<em>str</em>) – A gene identifier, either ‘V’ or ‘J’, specifying the alignement’s origin gene.</li>
+<li><strong>file</strong> (<em>str</em>) – File path location for the CDR3 anchor positions for the given gene.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The input gene character value after passing the validation test.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – When the given gene character does not equal ‘V’ or ‘J’.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="immuno_probs.util.html" class="btn btn-neutral float-right" title="immuno_probs.util package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="immuno_probs.convert.html" class="btn btn-neutral float-left" title="immuno_probs.convert package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

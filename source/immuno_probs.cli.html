@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cli package &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="immuno_probs.convert package" href="immuno_probs.convert.html" />
+    <link rel="prev" title="immuno_probs.cdr3 package" href="immuno_probs.cdr3.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">immuno_probs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="immuno_probs.html">immuno_probs package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.alignment.html">immuno_probs.alignment package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cdr3.html">immuno_probs.cdr3 package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">immuno_probs.cli package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.cli.build_igor_model">immuno_probs.cli.build_igor_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.cli.evaluate_sequences">immuno_probs.cli.evaluate_sequences module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.cli.convert_adaptive_sequences">immuno_probs.cli.convert_adaptive_sequences module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.cli.generate_sequences">immuno_probs.cli.generate_sequences module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.cli.locate_cdr3_anchors">immuno_probs.cli.locate_cdr3_anchors module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.convert.html">immuno_probs.convert package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.model.html">immuno_probs.model package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.util.html">immuno_probs.util package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">immuno_probs</a> &raquo;</li>
+        
+          <li><a href="immuno_probs.html">immuno_probs package</a> &raquo;</li>
+        
+      <li>immuno_probs.cli package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="immuno-probs-cli-package">
+<h1>immuno_probs.cli package<a class="headerlink" href="#immuno-probs-cli-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-immuno_probs.cli.build_igor_model">
+<span id="immuno-probs-cli-build-igor-model-module"></span><h2>immuno_probs.cli.build_igor_model module<a class="headerlink" href="#module-immuno_probs.cli.build_igor_model" title="Permalink to this headline">¶</a></h2>
+<p>Commandline tool for creating a custom IGoR V(D)J model.</p>
+<dl class="class">
+<dt id="immuno_probs.cli.build_igor_model.BuildIgorModel">
+<em class="property">class </em><code class="descclassname">immuno_probs.cli.build_igor_model.</code><code class="descname">BuildIgorModel</code><span class="sig-paren">(</span><em>subparsers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/build_igor_model.html#BuildIgorModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.build_igor_model.BuildIgorModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Commandline tool for creating custom IGoR V(D)J models.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subparsers</strong> (<em>argparse.ArgumentParser</em>) – A subparser object for appending the tool’s parser and options.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.cli.build_igor_model.BuildIgorModel.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/build_igor_model.html#BuildIgorModel.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.build_igor_model.BuildIgorModel.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the given Namespace commandline arguments to execute IGoR for creating a custom model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/build_igor_model.html#BuildIgorModel.run"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Function to execute the commandline tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>args</strong> (<em>Namespace</em>) – Object containing our parsed commandline arguments.</li>
+<li><strong>output_dir</strong> (<em>str</em>) – A directory path for writing output files to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.cli.build_igor_model.main">
+<code class="descclassname">immuno_probs.cli.build_igor_model.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/build_igor_model.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.build_igor_model.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called when file executed via terminal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.cli.evaluate_sequences">
+<span id="immuno-probs-cli-evaluate-sequences-module"></span><h2>immuno_probs.cli.evaluate_sequences module<a class="headerlink" href="#module-immuno_probs.cli.evaluate_sequences" title="Permalink to this headline">¶</a></h2>
+<p>Commandline tool for evaluating V(D)J sequences using an IGoR model.</p>
+<dl class="class">
+<dt id="immuno_probs.cli.evaluate_sequences.EvaluateSequences">
+<em class="property">class </em><code class="descclassname">immuno_probs.cli.evaluate_sequences.</code><code class="descname">EvaluateSequences</code><span class="sig-paren">(</span><em>subparsers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/evaluate_sequences.html#EvaluateSequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.evaluate_sequences.EvaluateSequences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Commandline tool for evaluating sequences using an IGoR model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subparsers</strong> (<em>argparse.ArgumentParser</em>) – A subparser object for appending the tool’s parser and options.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.cli.evaluate_sequences.EvaluateSequences.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/evaluate_sequences.html#EvaluateSequences.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.evaluate_sequences.EvaluateSequences.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the given Namespace commandline arguments for evaluating sequences.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/evaluate_sequences.html#EvaluateSequences.run"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Function to execute the commandline tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>args</strong> (<em>Namespace</em>) – Object containing our parsed commandline arguments.</li>
+<li><strong>output_dir</strong> (<em>str</em>) – A directory path for writing output files to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.cli.evaluate_sequences.main">
+<code class="descclassname">immuno_probs.cli.evaluate_sequences.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/evaluate_sequences.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.evaluate_sequences.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called when file executed via terminal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.cli.convert_adaptive_sequences">
+<span id="immuno-probs-cli-convert-adaptive-sequences-module"></span><h2>immuno_probs.cli.convert_adaptive_sequences module<a class="headerlink" href="#module-immuno_probs.cli.convert_adaptive_sequences" title="Permalink to this headline">¶</a></h2>
+<p>Commandline tool for converting VDJ sequences (and CDR3) from adaptive format.</p>
+<dl class="class">
+<dt id="immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences">
+<em class="property">class </em><code class="descclassname">immuno_probs.cli.convert_adaptive_sequences.</code><code class="descname">ConvertAdaptiveSequences</code><span class="sig-paren">(</span><em>subparsers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/convert_adaptive_sequences.html#ConvertAdaptiveSequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Commandline tool for converting full and CDR3 sequences from a given adaptive input sequence file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subparsers</strong> (<em>argparse.ArgumentParser</em>) – A subparser object for appending the tool’s parser and options.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/convert_adaptive_sequences.html#ConvertAdaptiveSequences.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.convert_adaptive_sequences.ConvertAdaptiveSequences.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the given Namespace commandline arguments to convert the full length (VDJ for productive, unproductive and the
+total) and CDR3 sequences from a given adaptive input sequence file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/convert_adaptive_sequences.html#ConvertAdaptiveSequences.run"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Function to execute the commandline tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>args</strong> (<em>Namespace</em>) – Object containing our parsed commandline arguments.</li>
+<li><strong>output_dir</strong> (<em>str</em>) – A directory path for writing output files to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.cli.convert_adaptive_sequences.main">
+<code class="descclassname">immuno_probs.cli.convert_adaptive_sequences.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/convert_adaptive_sequences.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.convert_adaptive_sequences.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called when file executed via terminal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.cli.generate_sequences">
+<span id="immuno-probs-cli-generate-sequences-module"></span><h2>immuno_probs.cli.generate_sequences module<a class="headerlink" href="#module-immuno_probs.cli.generate_sequences" title="Permalink to this headline">¶</a></h2>
+<p>Commandline tool for generating V(D)J sequences from and IGoR model.</p>
+<dl class="class">
+<dt id="immuno_probs.cli.generate_sequences.GenerateSequences">
+<em class="property">class </em><code class="descclassname">immuno_probs.cli.generate_sequences.</code><code class="descname">GenerateSequences</code><span class="sig-paren">(</span><em>subparsers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/generate_sequences.html#GenerateSequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.generate_sequences.GenerateSequences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Commandline tool for generating sequences from and IGoR model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subparsers</strong> (<em>argparse.ArgumentParser</em>) – A subparser object for appending the tool’s parser and options.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.cli.generate_sequences.GenerateSequences.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/generate_sequences.html#GenerateSequences.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.generate_sequences.GenerateSequences.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the given Namespace commandline arguments for generating sequences.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/generate_sequences.html#GenerateSequences.run"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Function to execute the commandline tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>args</strong> (<em>Namespace</em>) – Object containing our parsed commandline arguments.</li>
+<li><strong>output_dir</strong> (<em>str</em>) – A directory path for writing output files to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.cli.generate_sequences.main">
+<code class="descclassname">immuno_probs.cli.generate_sequences.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/generate_sequences.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.generate_sequences.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called when file executed via terminal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.cli.locate_cdr3_anchors">
+<span id="immuno-probs-cli-locate-cdr3-anchors-module"></span><h2>immuno_probs.cli.locate_cdr3_anchors module<a class="headerlink" href="#module-immuno_probs.cli.locate_cdr3_anchors" title="Permalink to this headline">¶</a></h2>
+<p>Commandline tool for creating files containing CDR3 anchor indices.</p>
+<dl class="class">
+<dt id="immuno_probs.cli.locate_cdr3_anchors.LocateCdr3Anchors">
+<em class="property">class </em><code class="descclassname">immuno_probs.cli.locate_cdr3_anchors.</code><code class="descname">LocateCdr3Anchors</code><span class="sig-paren">(</span><em>subparsers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/locate_cdr3_anchors.html#LocateCdr3Anchors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.locate_cdr3_anchors.LocateCdr3Anchors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Commandline tool for creating compatible CDR3 anchor separated files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subparsers</strong> (<em>argparse.ArgumentParser</em>) – A subparser object for appending the tool’s parser and options.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="immuno_probs.cli.locate_cdr3_anchors.LocateCdr3Anchors.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/locate_cdr3_anchors.html#LocateCdr3Anchors.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.locate_cdr3_anchors.LocateCdr3Anchors.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the given Namespace commandline arguments to locate the CDR3 anchors and write them to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>args</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/locate_cdr3_anchors.html#LocateCdr3Anchors.run"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Function to execute the commandline tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>args</strong> (<em>Namespace</em>) – Object containing our parsed commandline arguments.</li>
+<li><strong>output_dir</strong> (<em>str</em>) – A directory path for writing output files to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.cli.locate_cdr3_anchors.main">
+<code class="descclassname">immuno_probs.cli.locate_cdr3_anchors.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/cli/locate_cdr3_anchors.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.cli.locate_cdr3_anchors.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to be called when file executed via terminal.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="immuno_probs.convert.html" class="btn btn-neutral float-right" title="immuno_probs.convert package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="immuno_probs.cdr3.html" class="btn btn-neutral float-left" title="immuno_probs.cdr3 package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

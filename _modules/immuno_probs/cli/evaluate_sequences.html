@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cli.evaluate_sequences &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.cli.evaluate_sequences</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.cli.evaluate_sequences</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Commandline tool for evaluating V(D)J sequences using an IGoR model.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.cdr3.olga_container</span> <span class="kn">import</span> <span class="n">OlgaContainer</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.model.default_models</span> <span class="kn">import</span> <span class="n">get_default_model_file_paths</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.model.igor_interface</span> <span class="kn">import</span> <span class="n">IgorInterface</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.model.igor_loader</span> <span class="kn">import</span> <span class="n">IgorLoader</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.cli</span> <span class="kn">import</span> <span class="n">dynamic_cli_options</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.conversion</span> <span class="kn">import</span> <span class="n">nucleotides_to_aminoacids</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.constant</span> <span class="kn">import</span> <span class="n">get_config_data</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.io</span> <span class="kn">import</span> <span class="n">read_separated_to_dataframe</span><span class="p">,</span> <span class="n">read_fasta_as_dataframe</span><span class="p">,</span> <span class="n">write_dataframe_to_separated</span><span class="p">,</span> <span class="n">preprocess_separated_file</span><span class="p">,</span> <span class="n">preprocess_reference_file</span><span class="p">,</span> <span class="n">is_fasta</span><span class="p">,</span> <span class="n">is_separated</span><span class="p">,</span> <span class="n">copy_to_dir</span>
+
+
+<div class="viewcode-block" id="EvaluateSequences"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.evaluate_sequences.EvaluateSequences">[docs]</a><span class="k">class</span> <span class="nc">EvaluateSequences</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Commandline tool for evaluating sequences using an IGoR model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subparsers : argparse.ArgumentParser</span>
+<span class="sd">        A subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run(args)</span>
+<span class="sd">        Uses the given Namespace commandline arguments for evaluating sequences.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subparsers</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EvaluateSequences</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span> <span class="o">=</span> <span class="n">subparsers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_options</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function for adding the parser and options to the given ArgumentParser.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">            Uses the class constructor&#39;s subparser object for appending the tool&#39;s parser and options.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the description and options for the parser.</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Evaluate VDJ or VJ sequences given a custom IGoR model (or build-in) through IGoR&#39;s commandline &quot;</span> \
+            <span class="s2">&quot;tool via python subprocess. Or evaluate CDR3 sequences with the model by using OLGA.&quot;</span>
+        <span class="n">parser_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;-seqs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;fasta/separated&gt;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;An input FASTA or separated data file with sequences to evaluate.&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-model&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str.lower&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;choices&#39;</span><span class="p">:</span> <span class="n">get_default_model_file_paths</span><span class="p">(),</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="s1">&#39;-custom-model&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;Specify a pre-installed model for evaluation. (required if -custom-model NOT specified) &quot;</span>
+                        <span class="s2">&quot;(select one: </span><span class="si">%(choices)s</span><span class="s2">).&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-ref&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&lt;gene&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;fasta&gt;&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-cdr3&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="ow">and</span> <span class="s1">&#39;-custom-model&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">),</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;A gene (V, D or J) followed by a reference genome FASTA file. Note: the FASTA reference genome files &quot;</span>
+                        <span class="s2">&quot;needs to conform to IGMT annotation (separated by &#39;|&#39; character). (required for -custom-model &quot;</span>
+                        <span class="s2">&quot;without -cdr3)&quot;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-type&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str.lower&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;choices&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="s1">&#39;light&#39;</span><span class="p">,</span> <span class="s1">&#39;heavy&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-custom-model&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">),</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;The type of the custom model to use. (select one: </span><span class="si">%(choices)s</span><span class="s1">) (required for -custom-model).&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-custom-model&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&lt;parameters&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;marginals&gt;&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;A IGoR parameters file followed by an IGoR marginals file.&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-anchor&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;metavar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&lt;gene&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;separated&gt;&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;nargs&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;-cdr3&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span> <span class="ow">and</span> <span class="s1">&#39;-custom-model&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">),</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;A gene (V or J) followed by a CDR3 anchor separated data file. Note: need to contain gene in the &#39;</span>
+                        <span class="s1">&#39;first column, anchor index in the second and gene function in the third (required for -cdr3 and &#39;</span>
+                        <span class="s1">&#39;-custom-model).&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-cdr3&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s1">&#39;If specified (True), CDR3 sequences should be evaluated, otherwise V(D)J sequences (default: </span><span class="si">{}</span><span class="s1">).&#39;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;EVALUATE&#39;</span><span class="p">,</span> <span class="s1">&#39;EVAL_CDR3&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">))</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;-use-allele&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="s2">&quot;If specified (True), in combination with the &#39;-cdr3&#39; flag, the allele information from the gene &quot;</span>
+                        <span class="s2">&quot;choice fields is used to calculate the generation probability (default: </span><span class="si">{}</span><span class="s2">).&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;EVALUATE&#39;</span><span class="p">,</span> <span class="s1">&#39;USE_ALLELE&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">))</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add the options to the parser and return the updated parser.</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;evaluate&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">parser_tool</span> <span class="o">=</span> <span class="n">dynamic_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">parser_tool</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">parser_options</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EvaluateSequences.run"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.evaluate_sequences.EvaluateSequences.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to execute the commandline tool.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : Namespace</span>
+<span class="sd">            Object containing our parsed commandline arguments.</span>
+<span class="sd">        output_dir : str</span>
+<span class="sd">            A directory path for writing output files to.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eval_cdr3</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;EVALUATE&#39;</span><span class="p">,</span> <span class="s1">&#39;EVAL_CDR3&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cdr3</span><span class="p">:</span>
+            <span class="n">eval_cdr3</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">cdr3</span>
+
+        <span class="c1"># If the given type of sequences evaluation is VDJ, use IGoR.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eval_cdr3</span><span class="p">:</span>
+
+            <span class="c1"># Add general IGoR commands.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting up initial IGoR command (1/4)&#39;</span><span class="p">)</span>
+            <span class="n">command_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">working_dir</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;WORKING_DIR&#39;</span><span class="p">)</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;set_wd&#39;</span><span class="p">,</span> <span class="n">working_dir</span><span class="p">])</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;threads&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_THREADS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">))])</span>
+
+            <span class="c1"># Add the model (build-in or custom) command depending on given.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Processing genomic reference templates (2/4)&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">get_default_model_file_paths</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+                    <span class="n">model_type</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="s1">&#39;set_custom_model&#39;</span><span class="p">,</span>
+                        <span class="n">files</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">],</span>
+                        <span class="n">files</span><span class="p">[</span><span class="s1">&#39;marginals&#39;</span><span class="p">]</span>
+                    <span class="p">])</span>
+                    <span class="n">ref_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;set_genomic&#39;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">gene</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">ref_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">gene</span><span class="p">,</span> <span class="n">filename</span><span class="p">])</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref_list</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">:</span>
+                    <span class="n">model_type</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="s1">&#39;set_custom_model&#39;</span><span class="p">,</span>
+                        <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s1">&#39;txt&#39;</span><span class="p">),</span>
+                        <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;txt&#39;</span><span class="p">),</span>
+                    <span class="p">])</span>
+                    <span class="n">ref_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;set_genomic&#39;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+                        <span class="n">filename</span> <span class="o">=</span> <span class="n">preprocess_reference_file</span><span class="p">(</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;genomic_templates&#39;</span><span class="p">),</span>
+                            <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;fasta&#39;</span><span class="p">),</span>
+                            <span class="mi">1</span>
+                        <span class="p">)</span>
+                        <span class="n">ref_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filename</span><span class="p">])</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref_list</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Add the sequence command after pre-processing of the input file.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-processing input sequence file (3/4)&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_fasta</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;FASTA input file extension detected&#39;</span><span class="p">)</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="s1">&#39;read_seqs&#39;</span><span class="p">,</span>
+                        <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">),</span> <span class="s1">&#39;fasta&#39;</span><span class="p">)</span>
+                    <span class="p">])</span>
+                <span class="k">elif</span> <span class="n">is_separated</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Separated input file type detected&#39;</span><span class="p">)</span>
+                    <span class="n">input_seqs</span> <span class="o">=</span> <span class="n">preprocess_separated_file</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">),</span>
+                        <span class="n">copy_to_dir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">),</span> <span class="s1">&#39;csv&#39;</span><span class="p">),</span>
+                        <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                        <span class="s1">&#39;;&#39;</span><span class="p">,</span>
+                        <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">),</span>
+                        <span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">)]</span>
+                    <span class="p">)</span>
+                    <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;read_seqs&#39;</span><span class="p">,</span> <span class="n">input_seqs</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s1">&#39;Given input sequence file could not be detected as &#39;</span>
+                        <span class="s1">&#39;FASTA file or separated data type&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Add alignment and evealuation commands.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding additional variables to IGoR command (4/4)&#39;</span><span class="p">)</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;align&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]])</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;evaluate&#39;</span><span class="p">])</span>
+            <span class="n">command_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Pgen&#39;</span><span class="p">]])</span>
+
+            <span class="c1"># Execute IGoR through command line and catch error code.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Executing IGoR (this might take a while)&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">igor_cline</span> <span class="o">=</span> <span class="n">IgorInterface</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">command_list</span><span class="p">)</span>
+                <span class="n">exit_code</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">igor_cline</span><span class="o">.</span><span class="n">call</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;An error occurred during execution of IGoR command &quot;</span>
+                        <span class="s2">&quot;(exit code </span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exit_code</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Read in all data frame files, based on input file type.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Processing generation probabilities&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_fasta</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">):</span>
+                    <span class="n">seqs_df</span> <span class="o">=</span> <span class="n">read_fasta_as_dataframe</span><span class="p">(</span>
+                        <span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span>
+                        <span class="n">col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">is_separated</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">)):</span>
+                    <span class="n">seqs_df</span> <span class="o">=</span> <span class="n">read_separated_to_dataframe</span><span class="p">(</span>
+                        <span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span>
+                        <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                        <span class="n">index_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+                <span class="n">full_pgen_df</span> <span class="o">=</span> <span class="n">read_separated_to_dataframe</span><span class="p">(</span>
+                    <span class="n">file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Pgen_counts.csv&#39;</span><span class="p">),</span>
+                    <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span>
+                    <span class="n">index_col</span><span class="o">=</span><span class="s1">&#39;seq_index&#39;</span><span class="p">,</span>
+                    <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Pgen_estimate&#39;</span><span class="p">])</span>
+                <span class="n">full_pgen_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">)]</span>
+                <span class="n">full_pgen_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Pgen_estimate&#39;</span><span class="p">:</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_P_COL&#39;</span><span class="p">)},</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">full_pgen_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_P_COL&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Insert amino acid sequence column if not existent.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Formatting output dataframe&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs_df</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seqs_df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                <span class="n">seqs_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                    <span class="n">seqs_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">seqs_df</span><span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">seqs_df</span><span class="p">[</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">nucleotides_to_aminoacids</span><span class="p">)</span>
+
+            <span class="c1"># Merge IGoR generated sequence output dataframes.</span>
+            <span class="n">full_pgen_df</span> <span class="o">=</span> <span class="n">seqs_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">full_pgen_df</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Write the pandas dataframe to a separated file.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing evaluated data to file system&#39;</span><span class="p">)</span>
+                <span class="n">output_filename</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;OUT_NAME&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">output_filename</span><span class="p">:</span>
+                    <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">&#39;pgen_estimate_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_type</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                    <span class="n">dataframe</span><span class="o">=</span><span class="n">full_pgen_df</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">output_filename</span><span class="p">,</span>
+                    <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                    <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+        <span class="c1"># If the given type of sequences evaluation is CDR3, use OLGA.</span>
+        <span class="k">elif</span> <span class="n">eval_cdr3</span><span class="p">:</span>
+
+            <span class="c1"># Create the directory for the output files.</span>
+            <span class="n">working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;WORKING_DIR&#39;</span><span class="p">),</span> <span class="s1">&#39;output&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">working_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;WORKING_DIR&#39;</span><span class="p">),</span> <span class="s1">&#39;output&#39;</span><span class="p">))</span>
+
+            <span class="c1"># Load the model and create the sequence evaluator.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loading the IGoR model files&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">get_default_model_file_paths</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+                    <span class="n">model_type</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">IgorLoader</span><span class="p">(</span><span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
+                                       <span class="n">model_params</span><span class="o">=</span><span class="n">files</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">],</span>
+                                       <span class="n">model_marginals</span><span class="o">=</span><span class="n">files</span><span class="p">[</span><span class="s1">&#39;marginals&#39;</span><span class="p">])</span>
+                    <span class="n">args</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;v_anchors&#39;</span><span class="p">]],</span>
+                                   <span class="p">[</span><span class="s1">&#39;J&#39;</span><span class="p">,</span> <span class="n">files</span><span class="p">[</span><span class="s1">&#39;j_anchors&#39;</span><span class="p">]]]</span>
+                    <span class="n">separator</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span>
+                <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">:</span>
+                    <span class="n">model_type</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">type</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">IgorLoader</span><span class="p">(</span><span class="n">model_type</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
+                                       <span class="n">model_params</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                       <span class="n">model_marginals</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">custom_model</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">separator</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">anchor</span><span class="p">:</span>
+                    <span class="n">anchor_file</span> <span class="o">=</span> <span class="n">preprocess_separated_file</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_dir</span><span class="p">,</span> <span class="s1">&#39;cdr3_anchors&#39;</span><span class="p">),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">gene</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="n">separator</span><span class="p">,</span>
+                        <span class="s1">&#39;,&#39;</span>
+                    <span class="p">)</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">set_anchor</span><span class="p">(</span><span class="n">gene</span><span class="o">=</span><span class="n">gene</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">file</span><span class="o">=</span><span class="n">anchor_file</span><span class="p">)</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">initialize_model</span><span class="p">()</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Based on input file type, load in input file.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pre-processing input sequence file&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_fasta</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;FASTA input file extension detected&#39;</span><span class="p">)</span>
+                    <span class="n">seqs_df</span> <span class="o">=</span> <span class="n">read_fasta_as_dataframe</span><span class="p">(</span>
+                        <span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span>
+                        <span class="n">col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">is_separated</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Separated input file type detected&#39;</span><span class="p">)</span>
+                    <span class="n">seqs_df</span> <span class="o">=</span> <span class="n">read_separated_to_dataframe</span><span class="p">(</span>
+                        <span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seqs</span><span class="p">,</span>
+                        <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                        <span class="n">index_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Given input sequence file could not be detected as FASTA file or separated data type&#39;</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Evaluate the sequences.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Evaluating sequences&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">use_allele</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;EVALUATE&#39;</span><span class="p">,</span> <span class="s1">&#39;USE_ALLELE&#39;</span><span class="p">,</span> <span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">use_allele</span><span class="p">:</span>
+                    <span class="n">use_allele</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_allele</span>
+                <span class="n">seq_evaluator</span> <span class="o">=</span> <span class="n">OlgaContainer</span><span class="p">(</span>
+                    <span class="n">igor_model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">nt_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_COL&#39;</span><span class="p">),</span>
+                    <span class="n">nt_p_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NT_P_COL&#39;</span><span class="p">),</span>
+                    <span class="n">aa_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_COL&#39;</span><span class="p">),</span>
+                    <span class="n">aa_p_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;AA_P_COL&#39;</span><span class="p">),</span>
+                    <span class="n">v_gene_choice_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">),</span>
+                    <span class="n">j_gene_choice_col</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">))</span>
+                <span class="n">cdr3_pgen_df</span> <span class="o">=</span> <span class="n">seq_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+                    <span class="n">seqs</span><span class="o">=</span><span class="n">seqs_df</span><span class="p">,</span>
+                    <span class="n">num_threads</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;NUM_THREADS&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">),</span>
+                    <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                    <span class="n">default_allele</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;EVALUATE&#39;</span><span class="p">,</span> <span class="s1">&#39;DEFAULT_ALLELE&#39;</span><span class="p">))</span>
+
+                <span class="c1"># Merge IGoR generated sequence output dataframes.</span>
+                <span class="n">cdr3_pgen_df</span> <span class="o">=</span> <span class="n">seqs_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">cdr3_pgen_df</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Write the pandas dataframe to a separated file.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing evaluated data to file system&#39;</span><span class="p">)</span>
+                <span class="n">output_filename</span> <span class="o">=</span> <span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;OUT_NAME&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">output_filename</span><span class="p">:</span>
+                    <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">&#39;pgen_estimate_</span><span class="si">{}</span><span class="s1">_CDR3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_type</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+                    <span class="n">dataframe</span><span class="o">=</span><span class="n">cdr3_pgen_df</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">output_filename</span><span class="p">,</span>
+                    <span class="n">directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                    <span class="n">separator</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;SEPARATOR&#39;</span><span class="p">),</span>
+                    <span class="n">index_name</span><span class="o">=</span><span class="n">get_config_data</span><span class="p">(</span><span class="s1">&#39;COMMON&#39;</span><span class="p">,</span> <span class="s1">&#39;I_COL&#39;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Written &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="k">return</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../source/immuno_probs.cli.html#immuno_probs.cli.evaluate_sequences.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Function to be called when file executed via terminal.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

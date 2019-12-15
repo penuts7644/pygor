@@ -1,0 +1,735 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.util package &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="immuno_probs.model package" href="immuno_probs.model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">immuno_probs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="immuno_probs.html">immuno_probs package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.alignment.html">immuno_probs.alignment package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cdr3.html">immuno_probs.cdr3 package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.cli.html">immuno_probs.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.convert.html">immuno_probs.convert package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="immuno_probs.model.html">immuno_probs.model package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">immuno_probs.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.util.cli">immuno_probs.util.cli module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.util.constant">immuno_probs.util.constant module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.util.conversion">immuno_probs.util.conversion module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.util.io">immuno_probs.util.io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-immuno_probs.util.processing">immuno_probs.util.processing module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">immuno_probs</a> &raquo;</li>
+        
+          <li><a href="immuno_probs.html">immuno_probs package</a> &raquo;</li>
+        
+      <li>immuno_probs.util package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="immuno-probs-util-package">
+<h1>immuno_probs.util package<a class="headerlink" href="#immuno-probs-util-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-immuno_probs.util.cli">
+<span id="immuno-probs-util-cli-module"></span><h2>immuno_probs.util.cli module<a class="headerlink" href="#module-immuno_probs.util.cli" title="Permalink to this headline">¶</a></h2>
+<p>Contains a collection of commandline processing functions.</p>
+<dl class="function">
+<dt id="immuno_probs.util.cli.dynamic_cli_options">
+<code class="descclassname">immuno_probs.util.cli.</code><code class="descname">dynamic_cli_options</code><span class="sig-paren">(</span><em>parser</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/cli.html#dynamic_cli_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.cli.dynamic_cli_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Semi-dynamically adds options to the given commandline parser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parser</strong> (<em>argparse.ArgumentParser</em>) – ArgumentParser to use for appending options.</li>
+<li><strong>options</strong> (<em>dict</em>) – A Python dict with key being the full name of the option. The value is a dict that corresponds to input arguments of
+the ArgumentParser.add_argument function. Make sure surround the ‘type’ argument value with quotes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Containing the expected commandline arguments. Note that the commandline arguments are not yet parsed.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser" title="(in Python v3.8)">argparse.ArgumentParser</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.util.constant">
+<span id="immuno-probs-util-constant-module"></span><h2>immuno_probs.util.constant module<a class="headerlink" href="#module-immuno_probs.util.constant" title="Permalink to this headline">¶</a></h2>
+<p>Contains a collection of global constant variables.</p>
+<dl class="function">
+<dt id="immuno_probs.util.constant.get_config_data">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">get_config_data</code><span class="sig-paren">(</span><em>section</em>, <em>value</em>, <em>option_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#get_config_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.get_config_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects and returns the global CONFIG_DATA variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>section</strong> (<em>str</em>) – The section where the given option is located.</li>
+<li><strong>value</strong> (<em>str</em>) – The option to return its value from.</li>
+<li><strong>option_type</strong> (<em>str, optional</em>) – The type of the option to return its value from, by default returns a string. Currently supported values are ‘bool’
+for boolean, ‘int’ for integer and ‘float’ for float.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The value of the option within the configuration file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.constant.set_config_data">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">set_config_data</code><span class="sig-paren">(</span><em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#set_config_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.set_config_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets and updates the global CONFIG_DATA variable by parsing config files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str, optional</em>) – An optional ImmunoProbs configuration file path to parse besides the default file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.constant.set_num_threads">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">set_num_threads</code><span class="sig-paren">(</span><em>value=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#set_num_threads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.set_num_threads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets and updates the global NUM_THREADS variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value</strong> (<em>int, optional</em>) – The number of threads the program is allowed to use (default: max available threads).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – When the NUM_THREADS global variable is not an integer.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – When the NUM_THREADS global variable is smaller then 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.constant.set_out_name">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">set_out_name</code><span class="sig-paren">(</span><em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#set_out_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.set_out_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets and updates the global OUT_NAME variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str, optional</em>) – The output file name string to use when writing output files or when prefixing output files (default: None).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.constant.set_separator">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">set_separator</code><span class="sig-paren">(</span><em>value='tab'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#set_separator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.set_separator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets and updates the global SEPARATOR variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str, optional</em>) – The separator character to be used when writing files (default: tab character).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – When the SEPARATOR global variable is not of type string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.constant.set_working_dir">
+<code class="descclassname">immuno_probs.util.constant.</code><code class="descname">set_working_dir</code><span class="sig-paren">(</span><em>value='/home/runner/work/immuno-probs/immuno-probs/docs'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/constant.html#set_working_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.constant.set_working_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets and updates the global WORKING_DIR variable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value</strong> (<em>str, optional</em>) – The directory path to use when writing output files (default: the current working directory).</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – When the WORKING_DIR global variable is not of type string.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IOError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IOError</span></code></a> – When the WORKING_DIR global variable directory does not exist on the system.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.util.conversion">
+<span id="immuno-probs-util-conversion-module"></span><h2>immuno_probs.util.conversion module<a class="headerlink" href="#module-immuno_probs.util.conversion" title="Permalink to this headline">¶</a></h2>
+<p>Contains a collection of conversion functions.</p>
+<dl class="function">
+<dt id="immuno_probs.util.conversion.integers_to_nucleotides">
+<code class="descclassname">immuno_probs.util.conversion.</code><code class="descname">integers_to_nucleotides</code><span class="sig-paren">(</span><em>int_seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/conversion.html#integers_to_nucleotides"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.conversion.integers_to_nucleotides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a integer sequence to an nucleotide representation.</p>
+<p>The base characters in the integer string (0, 1, 2 and 3) are converted to the following: 0 -&gt; A, 1 -&gt; C, 2 -&gt; G
+and 3 -&gt; T. The combined string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>int_seq</strong> (<em>str</em>) – A integer sequence string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The nucleotide representation string for the given integer sequence.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.conversion.nucleotides_to_aminoacids">
+<code class="descclassname">immuno_probs.util.conversion.</code><code class="descname">nucleotides_to_aminoacids</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/conversion.html#nucleotides_to_aminoacids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.conversion.nucleotides_to_aminoacids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a nucleotide sequence to an aminoacid sequence. Stop codons are indicated as ‘*’ characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seq</strong> (<em>str</em>) – A nucleotide sequence string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A aminoacid sequence string.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.conversion.nucleotides_to_integers">
+<code class="descclassname">immuno_probs.util.conversion.</code><code class="descname">nucleotides_to_integers</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/conversion.html#nucleotides_to_integers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.conversion.nucleotides_to_integers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a nucleotide sequence to an interger representation.</p>
+<p>The base characters in the nucleotide string (A, C, G and T) are converted to the following: A -&gt; 0, C -&gt; 1, G -&gt; 2
+and T -&gt; 3. The combined uppercase string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seq</strong> (<em>str</em>) – A nucleotide sequence string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The interger representation string for the given nucleotide sequence.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.conversion.reverse_complement">
+<code class="descclassname">immuno_probs.util.conversion.</code><code class="descname">reverse_complement</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/conversion.html#reverse_complement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.conversion.reverse_complement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a nucleotide sequence to reverse complement.</p>
+<p>The base characters in the nucleotide string (A, C, G and T) are converted to the following: A &lt;-&gt; T and C &lt;-&gt; G. The
+combined uppercase string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seq</strong> (<em>str</em>) – A nucleotide sequence string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The reverse complemented nucleotide sequence.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.conversion.string_array_to_list">
+<code class="descclassname">immuno_probs.util.conversion.</code><code class="descname">string_array_to_list</code><span class="sig-paren">(</span><em>in_str</em>, <em>dtype=&lt;type 'float'&gt;</em>, <em>l_bound='('</em>, <em>r_bound=')'</em>, <em>sep='</em>, <em>'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/conversion.html#string_array_to_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.conversion.string_array_to_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string representation of an array to a python list.</p>
+<p>Removes the given boundary characters from the string and separates the individual items on the given seperator
+character. Each item is converted to the given dtype. The python list is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>in_str</strong> (<em>str</em>) – A array representated as string.</li>
+<li><strong>dtype</strong> (<em>type, optional</em>) – The dtype to used for converting the individual the list elements. By default uses float.</li>
+<li><strong>l_bound</strong> (<em>str, optional</em>) – A string specifying the left boundary character(s) (default: ‘(‘).</li>
+<li><strong>r_bound</strong> (<em>str, optional</em>) – A string specifying the right boundary character(s) (default: ‘)’).</li>
+<li><strong>sep</strong> (<em>str, optional</em>) – The separator character used in the input string (default: ‘,’).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The converted input string as python list.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – When the given seperator or left/right bound characters are not found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.util.io">
+<span id="immuno-probs-util-io-module"></span><h2>immuno_probs.util.io module<a class="headerlink" href="#module-immuno_probs.util.io" title="Permalink to this headline">¶</a></h2>
+<p>Contains a collection of I/O related processing functions.</p>
+<dl class="function">
+<dt id="immuno_probs.util.io.copy_to_dir">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">copy_to_dir</code><span class="sig-paren">(</span><em>directory</em>, <em>file</em>, <em>extension</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#copy_to_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.copy_to_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies a file to directory and modifies the extension name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>directory</strong> (<em>str</em>) – A directory path to write the file to.</li>
+<li><strong>file</strong> (<em>str</em>) – A FASTA file path for a reference genomic template file.</li>
+<li><strong>extension</strong> (<em>str</em>) – An extension name, if the same, file will NOT be coppied.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A string file path to the new file location and name.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.create_directory_path">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">create_directory_path</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#create_directory_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.create_directory_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates and creates given directory path by adding a number at the end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) – A directory path location to create recursively.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The updated output directory location path.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.is_fasta">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">is_fasta</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#is_fasta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.is_fasta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the input file is valid FASTA.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>str</em>) – Location of the FASTA file to be tested.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.is_separated">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">is_separated</code><span class="sig-paren">(</span><em>file</em>, <em>separator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#is_separated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.is_separated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the input file is a valid separated data file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file</strong> (<em>str</em>) – Location of the separated data file to be tested.</li>
+<li><strong>separator</strong> (<em>str</em>) – A separator character used for separating the fields in the file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.preprocess_reference_file">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">preprocess_reference_file</code><span class="sig-paren">(</span><em>directory</em>, <em>file</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#preprocess_reference_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.preprocess_reference_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the IMGT reference genome files for IGoR.</p>
+<p>The sequence is always formatted to uppercase and ‘.’ characters are removed from the sequence string. Make sure to use
+IMGT in and out-frame reference files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>directory</strong> (<em>str</em>) – A directory path to write the file to.</li>
+<li><strong>file</strong> (<em>str</em>) – A FASTA file path for a reference genomic template file.</li>
+<li><strong>index</strong> (<em>int, optional</em>) – Index of the header line to keep after splitting on ‘|’ (default: none).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A string file path to the new reference FASTA file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.preprocess_separated_file">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">preprocess_separated_file</code><span class="sig-paren">(</span><em>directory</em>, <em>file</em>, <em>in_sep</em>, <em>out_sep</em>, <em>index_col=None</em>, <em>cols=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#preprocess_separated_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.preprocess_separated_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the input sequence file for IGoR.</p>
+<p>Returns the input file path if no changes will be applied to the file. This means, the input seperator and output
+seperator are equal to each other and the ‘cols’ attribute has not been specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>directory</strong> (<em>str</em>) – A directory path to write the file to.</li>
+<li><strong>file</strong> (<em>str</em>) – A separated data data file path to process for IGoR.</li>
+<li><strong>in_sep</strong> (<em>str</em>) – The input file seperator.</li>
+<li><strong>out_sep</strong> (<em>str</em>) – The wanted output file seperator.</li>
+<li><strong>index_col</strong> (<em>str, optional</em>) – The name of the index column to use. If specified and given column is not found in the dataframe, the index values
+are generated (default: no index column)</li>
+<li><strong>cols</strong> (<em>list, optional</em>) – Containing column names to keep in the output file. The order will change the output file column formatting
+(default: includes all columns in the output file).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A string file path to the newly created file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.read_fasta_as_dataframe">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">read_fasta_as_dataframe</code><span class="sig-paren">(</span><em>file</em>, <em>col</em>, <em>header=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#read_fasta_as_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.read_fasta_as_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a pandas.DataFrame from the FASTA file.</p>
+<p>The dataframe contains header name and sequence columns containing the corresponding FASTA data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file</strong> (<em>str</em>) – Location of the FASTA file to be read in.</li>
+<li><strong>col</strong> (<em>str</em>) – The name of the FASTA sequence column.</li>
+<li><strong>header</strong> (<em>str, optional</em>) – The name of the FASTA header column. If not given, the header is not included in the dataframe.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.read_separated_to_dataframe">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">read_separated_to_dataframe</code><span class="sig-paren">(</span><em>file</em>, <em>separator</em>, <em>index_col=None</em>, <em>cols=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#read_separated_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.read_separated_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a separated file as pandas.DataFrame object.</p>
+<p>Comments (‘#’) in the file are skipped. If the given index column contains NA values, the column is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file</strong> (<em>str</em>) – File path to be read in as dataframe.</li>
+<li><strong>separator</strong> (<em>str</em>) – A separator character used for separating the fields in the file.</li>
+<li><strong>index_col</strong> (<em>str, optional</em>) – The name of the index column to use. If specified and given column is not found in the dataframe, the index values
+are generated (default: no index column).</li>
+<li><strong>cols</strong> (<em>list, optional</em>) – Containing column names to keep in the output file. The order will change the output file column formatting
+(default: includes all columns in the output file).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.8)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> – If DataFrame is empty or the specified columns were not found in the input file.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="immuno_probs.util.io.write_dataframe_to_separated">
+<code class="descclassname">immuno_probs.util.io.</code><code class="descname">write_dataframe_to_separated</code><span class="sig-paren">(</span><em>dataframe</em>, <em>filename</em>, <em>directory</em>, <em>separator</em>, <em>index_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/io.html#write_dataframe_to_separated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.io.write_dataframe_to_separated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a pandas.DataFrame to a separated formatted data file.</p>
+<p>If the file already exists, a number will be appended to the filename. The given output directory is created recursively
+if it does not exist. The column names in the dataframe is used as first line in the file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataframe</strong> (<em>pandas.DataFrame</em>) – The dataframe to be written to the separated data file.</li>
+<li><strong>filename</strong> (<em>str</em>) – Base filename for writting the file, excluding the extension.</li>
+<li><strong>directory</strong> (<em>str</em>) – A directory path location to create recursively.</li>
+<li><strong>separator</strong> (<em>str</em>) – A separator character used for separating the fields in the file.</li>
+<li><strong>index_name</strong> (<em>str, optional</em>) – The output column name for the dataframe index (default: will not write the index to the file).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Containing the output directory and the name of the file that has been written to disk.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-immuno_probs.util.processing">
+<span id="immuno-probs-util-processing-module"></span><h2>immuno_probs.util.processing module<a class="headerlink" href="#module-immuno_probs.util.processing" title="Permalink to this headline">¶</a></h2>
+<p>Contains a multi-processing function.</p>
+<dl class="function">
+<dt id="immuno_probs.util.processing.multiprocess_array">
+<code class="descclassname">immuno_probs.util.processing.</code><code class="descname">multiprocess_array</code><span class="sig-paren">(</span><em>ary</em>, <em>func</em>, <em>num_workers</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/immuno_probs/util/processing.html#multiprocess_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#immuno_probs.util.processing.multiprocess_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies multi-processing on a segemented array using the given function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ary</strong> (<em>list</em>) – List ‘like’ object to be split for multiple workers.</li>
+<li><strong>func</strong> (<em>Object</em>) – A function object that the workers should apply on the input data array.</li>
+<li><strong>num_workers</strong> (<em>int</em>) – The number of threads the program is allowed to use. This number is used to split up the input array into various
+segments.</li>
+<li><strong>**kwargs</strong> – The remaining arguments to be given to the input function.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Containing the results from each of the workers.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="immuno_probs.model.html" class="btn btn-neutral float-left" title="immuno_probs.model package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

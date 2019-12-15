@@ -1,0 +1,543 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.util.io &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.util.io</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.util.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains a collection of I/O related processing functions.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy2</span>
+
+<span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">from</span> <span class="nn">Bio.Seq</span> <span class="kn">import</span> <span class="n">Seq</span>
+<span class="kn">from</span> <span class="nn">Bio.SeqIO.FastaIO</span> <span class="kn">import</span> <span class="n">SimpleFastaParser</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+
+<div class="viewcode-block" id="create_directory_path"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.create_directory_path">[docs]</a><span class="k">def</span> <span class="nf">create_directory_path</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates and creates given directory path by adding a number at the end.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory : str</span>
+<span class="sd">        A directory path location to create recursively.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The updated output directory location path.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if the directory name is unique, modify name if necessary.</span>
+    <span class="n">dir_count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">updated_directory</span> <span class="o">=</span> <span class="n">directory</span>
+
+    <span class="c1"># Keep modifying the name until it doesn&#39;t exist.</span>
+    <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_directory</span><span class="p">)):</span>
+        <span class="n">updated_directory</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dir_count</span><span class="p">)</span>
+        <span class="n">dir_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Finally create directory&#39;s recursively if not exists.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">updated_directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">updated_directory</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">updated_directory</span></div>
+
+
+<div class="viewcode-block" id="is_fasta"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.is_fasta">[docs]</a><span class="k">def</span> <span class="nf">is_fasta</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if the input file is valid FASTA.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Location of the FASTA file to be tested.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fasta_file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="is_separated"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.is_separated">[docs]</a><span class="k">def</span> <span class="nf">is_separated</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">separator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks if the input file is a valid separated data file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Location of the separated data file to be tested.</span>
+<span class="sd">    separator : str</span>
+<span class="sd">        A separator character used for separating the fields in the file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">empty</span></div>
+
+
+<div class="viewcode-block" id="read_fasta_as_dataframe"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.read_fasta_as_dataframe">[docs]</a><span class="k">def</span> <span class="nf">read_fasta_as_dataframe</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a pandas.DataFrame from the FASTA file.</span>
+
+<span class="sd">    The dataframe contains header name and sequence columns containing the corresponding FASTA data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Location of the FASTA file to be read in.</span>
+<span class="sd">    col : str</span>
+<span class="sd">        The name of the FASTA sequence column.</span>
+<span class="sd">    header : str, optional</span>
+<span class="sd">        The name of the FASTA header column. If not given, the header is not included in the dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Setup the column names.</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
+
+    <span class="c1"># Create a dataframe and read in the fasta file.</span>
+    <span class="n">fasta_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fasta_file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">SimpleFastaParser</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+                <span class="n">fasta_df</span> <span class="o">=</span> <span class="n">fasta_df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">header</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="n">sequence</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fasta_df</span> <span class="o">=</span> <span class="n">fasta_df</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="n">sequence</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fasta_df</span></div>
+
+
+<div class="viewcode-block" id="read_separated_to_dataframe"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.read_separated_to_dataframe">[docs]</a><span class="k">def</span> <span class="nf">read_separated_to_dataframe</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read in a separated file as pandas.DataFrame object.</span>
+
+<span class="sd">    Comments (&#39;#&#39;) in the file are skipped. If the given index column contains NA values, the column is ignored.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        File path to be read in as dataframe.</span>
+<span class="sd">    separator : str</span>
+<span class="sd">        A separator character used for separating the fields in the file.</span>
+<span class="sd">    index_col : str, optional</span>
+<span class="sd">        The name of the index column to use. If specified and given column is not found in the dataframe, the index values</span>
+<span class="sd">        are generated (default: no index column).</span>
+<span class="sd">    cols : list, optional</span>
+<span class="sd">        Containing column names to keep in the output file. The order will change the output file column formatting</span>
+<span class="sd">        (default: includes all columns in the output file).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    -------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If DataFrame is empty or the specified columns were not found in the input file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read in columns of the given file.</span>
+    <span class="k">if</span> <span class="n">cols</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index_col</span><span class="p">:</span>
+            <span class="n">cols</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_col</span><span class="p">)</span>
+        <span class="n">separated_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">usecols</span><span class="o">=</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">,</span>
+                                       <span class="n">na_values</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;na&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="s1">&#39;unresolved&#39;</span><span class="p">,</span> <span class="s1">&#39;no data&#39;</span><span class="p">],</span>
+                                       <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">separated_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;DataFrame is empty, columns &#39;</span><span class="si">{}</span><span class="s2">&#39; where not found&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">separated_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">na_values</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;na&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="s1">&#39;unresolved&#39;</span><span class="p">,</span> <span class="s1">&#39;no data&#39;</span><span class="p">],</span>
+                                       <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">separated_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The input DataFrame is empty&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set the index column, only use if no NA values.</span>
+    <span class="k">if</span> <span class="n">index_col</span> <span class="ow">and</span> <span class="n">index_col</span> <span class="ow">in</span> <span class="n">separated_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">separated_df</span><span class="p">[</span><span class="n">index_col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">separated_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">separated_df</span></div>
+
+
+<div class="viewcode-block" id="write_dataframe_to_separated"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.write_dataframe_to_separated">[docs]</a><span class="k">def</span> <span class="nf">write_dataframe_to_separated</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Writes a pandas.DataFrame to a separated formatted data file.</span>
+
+<span class="sd">    If the file already exists, a number will be appended to the filename. The given output directory is created recursively</span>
+<span class="sd">    if it does not exist. The column names in the dataframe is used as first line in the file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe : pandas.DataFrame</span>
+<span class="sd">        The dataframe to be written to the separated data file.</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Base filename for writting the file, excluding the extension.</span>
+<span class="sd">    directory : str</span>
+<span class="sd">        A directory path location to create recursively.</span>
+<span class="sd">    separator : str</span>
+<span class="sd">        A separator character used for separating the fields in the file.</span>
+<span class="sd">    index_name : str, optional</span>
+<span class="sd">        The output column name for the dataframe index (default: will not write the index to the file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Containing the output directory and the name of the file that has been written to disk.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if the filename is unique, modify name if necessary.</span>
+    <span class="n">file_count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">updated_filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+    <span class="n">extension</span> <span class="o">=</span> <span class="s1">&#39;.csv&#39;</span>
+    <span class="k">if</span> <span class="n">separator</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">:</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="s1">&#39;.tsv&#39;</span>
+
+    <span class="c1"># Keep modifying the filename until it doesn&#39;t exist.</span>
+    <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="n">extension</span><span class="p">)):</span>
+        <span class="n">updated_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_count</span><span class="p">)</span>
+        <span class="n">file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Write dataframe contents to separated file and return info.</span>
+    <span class="n">enable_index</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">index_name</span><span class="p">:</span>
+        <span class="n">enable_index</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">path_or_buf</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="n">extension</span><span class="p">),</span>
+        <span class="n">sep</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">enable_index</span><span class="p">,</span>
+        <span class="n">index_label</span><span class="o">=</span><span class="n">index_name</span><span class="p">,</span>
+        <span class="n">na_rep</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">updated_filename</span> <span class="o">+</span> <span class="n">extension</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preprocess_separated_file"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.preprocess_separated_file">[docs]</a><span class="k">def</span> <span class="nf">preprocess_separated_file</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">in_sep</span><span class="p">,</span> <span class="n">out_sep</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Formats the input sequence file for IGoR.</span>
+
+<span class="sd">    Returns the input file path if no changes will be applied to the file. This means, the input seperator and output</span>
+<span class="sd">    seperator are equal to each other and the &#39;cols&#39; attribute has not been specified.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory : str</span>
+<span class="sd">        A directory path to write the file to.</span>
+<span class="sd">    file : str</span>
+<span class="sd">        A separated data data file path to process for IGoR.</span>
+<span class="sd">    in_sep : str</span>
+<span class="sd">        The input file seperator.</span>
+<span class="sd">    out_sep : str</span>
+<span class="sd">        The wanted output file seperator.</span>
+<span class="sd">    index_col : str, optional</span>
+<span class="sd">        The name of the index column to use. If specified and given column is not found in the dataframe, the index values</span>
+<span class="sd">        are generated (default: no index column)</span>
+<span class="sd">    cols : list, optional</span>
+<span class="sd">        Containing column names to keep in the output file. The order will change the output file column formatting</span>
+<span class="sd">        (default: includes all columns in the output file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A string file path to the newly created file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If the seperators are the same and no columns are given, return the input.</span>
+    <span class="k">if</span> <span class="n">out_sep</span> <span class="o">==</span> <span class="n">in_sep</span> <span class="ow">and</span> <span class="n">cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">file</span>
+
+    <span class="c1"># Create the output directory.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="c1"># Open the sequence input file.</span>
+    <span class="n">sequence_df</span> <span class="o">=</span> <span class="n">read_separated_to_dataframe</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="n">in_sep</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+
+    <span class="c1"># Write the new pandas dataframe to a separated file.</span>
+    <span class="n">directory</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">write_dataframe_to_separated</span><span class="p">(</span>
+        <span class="n">dataframe</span><span class="o">=</span><span class="n">sequence_df</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)),</span>
+        <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
+        <span class="n">separator</span><span class="o">=</span><span class="n">out_sep</span><span class="p">,</span>
+        <span class="n">index_name</span><span class="o">=</span><span class="n">index_col</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preprocess_reference_file"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.preprocess_reference_file">[docs]</a><span class="k">def</span> <span class="nf">preprocess_reference_file</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Formats the IMGT reference genome files for IGoR.</span>
+
+<span class="sd">    The sequence is always formatted to uppercase and &#39;.&#39; characters are removed from the sequence string. Make sure to use</span>
+<span class="sd">    IMGT in and out-frame reference files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory : str</span>
+<span class="sd">        A directory path to write the file to.</span>
+<span class="sd">    file : str</span>
+<span class="sd">        A FASTA file path for a reference genomic template file.</span>
+<span class="sd">    index : int, optional</span>
+<span class="sd">        Index of the header line to keep after splitting on &#39;|&#39; (default: none).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A string file path to the new reference FASTA file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create the output directory.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="c1"># Open the fasta file and update the fasta header.</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+            <span class="n">rec</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rec</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">description</span>
+        <span class="n">rec</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">rec</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="n">Seq</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)))</span>
+
+    <span class="c1"># Write out the modified file.</span>
+    <span class="n">updated_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="n">SeqIO</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">updated_path</span><span class="p">,</span> <span class="s2">&quot;fasta&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">updated_path</span></div>
+
+
+<div class="viewcode-block" id="copy_to_dir"><a class="viewcode-back" href="../../../source/immuno_probs.util.html#immuno_probs.util.io.copy_to_dir">[docs]</a><span class="k">def</span> <span class="nf">copy_to_dir</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Copies a file to directory and modifies the extension name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory : str</span>
+<span class="sd">        A directory path to write the file to.</span>
+<span class="sd">    file : str</span>
+<span class="sd">        A FASTA file path for a reference genomic template file.</span>
+<span class="sd">    extension : str</span>
+<span class="sd">        An extension name, if the same, file will NOT be coppied.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A string file path to the new file location and name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if file name extension if different, or return.</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">file_extension</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">extension</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">file</span>
+
+    <span class="c1"># Copy file to given directory if necessary.</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">extension</span><span class="p">)</span>
+    <span class="n">copy2</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_file</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

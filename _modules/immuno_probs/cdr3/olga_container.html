@@ -1,0 +1,516 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>immuno_probs.cdr3.olga_container &mdash; ImmunoProbs 0.2.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> ImmunoProbs
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">Readme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Use cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">immuno_probs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ImmunoProbs</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>immuno_probs.cdr3.olga_container</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for immuno_probs.cdr3.olga_container</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Create IGoR models and calculate the generation probability of V(D)J and</span>
+<span class="c1"># CDR3 sequences. Copyright (C) 2019 Wout van Helvoirt</span>
+
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+
+<span class="sd">&quot;&quot;&quot;Contains OlgaContainer class for generating and evaluating CDR3 sequences.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">olga.sequence_generation</span> <span class="k">as</span> <span class="nn">olga_seq_gen</span>
+<span class="kn">import</span> <span class="nn">olga.generation_probability</span> <span class="k">as</span> <span class="nn">olga_pgen</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">immuno_probs.util.conversion</span> <span class="kn">import</span> <span class="n">nucleotides_to_aminoacids</span>
+<span class="kn">from</span> <span class="nn">immuno_probs.util.processing</span> <span class="kn">import</span> <span class="n">multiprocess_array</span>
+
+
+<div class="viewcode-block" id="OlgaContainer"><a class="viewcode-back" href="../../../source/immuno_probs.cdr3.html#immuno_probs.cdr3.olga_container.OlgaContainer">[docs]</a><span class="k">class</span> <span class="nc">OlgaContainer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates and/or evaluates CDR3 sequences using given an IGoR model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    igor_model : immuno_probs.model.igor_loader.IgorLoader</span>
+<span class="sd">        IgorLoader object containing the loaded IGoR VJ or VDJ model.</span>
+<span class="sd">    nt_col : str</span>
+<span class="sd">        The name of the nucleotide sequence column to use.</span>
+<span class="sd">    nt_p_col : str</span>
+<span class="sd">        The name of the nucleotide Pgen column to use.</span>
+<span class="sd">    aa_col : str</span>
+<span class="sd">        The name of the aminoacid sequence column to use.</span>
+<span class="sd">    aa_p_col : str</span>
+<span class="sd">        The name of the aminoacid Pgen column to use.</span>
+<span class="sd">    v_gene_choice_col : str</span>
+<span class="sd">        The name of the V gene choice column to use.</span>
+<span class="sd">    j_gene_choice_col : str</span>
+<span class="sd">        The name of the J gene choice column to use.</span>
+
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    generate(num_seqs)</span>
+<span class="sd">        Returns pandas.DataFrame with nucleotide and aminoacid CDR3 sequences.</span>
+<span class="sd">    evaluate(seq, num_threads, use_allele=True, default_allele=None)</span>
+<span class="sd">        Returns the generation probability value for the given sequences.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">igor_model</span><span class="p">,</span> <span class="n">nt_col</span><span class="p">,</span> <span class="n">nt_p_col</span><span class="p">,</span> <span class="n">aa_col</span><span class="p">,</span> <span class="n">aa_p_col</span><span class="p">,</span> <span class="n">v_gene_choice_col</span><span class="p">,</span> <span class="n">j_gene_choice_col</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OlgaContainer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span> <span class="o">=</span> <span class="n">igor_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;NT_COL&#39;</span><span class="p">:</span> <span class="n">nt_col</span><span class="p">,</span>
+            <span class="s1">&#39;NT_P_COL&#39;</span><span class="p">:</span> <span class="n">nt_p_col</span><span class="p">,</span>
+            <span class="s1">&#39;AA_COL&#39;</span><span class="p">:</span> <span class="n">aa_col</span><span class="p">,</span>
+            <span class="s1">&#39;AA_P_COL&#39;</span><span class="p">:</span> <span class="n">aa_p_col</span><span class="p">,</span>
+            <span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">:</span> <span class="n">v_gene_choice_col</span><span class="p">,</span>
+            <span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">:</span> <span class="n">j_gene_choice_col</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="OlgaContainer.generate"><a class="viewcode-back" href="../../../source/immuno_probs.cdr3.html#immuno_probs.cdr3.olga_container.OlgaContainer.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_seqs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a given number of CDR3 sequences through OLGA.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_seqs : int</span>
+<span class="sd">            An integer specifying the number of sequences to generate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            Containing columns with sequence index, nucleotide CDR3 sequence, amino acid CDR3 sequence, the index of the</span>
+<span class="sd">            chosen V gene and the index of the chosen J gene.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            When the model type does not equal &#39;VDJ&#39; or &#39;VJ&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the dataframe and set the generation objects.</span>
+        <span class="n">generated_seqs</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">],</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">],</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]])</span>
+        <span class="n">seq_gen_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;VDJ&quot;</span><span class="p">:</span>
+            <span class="n">seq_gen_model</span> <span class="o">=</span> <span class="n">olga_seq_gen</span><span class="o">.</span><span class="n">SequenceGenerationVDJ</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_generative_model</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;VJ&quot;</span><span class="p">:</span>
+            <span class="n">seq_gen_model</span> <span class="o">=</span> <span class="n">olga_seq_gen</span><span class="o">.</span><span class="n">SequenceGenerationVJ</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_generative_model</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;OLGA could not create a SequenceGeneration object since model is not of type &#39;VDJ&#39; or &#39;VJ&#39;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Generate the sequences, add them to the dataframe and return.</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_seqs</span><span class="p">):</span>
+            <span class="n">generated_seq</span> <span class="o">=</span> <span class="n">seq_gen_model</span><span class="o">.</span><span class="n">gen_rnd_prod_CDR3</span><span class="p">()</span>
+            <span class="n">generated_seqs</span> <span class="o">=</span> <span class="n">generated_seqs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]:</span> <span class="n">generated_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]:</span> <span class="n">generated_seq</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">()</span><span class="o">.</span><span class="n">genV</span><span class="p">[</span><span class="n">generated_seq</span><span class="p">[</span><span class="mi">2</span><span class="p">]][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">()</span><span class="o">.</span><span class="n">genJ</span><span class="p">[</span><span class="n">generated_seq</span><span class="p">[</span><span class="mi">3</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">},</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generated_seqs</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_locate_genes</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">ref_genes</span><span class="p">,</span> <span class="n">use_allele</span><span class="p">,</span> <span class="n">default_allele</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Locates all the given gene values in the reference gene list.</span>
+
+<span class="sd">        If a gene family value is specified instead of the whole gene (family + gene identifier), all possible genes within</span>
+<span class="sd">        that family are located.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        genes : list</span>
+<span class="sd">            Containing gene string values that need to be located.</span>
+<span class="sd">        ref_genes : list</span>
+<span class="sd">            Containing reference gene string values.</span>
+<span class="sd">        use_allele : bool</span>
+<span class="sd">            If True, the allele information from the input genes is used instead of the &#39;default_allele&#39; value.</span>
+<span class="sd">        default_allele : str</span>
+<span class="sd">            A default allele value to use when spliting gene choices, and &#39;use_allele&#39; option is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list with the genes that where located in the reference genes list. If no genes where found, an empty list</span>
+<span class="sd">            is returned.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For each given gene, split up the name into family, gene and allele.</span>
+        <span class="n">located_genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">allele</span> <span class="o">=</span> <span class="n">default_allele</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+            <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="n">family</span><span class="p">,</span> <span class="n">gene</span><span class="p">,</span> <span class="n">allele</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">family</span><span class="p">,</span> <span class="n">gene</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">family</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">use_allele</span><span class="p">:</span>
+                <span class="n">allele</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Collect the subsection of the genes using the reference genes.</span>
+            <span class="k">if</span> <span class="n">family</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gene</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">allele</span><span class="p">:</span>
+                    <span class="n">located_genes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ref_genes</span>
+                         <span class="k">if</span> <span class="n">family</span> <span class="ow">in</span> <span class="n">i</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">allele</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">located_genes</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ref_genes</span> <span class="k">if</span> <span class="n">family</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">family</span> <span class="ow">and</span> <span class="n">gene</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">allele</span><span class="p">:</span>
+                    <span class="n">located_genes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ref_genes</span>
+                         <span class="k">if</span> <span class="n">family</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">i</span> <span class="ow">and</span> <span class="s1">&#39;*&#39;</span> <span class="o">+</span> <span class="n">allele</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">located_genes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ref_genes</span> <span class="k">if</span> <span class="n">family</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">located_genes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Private function for evaluating a given nucleotide CDR3 sequence by using OLGA.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : list</span>
+<span class="sd">            The arguments from the &#39;multiprocess_array&#39; function. Consists of an pandas.DataFrame and additional kwargs like</span>
+<span class="sd">            a GenerationProbability object, the column name containing the nucleotide sequences and value to use as allele information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            Containing columns sequence index number, the generation probability of nucleotide sequence if given and the</span>
+<span class="sd">            generation probability of aminoacid sequence if given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the arguments and pandas.DataFrame.</span>
+        <span class="n">ary</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+        <span class="n">use_allele</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;use_allele&quot;</span><span class="p">]</span>
+        <span class="n">default_allele</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;default_allele&quot;</span><span class="p">]</span>
+        <span class="n">ref_genes_v</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">()</span><span class="o">.</span><span class="n">genV</span><span class="p">]</span>
+        <span class="n">ref_genes_j</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">()</span><span class="o">.</span><span class="n">genJ</span><span class="p">]</span>
+        <span class="n">pgen_seqs</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">ary</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_P_COL&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_P_COL&#39;</span><span class="p">]])</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+
+            <span class="c1"># Evaluate the sequences with V/J gene columns.</span>
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                 <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">))</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                         <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">))):</span>
+
+                <span class="c1"># Create all V/J gene combinations for pgen calculation.</span>
+                <span class="n">located_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locate_genes</span><span class="p">(</span>
+                    <span class="n">genes</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;V_GENE_CHOICE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">),</span>
+                    <span class="n">ref_genes</span><span class="o">=</span><span class="n">ref_genes_v</span><span class="p">,</span> <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                    <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span><span class="p">)</span>
+                <span class="n">located_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locate_genes</span><span class="p">(</span>
+                    <span class="n">genes</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;J_GENE_CHOICE_COL&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">),</span>
+                    <span class="n">ref_genes</span><span class="o">=</span><span class="n">ref_genes_j</span><span class="p">,</span> <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+                    <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span><span class="p">)</span>
+                <span class="n">permutations</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">located_v</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">located_j</span><span class="p">]</span>
+
+                <span class="c1"># For the nucleotide sequence if exists.</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">)):</span>
+                    <span class="n">sum_pgen</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">v_gene</span><span class="p">,</span> <span class="n">j_gene</span> <span class="ow">in</span> <span class="n">permutations</span><span class="p">:</span>
+                        <span class="n">sum_pgen</span> <span class="o">+=</span> <span class="n">model</span><span class="o">.</span><span class="n">compute_nt_CDR3_pgen</span><span class="p">(</span>
+                            <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]],</span> <span class="n">v_gene</span><span class="p">,</span> <span class="n">j_gene</span><span class="p">)</span>
+                    <span class="n">pgen_seqs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:][</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_P_COL&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sum_pgen</span>
+
+                <span class="c1"># For the amino acid sequence if exists.</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">)):</span>
+                    <span class="n">sum_pgen</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">v_gene</span><span class="p">,</span> <span class="n">j_gene</span> <span class="ow">in</span> <span class="n">permutations</span><span class="p">:</span>
+                        <span class="n">sum_pgen</span> <span class="o">+=</span> <span class="n">model</span><span class="o">.</span><span class="n">compute_aa_CDR3_pgen</span><span class="p">(</span>
+                            <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]],</span> <span class="n">v_gene</span><span class="p">,</span> <span class="n">j_gene</span><span class="p">)</span>
+                    <span class="n">pgen_seqs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:][</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_P_COL&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sum_pgen</span>
+
+            <span class="c1"># If no V/J gene choice column, use less complicated method.</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># For the nucleotide sequence if exists.</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">)):</span>
+                    <span class="n">pgen_seqs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:][</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_P_COL&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                        <span class="n">model</span><span class="o">.</span><span class="n">compute_nt_CDR3_pgen</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]])</span>
+
+                <span class="c1"># For the amino acid sequence if exists.</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ary</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]],</span> <span class="nb">str</span><span class="p">)):</span>
+                    <span class="n">pgen_seqs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:][</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_P_COL&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                        <span class="n">model</span><span class="o">.</span><span class="n">compute_aa_CDR3_pgen</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">pgen_seqs</span>
+
+<div class="viewcode-block" id="OlgaContainer.evaluate"><a class="viewcode-back" href="../../../source/immuno_probs.cdr3.html#immuno_probs.cdr3.olga_container.OlgaContainer.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seqs</span><span class="p">,</span> <span class="n">num_threads</span><span class="p">,</span> <span class="n">use_allele</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_allele</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate a given nucleotide CDR3 sequences using OLGA.</span>
+
+<span class="sd">        This function also checks if the given input sequence file contains the gene index columns for the V and J gene.</span>
+<span class="sd">        If so, then the V and J gene masks in these columns are used to increase calculation accuracy of the generation</span>
+<span class="sd">        probabality values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        seqs : pandas.DataFrame</span>
+<span class="sd">            A pandas dataframe object containing a column with nucleotide CDR3 sequences and/or amino acid sequences.</span>
+<span class="sd">        num_threads : int</span>
+<span class="sd">            The number of threads to use when processing the sequences.</span>
+<span class="sd">        use_allele : bool, optional</span>
+<span class="sd">            If True, the allele information from the input genes is used instead of the &#39;default_allele&#39; value (default: True).</span>
+<span class="sd">        default_allele : str, optional</span>
+<span class="sd">            A default allele value to use when spliting gene choices, and &#39;use_allele&#39; option is False (default: None).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            Containing the sequence index number, the generation probability of nucleotide sequence if given and the</span>
+<span class="sd">            generation probability of aminoacid sequence if given.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            When the model type does not equal &#39;VDJ&#39; or &#39;VJ&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set the evaluation objects.</span>
+        <span class="n">pgen_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;VDJ&quot;</span><span class="p">:</span>
+            <span class="n">pgen_model</span> <span class="o">=</span> <span class="n">olga_pgen</span><span class="o">.</span><span class="n">GenerationProbabilityVDJ</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_generative_model</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;VJ&quot;</span><span class="p">:</span>
+            <span class="n">pgen_model</span> <span class="o">=</span> <span class="n">olga_pgen</span><span class="o">.</span><span class="n">GenerationProbabilityVJ</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_generative_model</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">igor_model</span><span class="o">.</span><span class="n">get_genomic_data</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;OLGA could not create a GenerationProbability object since model is not of type &#39;VDJ&#39; or &#39;VJ&#39;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Insert amino acid sequence column if not existent.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">seqs</span><span class="o">.</span><span class="n">columns</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">seqs</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="n">seqs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">seqs</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">seqs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;AA_COL&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">seqs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">col_names</span><span class="p">[</span><span class="s1">&#39;NT_COL&#39;</span><span class="p">]]</span> \
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">nucleotides_to_aminoacids</span><span class="p">)</span>
+
+        <span class="c1"># Use multiprocessing to evaluate the sequences in chunks and return.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">multiprocess_array</span><span class="p">(</span>
+            <span class="n">ary</span><span class="o">=</span><span class="n">seqs</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_threads</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">pgen_model</span><span class="p">,</span>
+            <span class="n">use_allele</span><span class="o">=</span><span class="n">use_allele</span><span class="p">,</span>
+            <span class="n">default_allele</span><span class="o">=</span><span class="n">default_allele</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Wout van Helvoirt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
