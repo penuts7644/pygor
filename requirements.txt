@@ -5,4 +5,3 @@ matplotlib==2.2.4
 biopython==1.75
 pathos>=0.2.2.1
 olga>=1.0.2
-twine==1.15.0
